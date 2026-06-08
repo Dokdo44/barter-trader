@@ -8,8 +8,8 @@
 
     <EditText
         android:id="@+id/emailInput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="210dp"
+        android:layout_height="65dp"
         android:layout_marginStart="100dp"
         android:layout_marginTop="298dp"
         android:layout_marginEnd="101dp"
@@ -23,8 +23,8 @@
 
     <EditText
         android:id="@+id/passwordInput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="210dp"
+        android:layout_height="65dp"
         android:layout_marginStart="101dp"
         android:layout_marginEnd="101dp"
         android:layout_marginBottom="1dp"
