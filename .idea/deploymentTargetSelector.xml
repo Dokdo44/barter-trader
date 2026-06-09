@@ -10,10 +10,6 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="signUpButtonDisabledWhenFieldsEmptyTest()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="SignupActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
@@ -27,6 +23,14 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="redirectsToRoleSelectionWhenEmailIsValidTest()">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="role_selection_test">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="signUpButtonDisabledWhenFieldsInitiallyEmptyTest()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
