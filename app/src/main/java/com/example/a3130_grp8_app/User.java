@@ -3,13 +3,13 @@ package com.example.a3130_grp8_app;
 public class User {
     public String email_id;
     public String password;
-    public boolean role;
+    public String role;
 
     public User() {
         //Placeholder
     }
 
-    public User(String email_id, String password, boolean role) {
+    public User(String email_id, String password, String role) {
         this.email_id = email_id;
         this.password = password;
         this.role = role;
@@ -24,7 +24,7 @@ public class User {
         return password;
     }
 
-    public boolean getRole(){
+    public String getRole(){
         return role;
     }
 
@@ -37,7 +37,7 @@ public class User {
         this.password = password;
     }
 
-    public void setRole(boolean role) {
+    public void setRole(String role) {
         this.role = role;
     }
 }
