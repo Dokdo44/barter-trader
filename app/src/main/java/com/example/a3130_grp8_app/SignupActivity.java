@@ -142,7 +142,7 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         Intent roleSelectionActivityIntent = new Intent(this,
-                RoleSelectionActivity.class);
+                RoleSpecificDashboardActivity.class);
         startActivity(roleSelectionActivityIntent);
     }
 }
