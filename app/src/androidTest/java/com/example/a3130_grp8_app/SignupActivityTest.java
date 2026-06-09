@@ -13,6 +13,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -35,6 +37,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.emailInput)).perform(typeText(""));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText(""));
         Espresso.closeSoftKeyboard();
+        // Set the spinner to the default value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(0).perform(click());
 
         // Check that the sign-up button is disabled
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
@@ -46,6 +51,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.emailInput)).perform(typeText(""));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
+        // Set the spinner to a filled value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(1).perform(click());
 
         // Check that the sign-up button is disabled
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
@@ -57,6 +65,23 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText(""));
         Espresso.closeSoftKeyboard();
+        // Set the spinner to a filled value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(1).perform(click());
+
+        // Check that the sign-up button is disabled
+        Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
+    }
+
+    @Test
+    public void signUpButtonDisabledWhenRoleSpinnerNotValidTest() {
+        // Type something in both the email and password fields
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
+        Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
+        Espresso.closeSoftKeyboard();
+        // Set the spinner to the default value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(0).perform(click());
 
         // Check that the sign-up button is disabled
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
@@ -68,6 +93,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
+        // Set the spinner to a filled value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(1).perform(click());
 
         // Delete everything from the email field
         Espresso.onView(withId(R.id.emailInput)).perform(clearText());
@@ -82,6 +110,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
+        // Set the spinner to a filled value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(1).perform(click());
 
         // Check that the sign-up button is enabled
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isEnabled()));
@@ -93,6 +124,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.emailInput)).perform(typeText("invalid"));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
+        // Set the spinner to a filled value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(1).perform(click());
 
         // Check that the error snackbar is shown and has an error message
         Espresso.onView(withId(R.id.signUpButton)).perform(click());
@@ -106,6 +140,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
+        // Set the spinner to a filled value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(1).perform(click());
 
         // Check that when the sign-up button is clicked, it redirects to the role selection page
         Espresso.onView(withId(R.id.signUpButton)).perform(click());

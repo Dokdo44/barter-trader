@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-        android:name=".RoleSelectionActivity"
+        android:name=".RoleSpecificDashboardActivity"
         android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
