@@ -1,12 +1,18 @@
 package com.example.a3130_grp8_app;
 
 import static androidx.test.espresso.action.ViewActions.clearText;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -20,7 +26,8 @@ import org.junit.runner.RunWith;
 public class SignupActivityTest {
 
     @Rule
-    public ActivityScenarioRule<SignupActivity> activityTestRule = new ActivityScenarioRule<>(SignupActivity.class);
+    public ActivityScenarioRule<SignupActivity> activityTestRule =
+            new ActivityScenarioRule<>(SignupActivity.class);
 
     @Test
     public void signUpButtonDisabledWhenFieldsInitiallyEmptyTest() {
@@ -78,5 +85,30 @@ public class SignupActivityTest {
 
         // Check that the sign-up button is enabled
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isEnabled()));
+    }
+
+    @Test
+    public void errorMessageWhenEmailIsInvalidTest() {
+        // Type invalid email address and valid password
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText("invalid"));
+        Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
+        Espresso.closeSoftKeyboard();
+
+        // Check that the error snackbar is shown and has an error message
+        Espresso.onView(withId(R.id.signUpButton)).perform(click());
+        Espresso.onView(withId(com.google.android.material.R.id.snackbar_text)).check(
+                matches(allOf(isDisplayed(), withText(containsString("Error: ")))));
+    }
+
+    @Test
+    public void redirectsToRoleSelectionWhenEmailIsValidTest() {
+        // Type something in both the email and password fields
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
+        Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
+        Espresso.closeSoftKeyboard();
+
+        // Check that when the sign-up button is clicked, it redirects to the role selection page
+        Espresso.onView(withId(R.id.signUpButton)).perform(click());
+        Espresso.onView(withId(R.id.roleSelectionMain)).check(matches(isDisplayed()));
     }
 }
