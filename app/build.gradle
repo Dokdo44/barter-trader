@@ -39,9 +39,9 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.firebase.database
     implementation libs.material
-    implementation libs.coordinatorlayout
     implementation libs.commons.validator
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
+    implementation libs.firebase.auth
 }

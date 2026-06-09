@@ -122,13 +122,27 @@ public class SignupActivity extends AppCompatActivity {
             // Check if email input is valid and a password has been entered
             if(EmailValidator.getInstance().isValid(emailInput.getText().toString()) &&
                     passwordInput.getText().length() != 0) {
-                Intent roleSelectionActivityIntent = new Intent(view.getContext(),
-                        RoleSpecificDashboardActivity.class);
-                startActivity(roleSelectionActivityIntent);
+                submitSignUp(emailInput.getText().toString(),
+                        passwordInput.getText().toString(),
+                        snackbar);
             } else {
                 snackbar.setText("Error: Email is invalid");
                 snackbar.show();
             }
         };
+    }
+
+    private void submitSignUp(String emailString, String passwordString, Snackbar snackbar) {
+        try {
+            FirebaseManager.addUser(emailString, passwordString, "Placeholder");
+        } catch (FirebaseConnectionError e) {
+            snackbar.setText("Error: could not connect to Firebase");
+            snackbar.show();
+            return;
+        }
+
+        Intent roleSelectionActivityIntent = new Intent(this,
+                RoleSelectionActivity.class);
+        startActivity(roleSelectionActivityIntent);
     }
 }
