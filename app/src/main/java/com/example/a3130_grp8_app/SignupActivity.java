@@ -26,6 +26,13 @@ public class SignupActivity extends AppCompatActivity {
 
     private String[] roleSpinnerOptions = {"Select a Role", "Buyer", "Seller"};
 
+    // View variables
+    private EditText emailInput;
+    private EditText passwordInput;
+    private Spinner roleSpinner;
+    private Button signUpButton;
+    private Snackbar snackbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,33 +46,28 @@ public class SignupActivity extends AppCompatActivity {
         });
 
         // Find relevant views
-        EditText emailInput = findViewById(R.id.emailInput);
-        EditText passwordInput = findViewById(R.id.passwordInput);
-        Button signUpButton = findViewById(R.id.signUpButton);
+        emailInput = findViewById(R.id.emailInput);
+        passwordInput = findViewById(R.id.passwordInput);
+        signUpButton = findViewById(R.id.signUpButton);
 
         // Create the role spinner
-        Spinner roleSpinner = createRoleSpinner(findViewById(R.id.roleSpinner));
+        roleSpinner = createRoleSpinner(findViewById(R.id.roleSpinner));
 
         CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinatorLayout);
-        Snackbar snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_LONG);
+        snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_LONG);
 
         // Create watcher that disables sign-up button when there is nothing in either the email or
         // the password inputs
-        TextWatcher emptyFieldsWatcher = createEmptyFieldsWatcher(
-                signUpButton, emailInput, passwordInput, roleSpinner
-        );
+        TextWatcher emptyFieldsWatcher = createEmptyFieldsWatcher();
         emailInput.addTextChangedListener(emptyFieldsWatcher);
         passwordInput.addTextChangedListener(emptyFieldsWatcher);
 
         //Create spinner listener
-        AdapterView.OnItemSelectedListener roleSpinnerSelectionListener = createRoleSpinnerSelectionListener(
-                signUpButton, emailInput, passwordInput, roleSpinner
-        );
+        AdapterView.OnItemSelectedListener roleSpinnerSelectionListener = createRoleSpinnerSelectionListener();
         roleSpinner.setOnItemSelectedListener(roleSpinnerSelectionListener);
 
         // Create an on-click listener for the sign-up button to handle submission
-        View.OnClickListener signUpButtonClickListener = createSignUpButtonClickListener(emailInput,
-                passwordInput, snackbar);
+        View.OnClickListener signUpButtonClickListener = createSignUpButtonClickListener();
         signUpButton.setOnClickListener(signUpButtonClickListener);
     }
 
@@ -76,20 +78,16 @@ public class SignupActivity extends AppCompatActivity {
         return roleSpinner;
     }
 
-    private void checkSignUpButtonState(EditText emailInput, EditText passwordInput,
-                                        Spinner roleSpinner, Button signUpButton) {
+    private void checkSignUpButtonState() {
         signUpButton.setEnabled((passwordInput.getText().length() != 0) &&
                 (emailInput.getText().length() != 0) && (roleSpinner.getSelectedItemPosition() != 0));
     }
 
-    private TextWatcher createEmptyFieldsWatcher(Button signUpButton,
-                                                 EditText emailInput,
-                                                 EditText passwordInput,
-                                                 Spinner roleSpinner) {
+    private TextWatcher createEmptyFieldsWatcher() {
         return new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                checkSignUpButtonState(emailInput, passwordInput, roleSpinner, signUpButton);
+                checkSignUpButtonState();
             }
 
             @Override
@@ -100,14 +98,11 @@ public class SignupActivity extends AppCompatActivity {
         };
     }
 
-    private AdapterView.OnItemSelectedListener createRoleSpinnerSelectionListener(Button signUpButton,
-                                                 EditText emailInput,
-                                                 EditText passwordInput,
-                                                 Spinner roleSpinner) {
+    private AdapterView.OnItemSelectedListener createRoleSpinnerSelectionListener() {
         return new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                checkSignUpButtonState(emailInput, passwordInput, roleSpinner, signUpButton);
+                checkSignUpButtonState();
             }
 
             @Override
@@ -115,16 +110,12 @@ public class SignupActivity extends AppCompatActivity {
         };
     }
 
-    private View.OnClickListener createSignUpButtonClickListener(EditText emailInput,
-                                                                 EditText passwordInput,
-                                                                 Snackbar snackbar) {
+    private View.OnClickListener createSignUpButtonClickListener() {
         return view -> {
             // Check if email input is valid and a password has been entered
             if(EmailValidator.getInstance().isValid(emailInput.getText().toString()) &&
                     passwordInput.getText().length() != 0) {
-                submitSignUp(emailInput.getText().toString(),
-                        passwordInput.getText().toString(),
-                        snackbar);
+                submitSignUp();
             } else {
                 snackbar.setText("Error: Email is invalid");
                 snackbar.show();
@@ -132,9 +123,10 @@ public class SignupActivity extends AppCompatActivity {
         };
     }
 
-    private void submitSignUp(String emailString, String passwordString, Snackbar snackbar) {
+    private void submitSignUp() {
         try {
-            FirebaseManager.addUser(emailString, passwordString, "Placeholder");
+            FirebaseManager.addUser(emailInput.getText().toString(),
+                    passwordInput.getText().toString(), roleSpinner.getSelectedItem().toString());
         } catch (FirebaseConnectionError e) {
             snackbar.setText("Error: could not connect to Firebase");
             snackbar.show();
