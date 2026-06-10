@@ -1,7 +1,6 @@
 package com.example.a3130_grp8_app;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
