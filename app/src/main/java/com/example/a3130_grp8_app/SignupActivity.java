@@ -124,17 +124,24 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void submitSignUp() {
-        try {
-            FirebaseManager.addUser(emailInput.getText().toString(),
-                    passwordInput.getText().toString(), roleSpinner.getSelectedItem().toString());
-        } catch (FirebaseConnectionError e) {
-            snackbar.setText("Error: could not connect to Firebase");
-            snackbar.show();
-            return;
-        }
+        // Prevent duplicate submissions while Firebase Auth creates the account.
+        signUpButton.setEnabled(false);
 
-        Intent roleSelectionActivityIntent = new Intent(this,
-                RoleSpecificDashboardActivity.class);
-        startActivity(roleSelectionActivityIntent);
+        // Create the Auth account first; the dashboard opens only after profile data is saved.
+        FirebaseManager.createUser(emailInput.getText().toString().trim(),
+                        passwordInput.getText().toString(),
+                        roleSpinner.getSelectedItem().toString())
+                .addOnSuccessListener(unused -> {
+                    Intent roleSelectionActivityIntent = new Intent(this,
+                            RoleSpecificDashboardActivity.class);
+                    startActivity(roleSelectionActivityIntent);
+                    finish();
+                })
+                .addOnFailureListener(error -> {
+                    snackbar.setText("Error: could not create account");
+                    snackbar.show();
+                    // Re-enable the button only if the form is still valid.
+                    checkSignUpButtonState();
+                });
     }
 }
