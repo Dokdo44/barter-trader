@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme._3130_grp8_app">
+        <!-- MainActivity is the only launcher so app startup can route by Firebase Auth session. -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -20,24 +21,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Feature screens are internal; MainActivity/LoginActivity open them explicitly. -->
         <activity
             android:name=".SignupActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
         <activity
-        android:name=".RoleSpecificDashboardActivity"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RoleSpecificDashboardActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

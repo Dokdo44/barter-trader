@@ -1,11 +1,14 @@
 package com.example.a3130_grp8_app;
 
+import android.provider.ContactsContract;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 public class FirebaseManager {
 
@@ -33,12 +36,8 @@ public class FirebaseManager {
                         throw new FirebaseConnectionError();
                     }
 
-                    User user = new User();
-                    user.setEmail_id(email);
-                    user.setRole(role);
-
                     // Store profile data by Auth UID so duplicate emails are not created with push IDs.
-                    return getUserReference(firebaseUser.getUid()).setValue(user);
+                    return getUserReference(firebaseUser.getUid()).setValue(new User(email, role));
                 });
     }
 

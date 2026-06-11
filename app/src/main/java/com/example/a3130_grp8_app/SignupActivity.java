@@ -127,21 +127,13 @@ public class SignupActivity extends AppCompatActivity {
         // Prevent duplicate submissions while Firebase Auth creates the account.
         signUpButton.setEnabled(false);
 
-        User user = new User();
-        user.setEmail_id(emailInput.getText().toString().trim());
-        user.setPassword(passwordInput.getText().toString());
-        user.setRole(roleSpinner.getSelectedItem().toString());
-
         // Create the Auth account first; the dashboard opens only after profile data is saved.
-        FirebaseManager.createUser(user.getEmail_id(),
-                        user.getPassword(),
-                        user.getRole())
+        FirebaseManager.createUser(emailInput.getText().toString().trim(),
+                        passwordInput.getText().toString(),
+                        roleSpinner.getSelectedItem().toString())
                 .addOnSuccessListener(unused -> {
                     Intent roleSelectionActivityIntent = new Intent(this,
                             RoleSpecificDashboardActivity.class);
-
-                    roleSelectionActivityIntent.putExtra("USER", user);
-
                     startActivity(roleSelectionActivityIntent);
                     finish();
                 })

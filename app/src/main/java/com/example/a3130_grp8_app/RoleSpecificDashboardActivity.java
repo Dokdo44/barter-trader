@@ -34,6 +34,6 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         user = (User) getIntent().getSerializableExtra("USER");
         userText = findViewById(R.id.userText);
 
-        userText.setText("User: " + user.getEmail_id() + " Role: " + user.getRole());
+        userText.setText("User: " + user.getEmail() + " Role: " + user.getRole());
     }
 }
