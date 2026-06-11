@@ -148,4 +148,23 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).perform(click());
         Espresso.onView(withId(R.id.roleSelectionMain)).check(matches(isDisplayed()));
     }
+
+    @Test
+    public void redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp() {
+        // Type something in both the email and password fields
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
+        Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
+        Espresso.closeSoftKeyboard();
+
+        // Set the spinner to a filled value
+        Espresso.onView(withId(R.id.roleSpinner)).perform(click());
+        Espresso.onData(is(instanceOf(String.class))).atPosition(1).perform(click());
+
+        // Check that when the sign-up button is clicked, it redirects to the role selection page
+        Espresso.onView(withId(R.id.signUpButton)).perform(click());
+        Espresso.onView(withId(R.id.userText)).check(matches(withText(allOf(
+                containsString("validemail@gmail.com"),
+                containsString("Buyer")
+        ))));
+    }
 }

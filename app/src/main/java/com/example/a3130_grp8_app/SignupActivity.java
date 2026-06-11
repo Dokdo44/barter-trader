@@ -124,9 +124,11 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void submitSignUp() {
+        User user = new User(emailInput.getText().toString(),
+                passwordInput.getText().toString(), roleSpinner.getSelectedItem().toString());
         try {
-            FirebaseManager.addUser(emailInput.getText().toString(),
-                    passwordInput.getText().toString(), roleSpinner.getSelectedItem().toString());
+            FirebaseManager.addUser(user.getEmail_id(),
+                    user.getPassword(), user.getRole());
         } catch (FirebaseConnectionError e) {
             snackbar.setText("Error: could not connect to Firebase");
             snackbar.show();
@@ -135,6 +137,7 @@ public class SignupActivity extends AppCompatActivity {
 
         Intent roleSelectionActivityIntent = new Intent(this,
                 RoleSpecificDashboardActivity.class);
+        roleSelectionActivityIntent.putExtra("USER", user);
         startActivity(roleSelectionActivityIntent);
     }
 }

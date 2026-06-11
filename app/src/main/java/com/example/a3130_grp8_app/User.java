@@ -1,6 +1,8 @@
 package com.example.a3130_grp8_app;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     public String email_id;
     public String password;
     public String role;
