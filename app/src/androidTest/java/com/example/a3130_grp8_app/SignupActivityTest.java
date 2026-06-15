@@ -4,6 +4,8 @@ import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
@@ -17,6 +19,8 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.intent.matcher.IntentMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -26,6 +30,8 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class SignupActivityTest {
+
+    private final int TIMEOUT = 5000;
 
     @Rule
     public ActivityScenarioRule<SignupActivity> activityTestRule =
@@ -149,6 +155,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.roleSelectionMain)).check(matches(isDisplayed()));
     }
 
+    /**
+     * ATTENTION: YOU MUST DELETE THE USER ON THE FIREBASE FOR THIS TEST TO WORK
+     */
     @Test
     public void redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp() {
         // Type something in both the email and password fields
@@ -162,9 +171,25 @@ public class SignupActivityTest {
 
         // Check that when the sign-up button is clicked, it redirects to the role selection page
         Espresso.onView(withId(R.id.signUpButton)).perform(click());
-        Espresso.onView(withId(R.id.userText)).check(matches(withText(allOf(
-                containsString("validemail@gmail.com"),
-                containsString("Buyer")
-        ))));
+
+        // try and catch until timeout - gives the view time to load
+        long startTime = System.currentTimeMillis();
+        while(System.currentTimeMillis() - startTime < TIMEOUT) {
+            try {
+               Espresso.onView(withId(R.id.userText)).check(matches(withText(allOf(
+                        containsString("validemail@gmail.com"),
+                        containsString("Buyer")
+                ))));
+                return;
+            } catch (Exception e) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ie) {
+                    throw new RuntimeException(ie);
+                }
+            }
+        }
+
+        throw new AssertionError("Dashboard did not load in time");
     }
 }
