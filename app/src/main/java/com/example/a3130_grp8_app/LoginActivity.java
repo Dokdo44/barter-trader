@@ -59,8 +59,14 @@ public class LoginActivity extends AppCompatActivity {
         emailInput.addTextChangedListener(emptyFieldsWatcher);
         passwordInput.addTextChangedListener(emptyFieldsWatcher);
         loginButton.setOnClickListener(v -> submitLogin());
-        // Password reset stays on the login screen and uses Firebase Auth email reset.
-        resetPasswordLink.setOnClickListener(v -> sendPasswordResetEmail());
+        // Password reset goes to the password reset screen and uses Firebase Auth email reset.
+        resetPasswordLink.setOnClickListener(v -> {
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    PasswordResetActivity.class
+            );
+            startActivity(intent);
+        });
         // Signup is no longer a launcher activity, so login provides the path to account creation.
         signUpLink.setOnClickListener(v -> startActivity(new Intent(this, SignupActivity.class)));
     }
