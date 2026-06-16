@@ -59,8 +59,8 @@ public class LoginActivity extends AppCompatActivity {
         emailInput.addTextChangedListener(emptyFieldsWatcher);
         passwordInput.addTextChangedListener(emptyFieldsWatcher);
         loginButton.setOnClickListener(v -> submitLogin());
-        // Password reset stays on the login screen and uses Firebase Auth email reset.
-        resetPasswordLink.setOnClickListener(v -> sendPasswordResetEmail());
+        // Open a dedicated reset screen and pass the typed email to reduce re-entry.
+        resetPasswordLink.setOnClickListener(v -> openPasswordResetScreen());
         // Signup is no longer a launcher activity, so login provides the path to account creation.
         signUpLink.setOnClickListener(v -> startActivity(new Intent(this, SignupActivity.class)));
     }
@@ -88,26 +88,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Sends a Firebase Auth password reset email to the address entered in the email field.
+     * Opens the password reset form and sends the current email value as a starting point.
      */
-    private void sendPasswordResetEmail() {
-        String email = emailInput.getText().toString().trim();
-        if (email.isEmpty()) {
-            snackbar.setText("Enter your email first");
-            snackbar.show();
-            return;
-        }
-
-        // Auth owns password reset delivery, so no database password lookup is needed.
-        FirebaseManager.sendPasswordResetEmail(email)
-                .addOnSuccessListener(unused -> {
-                    snackbar.setText("Password reset email sent");
-                    snackbar.show();
-                })
-                .addOnFailureListener(error -> {
-                    snackbar.setText("Could not send reset email");
-                    snackbar.show();
-                });
+    private void openPasswordResetScreen() {
+        Intent intent = new Intent(this, PasswordResetActivity.class);
+        intent.putExtra(PasswordResetActivity.EXTRA_EMAIL, emailInput.getText().toString().trim());
+        startActivity(intent);
     }
 
     /**

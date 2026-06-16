@@ -30,6 +30,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".PasswordResetActivity"
+            android:exported="false" />
+        <activity
             android:name=".RoleSpecificDashboardActivity"
             android:exported="true">
             <intent-filter>
