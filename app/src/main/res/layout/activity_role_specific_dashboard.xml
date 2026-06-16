@@ -6,15 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="97dp"
-        app:layout_constraintTop_toBottomOf="@+id/userText"
-        app:srcCompat="@drawable/the_real_actual_original_high_quality_source_image_of_v0_9awr1wztc8nf1"
-        tools:layout_editor_absoluteX="20dp" />
-
     <TextView
         android:id="@+id/userText"
         android:layout_width="wrap_content"

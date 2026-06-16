@@ -192,4 +192,14 @@ public class SignupActivityTest {
 
         throw new AssertionError("Dashboard did not load in time");
     }
+
+    @Test
+    public void movesToLoginOnBackToLoginButtonPress() {
+        Intents.init();
+
+        Espresso.onView(withId(R.id.backToLoginLink)).perform(click());
+        intended(hasComponent(LoginActivity.class.getName()));
+
+        Intents.release();
+    }
 }
