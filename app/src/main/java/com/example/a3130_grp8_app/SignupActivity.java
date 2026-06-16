@@ -132,8 +132,11 @@ public class SignupActivity extends AppCompatActivity {
                         passwordInput.getText().toString(),
                         roleSpinner.getSelectedItem().toString())
                 .addOnSuccessListener(unused -> {
+                    User newUser = new User(emailInput.getText().toString().trim(),
+                            roleSpinner.getSelectedItem().toString());
                     Intent roleSelectionActivityIntent = new Intent(this,
                             RoleSpecificDashboardActivity.class);
+                    roleSelectionActivityIntent.putExtra("USER", newUser);
                     startActivity(roleSelectionActivityIntent);
                     finish();
                 })

@@ -1,6 +1,8 @@
 package com.example.a3130_grp8_app;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     // Profile fields only; passwords were removed because Firebase Auth stores credentials.
     public String email;
     public String role;
@@ -14,7 +16,7 @@ public class User {
         this.role = role;
     }
 
-    public String getEmail(){
+    public String getEmail() {
         return email;
     }
 
