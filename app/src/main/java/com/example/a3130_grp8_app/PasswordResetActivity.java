@@ -1,5 +1,6 @@
 package com.example.a3130_grp8_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -7,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class PasswordResetActivity extends AppCompatActivity {
 
@@ -20,8 +23,23 @@ public class PasswordResetActivity extends AppCompatActivity {
         setContentView(R.layout.activity_password_reset);
         emailInput = findViewById(R.id.emailInput);
         resetButton = findViewById(R.id.resetButton);
+        Button backToLoginButton = findViewById(R.id.backToLoginButton);
         resetButton.setEnabled(false);
         emailInput.addTextChangedListener(createEmailWatcher());
+
+        // Password reset logic
+        resetButton.setOnClickListener(v -> {
+            String email = emailInput.getText().toString().trim();
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email);
+        });
+
+        backToLoginButton.setOnClickListener(v -> {
+            Intent intent = new Intent(
+                    PasswordResetActivity.this,
+                    LoginActivity.class
+            );
+            startActivity(intent);
+        });
     }
 
     private boolean isValidEmail(String email) {
