@@ -10,7 +10,7 @@
 # image: openjdk:8-jdk
 # image: openjdk:11
 # image: openjdk:17-jdk-bullseye
-image: openjdk:23-ea-17-jdk-bullseye
+image: openjdk:17-jdk-bullseye
 
 variables:
 
@@ -57,7 +57,6 @@ before_script:
   - sdkmanager --sdk_root=${ANDROID_HOME} "platforms;android-${ANDROID_COMPILE_SDK}"
   - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
   - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
-  - cp "$GOOGLE_SERVICES_JSON" app/google-services.json
 
   # Not necessary, but just for surity
   - chmod +x ./gradlew
