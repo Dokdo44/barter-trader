@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +32,7 @@ public class SignupActivity extends AppCompatActivity {
     private EditText passwordInput;
     private Spinner roleSpinner;
     private Button signUpButton;
+    private TextView backToLoginLink;
     private Snackbar snackbar;
 
     @Override
@@ -49,6 +51,7 @@ public class SignupActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         signUpButton = findViewById(R.id.signUpButton);
+        backToLoginLink = findViewById(R.id.backToLoginLink);
 
         // Create the role spinner
         roleSpinner = createRoleSpinner(findViewById(R.id.roleSpinner));
@@ -65,6 +68,10 @@ public class SignupActivity extends AppCompatActivity {
         //Create spinner listener
         AdapterView.OnItemSelectedListener roleSpinnerSelectionListener = createRoleSpinnerSelectionListener();
         roleSpinner.setOnItemSelectedListener(roleSpinnerSelectionListener);
+
+        //Create login link listener
+        View.OnClickListener loginLinkListener = createBackToLoginLinkClickListener();
+        backToLoginLink.setOnClickListener(loginLinkListener);
 
         // Create an on-click listener for the sign-up button to handle submission
         View.OnClickListener signUpButtonClickListener = createSignUpButtonClickListener();
@@ -123,6 +130,17 @@ public class SignupActivity extends AppCompatActivity {
         };
     }
 
+    private View.OnClickListener createBackToLoginLinkClickListener() {
+        return view -> {
+            goToLogin();
+        };
+    }
+
+    private void goToLogin() {
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+    }
+
     private void submitSignUp() {
         // Prevent duplicate submissions while Firebase Auth creates the account.
         signUpButton.setEnabled(false);
@@ -132,8 +150,11 @@ public class SignupActivity extends AppCompatActivity {
                         passwordInput.getText().toString(),
                         roleSpinner.getSelectedItem().toString())
                 .addOnSuccessListener(unused -> {
+                    User newUser = new User(emailInput.getText().toString().trim(),
+                            roleSpinner.getSelectedItem().toString());
                     Intent roleSelectionActivityIntent = new Intent(this,
                             RoleSpecificDashboardActivity.class);
+                    roleSelectionActivityIntent.putExtra("USER", newUser);
                     startActivity(roleSelectionActivityIntent);
                     finish();
                 })
