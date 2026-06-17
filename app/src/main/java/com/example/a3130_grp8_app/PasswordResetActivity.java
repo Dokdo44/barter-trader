@@ -9,6 +9,7 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class PasswordResetActivity extends AppCompatActivity {
@@ -30,7 +31,11 @@ public class PasswordResetActivity extends AppCompatActivity {
         // Password reset logic
         resetButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString().trim();
-            FirebaseAuth.getInstance().sendPasswordResetEmail(email);
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnSuccessListener(unused -> {
+                Snackbar.make(v, "Reset email sent, Check your spam", Snackbar.LENGTH_LONG).show();
+            }).addOnFailureListener(e -> {
+                Snackbar.make(v, "Failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+            });
         });
 
         backToLoginButton.setOnClickListener(v -> {

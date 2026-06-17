@@ -13,9 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
-    private User user;
-
-    private TextView userText;
+    private TextView dashboardEmail;
+    private TextView dashboardRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,14 +29,42 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
             return insets;
         });
 
-        user = (User) getIntent().getSerializableExtra("USER");
-        userText = findViewById(R.id.userText);
+        dashboardEmail = findViewById(R.id.dashboardEmail);
+        dashboardRole = findViewById(R.id.dashboardRole);
+        Button logoutButton = findViewById(R.id.logoutButton);
 
-        if (user == null) {
-            userText.setText("User profile not available");
-            return;
+        // Logout clears the Auth session and returns to login.
+        logoutButton.setOnClickListener(v -> {
+            FirebaseManager.signOut();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        });
+
+        loadCurrentUserProfile();
+    }
+
+    private void loadCurrentUserProfile() {
+        try {
+            // The dashboard reads role/email from /users/{uid}, not from the Auth credential record.
+            FirebaseManager.getCurrentUserProfile()
+                    .addOnSuccessListener(user -> {
+                        if (user == null) {
+                            dashboardEmail.setText("Account profile not found");
+                            dashboardRole.setText("");
+                            return;
+                        }
+
+                        dashboardEmail.setText(user.getEmail());
+                        dashboardRole.setText(user.getRole() + " dashboard");
+                    })
+                    .addOnFailureListener(error -> {
+                        dashboardEmail.setText("Could not load account");
+                        dashboardRole.setText("");
+                    });
+        } catch (FirebaseConnectionError e) {
+            // A missing Auth session means this screen should not be visible.
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
-
-        userText.setText("User: " + user.getEmail() + " Role: " + user.getRole());
     }
 }
