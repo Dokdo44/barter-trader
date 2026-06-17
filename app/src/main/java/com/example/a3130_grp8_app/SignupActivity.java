@@ -154,7 +154,6 @@ public class SignupActivity extends AppCompatActivity {
                             roleSpinner.getSelectedItem().toString());
                     Intent roleSelectionActivityIntent = new Intent(this,
                             RoleSpecificDashboardActivity.class);
-                    roleSelectionActivityIntent.putExtra("USER", newUser);
                     startActivity(roleSelectionActivityIntent);
                     finish();
                 })
