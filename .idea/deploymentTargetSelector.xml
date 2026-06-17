@@ -6,7 +6,7 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="PasswordResetActivityTest">
+      <SelectionState runConfigName="redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

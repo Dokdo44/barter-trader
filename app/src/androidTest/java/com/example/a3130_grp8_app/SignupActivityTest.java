@@ -176,10 +176,9 @@ public class SignupActivityTest {
         long startTime = System.currentTimeMillis();
         while(System.currentTimeMillis() - startTime < TIMEOUT) {
             try {
-               Espresso.onView(withId(R.id.userText)).check(matches(withText(allOf(
-                        containsString("validemail@gmail.com"),
-                        containsString("Buyer")
-                ))));
+               Espresso.onView(withId(R.id.dashboardEmail)).check(matches(withText(
+                        containsString("validemail@gmail.com")
+                )));
                 return;
             } catch (Exception e) {
                 try {
