@@ -17,6 +17,7 @@ import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +28,14 @@ public class LoginActivityTest {
     @Rule
     public ActivityScenarioRule<LoginActivity> activityTestRule =
             new ActivityScenarioRule<>(LoginActivity.class);
+
+    /**
+     * Clears any previous Firebase session so each login test starts on the login form.
+     */
+    @Before
+    public void setUp() {
+        TestAuthHelper.signOut();
+    }
 
     /**
      * Verifies that the login button starts disabled when both credential fields are empty.
@@ -91,13 +100,14 @@ public class LoginActivityTest {
      */
     @Test
     public void errorShownWhenUserDoesNotExistTest() throws InterruptedException {
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("notanaccount@dal.ca"));
+        Espresso.onView(withId(R.id.emailInput))
+                .perform(typeText(TestAuthHelper.uniqueEmail("missing-login")));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("somePassword1!"));
         Espresso.closeSoftKeyboard();
 
         Espresso.onView(withId(R.id.loginButton)).perform(click());
 
-        Thread.sleep(3000);
+        TestAuthHelper.waitForDisplayedView(com.google.android.material.R.id.snackbar_text);
 
         Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
                 .check(matches(allOf(isDisplayed(), withText(containsString("Invalid")))));
@@ -109,14 +119,17 @@ public class LoginActivityTest {
      * @throws InterruptedException when the test wait is interrupted
      */
     @Test
-    public void errorShownForIncorrectPasswordTest() throws InterruptedException {
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("testbuyer@dal.ca"));
+    public void errorShownForIncorrectPasswordTest() throws Exception {
+        String email = TestAuthHelper.uniqueEmail("wrong-password");
+        TestAuthHelper.createUserProfile(email, "rightPassword1!", "Buyer");
+
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("wrongPassword1!"));
         Espresso.closeSoftKeyboard();
 
         Espresso.onView(withId(R.id.loginButton)).perform(click());
 
-        Thread.sleep(3000);
+        TestAuthHelper.waitForDisplayedView(com.google.android.material.R.id.snackbar_text);
 
         Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
                 .check(matches(allOf(isDisplayed(), withText(containsString("Invalid")))));
@@ -128,14 +141,17 @@ public class LoginActivityTest {
      * @throws InterruptedException when the test wait is interrupted
      */
     @Test
-    public void successfulLoginRedirectsToDashboardTest() throws InterruptedException {
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("testbuyer@dal.ca"));
+    public void successfulLoginRedirectsToDashboardTest() throws Exception {
+        String email = TestAuthHelper.uniqueEmail("buyer-login");
+        TestAuthHelper.createUserProfile(email, "testPassword1!", "Buyer");
+
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("testPassword1!"));
         Espresso.closeSoftKeyboard();
 
         Espresso.onView(withId(R.id.loginButton)).perform(click());
 
-        Thread.sleep(3000);
+        TestAuthHelper.waitForDisplayedView(R.id.roleSelectionMain);
 
         Espresso.onView(withId(R.id.roleSelectionMain))
                 .check(matches(isDisplayed()));
@@ -147,14 +163,17 @@ public class LoginActivityTest {
      * @throws InterruptedException when the test wait is interrupted
      */
     @Test
-    public void dashboardShowsOnlyBuyerRoleTest() throws InterruptedException {
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("testbuyer@dal.ca"));
+    public void dashboardShowsOnlyBuyerRoleTest() throws Exception {
+        String email = TestAuthHelper.uniqueEmail("buyer-role");
+        TestAuthHelper.createUserProfile(email, "testPassword1!", "Buyer");
+
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("testPassword1!"));
         Espresso.closeSoftKeyboard();
 
         Espresso.onView(withId(R.id.loginButton)).perform(click());
 
-        Thread.sleep(3000);
+        TestAuthHelper.waitForDisplayedView(R.id.dashboardRole);
 
         Espresso.onView(withId(R.id.dashboardRole))
                 .check(matches(withText(containsString("Buyer"))));
@@ -166,14 +185,17 @@ public class LoginActivityTest {
      * @throws InterruptedException when the test wait is interrupted
      */
     @Test
-    public void dashboardShowsSellerRoleTest() throws InterruptedException {
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("testuserseller@dal.ca"));
+    public void dashboardShowsSellerRoleTest() throws Exception {
+        String email = TestAuthHelper.uniqueEmail("seller-role");
+        TestAuthHelper.createUserProfile(email, "sellerPassword1!", "Seller");
+
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("sellerPassword1!"));
         Espresso.closeSoftKeyboard();
 
         Espresso.onView(withId(R.id.loginButton)).perform(click());
 
-        Thread.sleep(3000);
+        TestAuthHelper.waitForDisplayedView(R.id.dashboardRole);
 
         Espresso.onView(withId(R.id.dashboardRole))
                 .check(matches(withText(containsString("Seller"))));

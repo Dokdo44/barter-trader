@@ -31,8 +31,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SignupActivityTest {
 
-    private final int TIMEOUT = 5000;
-
     @Rule
     public ActivityScenarioRule<SignupActivity> activityTestRule =
             new ActivityScenarioRule<>(SignupActivity.class);
@@ -165,9 +163,11 @@ public class SignupActivityTest {
      * Verifies that a valid signup form starts the dashboard navigation flow.
      */
     @Test
-    public void redirectsToRoleSelectionWhenEmailIsValidTest() {
+    public void redirectsToRoleSelectionWhenEmailIsValidTest() throws InterruptedException {
+        String email = TestAuthHelper.uniqueEmail("signup-navigation");
+
         // Type something in both the email and password fields
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
         // Set the spinner to a filled value
@@ -176,6 +176,7 @@ public class SignupActivityTest {
 
         // Check that when the sign-up button is clicked, it redirects to the role selection page
         Espresso.onView(withId(R.id.signUpButton)).perform(click());
+        TestAuthHelper.waitForDisplayedView(R.id.roleSelectionMain);
         Espresso.onView(withId(R.id.roleSelectionMain)).check(matches(isDisplayed()));
     }
 
@@ -183,9 +184,12 @@ public class SignupActivityTest {
      * Verifies that a completed signup displays the new user's dashboard details.
      */
     @Test
-    public void redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp() {
+    public void redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp()
+            throws InterruptedException {
+        String email = TestAuthHelper.uniqueEmail("signup-dashboard");
+
         // Type something in both the email and password fields
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
 
@@ -196,24 +200,10 @@ public class SignupActivityTest {
         // Check that when the sign-up button is clicked, it redirects to the role selection page
         Espresso.onView(withId(R.id.signUpButton)).perform(click());
 
-        // try and catch until timeout - gives the view time to load
-        long startTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() - startTime < TIMEOUT) {
-            try {
-               Espresso.onView(withId(R.id.dashboardEmail)).check(matches(withText(
-                        containsString("validemail@gmail.com")
-                )));
-                return;
-            } catch (Exception e) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException ie) {
-                    throw new RuntimeException(ie);
-                }
-            }
-        }
-
-        throw new AssertionError("Dashboard did not load in time");
+        TestAuthHelper.waitForDisplayedView(R.id.dashboardEmail);
+        Espresso.onView(withId(R.id.dashboardEmail)).check(matches(withText(
+                containsString(email)
+        )));
     }
 
     /**
