@@ -31,12 +31,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SignupActivityTest {
 
-    private final int TIMEOUT = 5000;
-
     @Rule
     public ActivityScenarioRule<SignupActivity> activityTestRule =
             new ActivityScenarioRule<>(SignupActivity.class);
 
+    /**
+     * Verifies that the signup button starts disabled when required fields are empty.
+     */
     @Test
     public void signUpButtonDisabledWhenFieldsInitiallyEmptyTest() {
         // Type nothing in both fields
@@ -51,6 +52,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that signup remains disabled when the email field is empty.
+     */
     @Test
     public void signUpButtonDisabledWhenEmailEmptyTest() {
         //Type nothing in email field, but type a password
@@ -65,6 +69,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that signup remains disabled when the password field is empty.
+     */
     @Test
     public void signUpButtonDisabledWhenPasswordEmptyTest() {
         //Type nothing in email field, but type a password
@@ -79,6 +86,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that signup remains disabled when the placeholder role is selected.
+     */
     @Test
     public void signUpButtonDisabledWhenRoleSpinnerNotValidTest() {
         // Type something in both the email and password fields
@@ -93,6 +103,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that clearing a required field disables signup again.
+     */
     @Test
     public void signUpButtonDisabledAfterFieldBecomesEmptyTest() {
         // Type something in both the email and password fields
@@ -110,6 +123,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that completing all signup fields enables the signup button.
+     */
     @Test
     public void signUpButtonEnabledWhenFieldsFilledTest() {
         // Type something in both the email and password fields
@@ -124,6 +140,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isEnabled()));
     }
 
+    /**
+     * Verifies that an invalid signup email shows an error snackbar.
+     */
     @Test
     public void errorMessageWhenEmailIsInvalidTest() {
         // Type invalid email address and valid password
@@ -140,10 +159,15 @@ public class SignupActivityTest {
                 matches(allOf(isDisplayed(), withText(containsString("Error: ")))));
     }
 
+    /**
+     * Verifies that a valid signup form starts the dashboard navigation flow.
+     */
     @Test
-    public void redirectsToRoleSelectionWhenEmailIsValidTest() {
+    public void redirectsToRoleSelectionWhenEmailIsValidTest() throws InterruptedException {
+        String email = TestAuthHelper.uniqueEmail("signup-navigation");
+
         // Type something in both the email and password fields
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
         // Set the spinner to a filled value
@@ -152,16 +176,20 @@ public class SignupActivityTest {
 
         // Check that when the sign-up button is clicked, it redirects to the role selection page
         Espresso.onView(withId(R.id.signUpButton)).perform(click());
+        TestAuthHelper.waitForDisplayedView(R.id.roleSelectionMain);
         Espresso.onView(withId(R.id.roleSelectionMain)).check(matches(isDisplayed()));
     }
 
     /**
-     * ATTENTION: YOU MUST DELETE THE USER ON THE FIREBASE FOR THIS TEST TO WORK
+     * Verifies that a completed signup displays the new user's dashboard details.
      */
     @Test
-    public void redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp() {
+    public void redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp()
+            throws InterruptedException {
+        String email = TestAuthHelper.uniqueEmail("signup-dashboard");
+
         // Type something in both the email and password fields
-        Espresso.onView(withId(R.id.emailInput)).perform(typeText("validemail@gmail.com"));
+        Espresso.onView(withId(R.id.emailInput)).perform(typeText(email));
         Espresso.onView(withId(R.id.passwordInput)).perform(typeText("g00dPass*123"));
         Espresso.closeSoftKeyboard();
 
@@ -172,26 +200,15 @@ public class SignupActivityTest {
         // Check that when the sign-up button is clicked, it redirects to the role selection page
         Espresso.onView(withId(R.id.signUpButton)).perform(click());
 
-        // try and catch until timeout - gives the view time to load
-        long startTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() - startTime < TIMEOUT) {
-            try {
-               Espresso.onView(withId(R.id.dashboardEmail)).check(matches(withText(
-                        containsString("validemail@gmail.com")
-                )));
-                return;
-            } catch (Exception e) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException ie) {
-                    throw new RuntimeException(ie);
-                }
-            }
-        }
-
-        throw new AssertionError("Dashboard did not load in time");
+        TestAuthHelper.waitForDisplayedView(R.id.dashboardEmail);
+        Espresso.onView(withId(R.id.dashboardEmail)).check(matches(withText(
+                containsString(email)
+        )));
     }
 
+    /**
+     * Verifies that the back-to-login link starts LoginActivity.
+     */
     @Test
     public void movesToLoginOnBackToLoginButtonPress() {
         Intents.init();
