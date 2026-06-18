@@ -11,11 +11,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.User;
+
 public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private TextView dashboardEmail;
     private TextView dashboardRole;
 
+    /**
+     * Initializes dashboard views, logout behavior, and profile loading.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

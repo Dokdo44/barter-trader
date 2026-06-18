@@ -27,6 +27,9 @@ public class PasswordResetActivityTest {
     public ActivityScenarioRule<PasswordResetActivity> activityTestRule =
             new ActivityScenarioRule<>(PasswordResetActivity.class);
 
+    /**
+     * Verifies that the reset button starts disabled when no email is entered.
+     */
     @Test
     public void resetButtonDisabledWhenEmailInitiallyEmptyTest() {
 
@@ -34,6 +37,9 @@ public class PasswordResetActivityTest {
         Espresso.onView(withId(R.id.resetButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that an invalid email keeps the reset button disabled.
+     */
     @Test
     public void resetButtonDisabledWhenEmailInvalidTest() {
 
@@ -44,6 +50,9 @@ public class PasswordResetActivityTest {
         Espresso.onView(withId(R.id.resetButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that a valid email enables the reset button.
+     */
     @Test
     public void resetButtonEnabledWhenEmailValidTest() {
 
@@ -54,6 +63,9 @@ public class PasswordResetActivityTest {
         Espresso.onView(withId(R.id.resetButton)).check(matches(isEnabled()));
     }
 
+    /**
+     * Verifies that clearing a valid email disables the reset button again.
+     */
     @Test
     public void resetButtonDisabledAfterEmailClearedTest() {
 
@@ -65,6 +77,11 @@ public class PasswordResetActivityTest {
         Espresso.onView(withId(R.id.resetButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that a valid account email can request a password reset.
+     *
+     * @throws InterruptedException when the test wait is interrupted
+     */
     @Test
     public void canRequestResetWithValidEmailTest() throws InterruptedException {
 
@@ -82,6 +99,11 @@ public class PasswordResetActivityTest {
 
     }
 
+    /**
+     * Verifies that pressing reset shows a snackbar after Firebase responds.
+     *
+     * @throws InterruptedException when the test wait is interrupted
+     */
     @Test
     public void snackbarAppearsWhenResetButtonIsPressedTest() throws InterruptedException {
 
@@ -99,6 +121,9 @@ public class PasswordResetActivityTest {
 
     }
 
+    /**
+     * Verifies that the back-to-login button returns to the login screen.
+     */
     @Test
     public void backToLoginGoesToLoginPageTest() {
 

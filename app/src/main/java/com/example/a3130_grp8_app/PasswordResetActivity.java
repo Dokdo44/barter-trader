@@ -2,21 +2,29 @@ package com.example.a3130_grp8_app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.util.FormValidator;
+import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
 
+/**
+ * PasswordResetActivity handles UI events and delegates reset delivery to FirebaseManager.
+ */
 public class PasswordResetActivity extends AppCompatActivity {
 
     private EditText emailInput;
     private Button resetButton;
 
+    /**
+     * Initializes the password reset form and back-to-login navigation.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,15 +36,7 @@ public class PasswordResetActivity extends AppCompatActivity {
         resetButton.setEnabled(false);
         emailInput.addTextChangedListener(createEmailWatcher());
 
-        // Password reset logic
-        resetButton.setOnClickListener(v -> {
-            String email = emailInput.getText().toString().trim();
-            FirebaseAuth.getInstance().sendPasswordResetEmail(email).addOnSuccessListener(unused -> {
-                Snackbar.make(v, "Reset email sent, Check your spam", Snackbar.LENGTH_LONG).show();
-            }).addOnFailureListener(e -> {
-                Snackbar.make(v, "Failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
-            });
-        });
+        resetButton.setOnClickListener(v -> requestPasswordReset());
 
         backToLoginButton.setOnClickListener(v -> {
             Intent intent = new Intent(
@@ -47,27 +47,36 @@ public class PasswordResetActivity extends AppCompatActivity {
         });
     }
 
-    private boolean isValidEmail(String email) {
-        return email != null && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    private void requestPasswordReset() {
+        String email = emailInput.getText().toString().trim();
+        // Firebase Auth owns password reset delivery, so the Activity only triggers the request.
+        FirebaseManager.sendPasswordResetEmail(email)
+                .addOnSuccessListener(unused -> {
+                    Snackbar.make(resetButton, "Reset email sent, Check your spam",
+                            Snackbar.LENGTH_LONG).show();
+                })
+                .addOnFailureListener(e -> {
+                    Snackbar.make(resetButton, "Failed: " + e.getMessage(),
+                            Snackbar.LENGTH_LONG).show();
+                });
     }
 
     private void checkResetButtonState() {
         String email = emailInput.getText().toString().trim();
-        resetButton.setEnabled(isValidEmail(email));
+        resetButton.setEnabled(FormValidator.isValidResetEmail(email));
     }
 
-    private TextWatcher createEmailWatcher() {
-        return new TextWatcher() {
+    private SimpleTextWatcher createEmailWatcher() {
+        return new SimpleTextWatcher() {
+            /**
+             * Refreshes reset button availability after the email field changes.
+             *
+             * @param s edited email text
+             */
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(android.text.Editable s) {
                 checkResetButtonState();
             }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
         };
     }
 }

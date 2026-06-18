@@ -2,8 +2,6 @@ package com.example.a3130_grp8_app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,13 +17,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.util.FormValidator;
+import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.apache.commons.validator.routines.EmailValidator;
-
+/**
+ * SignupActivity keeps view wiring in the Activity and delegates validation/Firebase work to helpers.
+ */
 public class SignupActivity extends AppCompatActivity {
 
-    private String[] roleSpinnerOptions = {"Select a Role", "Buyer", "Seller"};
+    private static final String[] ROLE_SPINNER_OPTIONS = {"Select a Role", "Buyer", "Seller"};
 
     // View variables
     private EditText emailInput;
@@ -35,6 +37,11 @@ public class SignupActivity extends AppCompatActivity {
     private TextView backToLoginLink;
     private Snackbar snackbar;
 
+    /**
+     * Initializes the signup form, role spinner, navigation link, and submit handlers.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +68,7 @@ public class SignupActivity extends AppCompatActivity {
 
         // Create watcher that disables sign-up button when there is nothing in either the email or
         // the password inputs
-        TextWatcher emptyFieldsWatcher = createEmptyFieldsWatcher();
+        SimpleTextWatcher emptyFieldsWatcher = createEmptyFieldsWatcher();
         emailInput.addTextChangedListener(emptyFieldsWatcher);
         passwordInput.addTextChangedListener(emptyFieldsWatcher);
 
@@ -79,61 +86,66 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private Spinner createRoleSpinner(Spinner roleSpinner) {
-        ArrayAdapter<String> aa = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, this.roleSpinnerOptions);
+        ArrayAdapter<String> aa = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
+                ROLE_SPINNER_OPTIONS);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         roleSpinner.setAdapter(aa);
         return roleSpinner;
     }
 
     private void checkSignUpButtonState() {
-        signUpButton.setEnabled((passwordInput.getText().length() != 0) &&
-                (emailInput.getText().length() != 0) && (roleSpinner.getSelectedItemPosition() != 0));
+        signUpButton.setEnabled(FormValidator.isSignupComplete(
+                emailInput.getText(),
+                passwordInput.getText(),
+                roleSpinner.getSelectedItemPosition()
+        ));
     }
 
-    private TextWatcher createEmptyFieldsWatcher() {
-        return new TextWatcher() {
+    private SimpleTextWatcher createEmptyFieldsWatcher() {
+        return new SimpleTextWatcher() {
+            /**
+             * Refreshes signup availability after the email or password field changes.
+             *
+             * @param s edited text from the watched field
+             */
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(android.text.Editable s) {
                 checkSignUpButtonState();
             }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
         };
     }
 
     private AdapterView.OnItemSelectedListener createRoleSpinnerSelectionListener() {
         return new AdapterView.OnItemSelectedListener() {
+            /**
+             * Refreshes signup availability when a role option is selected.
+             *
+             * @param parent spinner adapter view
+             * @param view selected item view
+             * @param position selected item index
+             * @param id selected item row id
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 checkSignUpButtonState();
             }
 
+            /**
+             * Handles the framework callback where no spinner item is selected.
+             *
+             * @param parent spinner adapter view
+             */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         };
     }
 
     private View.OnClickListener createSignUpButtonClickListener() {
-        return view -> {
-            // Check if email input is valid and a password has been entered
-            if(EmailValidator.getInstance().isValid(emailInput.getText().toString()) &&
-                    passwordInput.getText().length() != 0) {
-                submitSignUp();
-            } else {
-                snackbar.setText("Error: Email is invalid");
-                snackbar.show();
-            }
-        };
+        return view -> submitSignUpIfValid();
     }
 
     private View.OnClickListener createBackToLoginLinkClickListener() {
-        return view -> {
-            goToLogin();
-        };
+        return view -> goToLogin();
     }
 
     private void goToLogin() {
@@ -141,7 +153,13 @@ public class SignupActivity extends AppCompatActivity {
         startActivity(loginIntent);
     }
 
-    private void submitSignUp() {
+    private void submitSignUpIfValid() {
+        if (!FormValidator.isValidSignupEmail(emailInput.getText().toString())) {
+            snackbar.setText("Error: Email is invalid");
+            snackbar.show();
+            return;
+        }
+
         // Prevent duplicate submissions while Firebase Auth creates the account.
         signUpButton.setEnabled(false);
 
@@ -150,8 +168,6 @@ public class SignupActivity extends AppCompatActivity {
                         passwordInput.getText().toString(),
                         roleSpinner.getSelectedItem().toString())
                 .addOnSuccessListener(unused -> {
-                    User newUser = new User(emailInput.getText().toString().trim(),
-                            roleSpinner.getSelectedItem().toString());
                     Intent roleSelectionActivityIntent = new Intent(this,
                             RoleSpecificDashboardActivity.class);
                     startActivity(roleSelectionActivityIntent);

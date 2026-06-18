@@ -113,9 +113,6 @@ public class LoginActivityTest {
                 .check(matches(allOf(isDisplayed(), withText(containsString("Invalid")))));
     }
 
-    // Given I enter an incorrect password when I am trying to login
-    // Then I should be prompted an incorrect password/username
-    // And my fields should be cleared
     /**
      * Verifies that an incorrect password shows an invalid credentials message.
      *
@@ -132,7 +129,7 @@ public class LoginActivityTest {
 
         Espresso.onView(withId(R.id.loginButton)).perform(click());
 
-        Thread.sleep(3000);
+        TestAuthHelper.waitForDisplayedView(com.google.android.material.R.id.snackbar_text);
 
         Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
                 .check(matches(allOf(isDisplayed(), withText(containsString("Invalid")))));
@@ -204,4 +201,3 @@ public class LoginActivityTest {
                 .check(matches(withText(containsString("Seller"))));
     }
 }
-
