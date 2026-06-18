@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.data.FirebaseManager;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
