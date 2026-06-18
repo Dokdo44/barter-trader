@@ -9,27 +9,56 @@ public class User implements Serializable {
     private String email;
     private String role;
 
+    /**
+     * Creates an empty profile for Firebase Realtime Database deserialization.
+     */
     public User() {
         // Firebase Realtime Database requires a public empty constructor for deserialization.
     }
 
+    /**
+     * Creates an app profile with the email and role stored outside Firebase Auth credentials.
+     *
+     * @param email profile email address
+     * @param role selected app role
+     */
     public User(String email, String role) {
         this.email = email;
         this.role = role;
     }
 
+    /**
+     * Returns the profile email address.
+     *
+     * @return profile email address
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Returns the app role for dashboard selection.
+     *
+     * @return selected app role
+     */
     public String getRole() {
         return role;
     }
 
+    /**
+     * Updates the profile email address.
+     *
+     * @param email profile email address
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Updates the app role for dashboard selection.
+     *
+     * @param role selected app role
+     */
     public void setRole(String role) {
         this.role = role;
     }

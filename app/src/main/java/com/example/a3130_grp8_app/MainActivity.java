@@ -10,6 +10,11 @@ import com.example.a3130_grp8_app.data.FirebaseManager;
 
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Chooses the first screen based on whether Firebase Auth already has a signed-in user.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -20,6 +20,11 @@ public class PasswordResetActivity extends AppCompatActivity {
     private EditText emailInput;
     private Button resetButton;
 
+    /**
+     * Initializes the password reset form and back-to-login navigation.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +68,11 @@ public class PasswordResetActivity extends AppCompatActivity {
 
     private SimpleTextWatcher createEmailWatcher() {
         return new SimpleTextWatcher() {
+            /**
+             * Refreshes reset button availability after the email field changes.
+             *
+             * @param s edited email text
+             */
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 checkResetButtonState();

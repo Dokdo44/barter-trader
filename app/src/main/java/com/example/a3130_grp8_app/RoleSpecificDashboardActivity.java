@@ -19,6 +19,11 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     private TextView dashboardEmail;
     private TextView dashboardRole;
 
+    /**
+     * Initializes dashboard views, logout behavior, and profile loading.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

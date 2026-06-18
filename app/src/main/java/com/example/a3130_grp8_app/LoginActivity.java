@@ -32,6 +32,8 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Initializes the login UI and wires auth-related click listeners.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,11 @@ public class LoginActivity extends AppCompatActivity {
      */
     private SimpleTextWatcher createEmptyFieldsWatcher() {
         return new SimpleTextWatcher() {
+            /**
+             * Refreshes the login button after a credential field changes.
+             *
+             * @param s edited text from the watched field
+             */
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 updateLoginButtonState();

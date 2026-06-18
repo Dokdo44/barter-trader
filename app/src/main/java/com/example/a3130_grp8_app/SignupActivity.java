@@ -37,6 +37,11 @@ public class SignupActivity extends AppCompatActivity {
     private TextView backToLoginLink;
     private Snackbar snackbar;
 
+    /**
+     * Initializes the signup form, role spinner, navigation link, and submit handlers.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +103,11 @@ public class SignupActivity extends AppCompatActivity {
 
     private SimpleTextWatcher createEmptyFieldsWatcher() {
         return new SimpleTextWatcher() {
+            /**
+             * Refreshes signup availability after the email or password field changes.
+             *
+             * @param s edited text from the watched field
+             */
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 checkSignUpButtonState();
@@ -107,11 +117,24 @@ public class SignupActivity extends AppCompatActivity {
 
     private AdapterView.OnItemSelectedListener createRoleSpinnerSelectionListener() {
         return new AdapterView.OnItemSelectedListener() {
+            /**
+             * Refreshes signup availability when a role option is selected.
+             *
+             * @param parent spinner adapter view
+             * @param view selected item view
+             * @param position selected item index
+             * @param id selected item row id
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 checkSignUpButtonState();
             }
 
+            /**
+             * Handles the framework callback where no spinner item is selected.
+             *
+             * @param parent spinner adapter view
+             */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         };

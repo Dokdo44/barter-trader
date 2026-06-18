@@ -37,6 +37,9 @@ public class SignupActivityTest {
     public ActivityScenarioRule<SignupActivity> activityTestRule =
             new ActivityScenarioRule<>(SignupActivity.class);
 
+    /**
+     * Verifies that the signup button starts disabled when required fields are empty.
+     */
     @Test
     public void signUpButtonDisabledWhenFieldsInitiallyEmptyTest() {
         // Type nothing in both fields
@@ -51,6 +54,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that signup remains disabled when the email field is empty.
+     */
     @Test
     public void signUpButtonDisabledWhenEmailEmptyTest() {
         //Type nothing in email field, but type a password
@@ -65,6 +71,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that signup remains disabled when the password field is empty.
+     */
     @Test
     public void signUpButtonDisabledWhenPasswordEmptyTest() {
         //Type nothing in email field, but type a password
@@ -79,6 +88,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that signup remains disabled when the placeholder role is selected.
+     */
     @Test
     public void signUpButtonDisabledWhenRoleSpinnerNotValidTest() {
         // Type something in both the email and password fields
@@ -93,6 +105,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that clearing a required field disables signup again.
+     */
     @Test
     public void signUpButtonDisabledAfterFieldBecomesEmptyTest() {
         // Type something in both the email and password fields
@@ -110,6 +125,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isNotEnabled()));
     }
 
+    /**
+     * Verifies that completing all signup fields enables the signup button.
+     */
     @Test
     public void signUpButtonEnabledWhenFieldsFilledTest() {
         // Type something in both the email and password fields
@@ -124,6 +142,9 @@ public class SignupActivityTest {
         Espresso.onView(withId(R.id.signUpButton)).check(matches(isEnabled()));
     }
 
+    /**
+     * Verifies that an invalid signup email shows an error snackbar.
+     */
     @Test
     public void errorMessageWhenEmailIsInvalidTest() {
         // Type invalid email address and valid password
@@ -140,6 +161,9 @@ public class SignupActivityTest {
                 matches(allOf(isDisplayed(), withText(containsString("Error: ")))));
     }
 
+    /**
+     * Verifies that a valid signup form starts the dashboard navigation flow.
+     */
     @Test
     public void redirectsToRoleSelectionWhenEmailIsValidTest() {
         // Type something in both the email and password fields
@@ -156,7 +180,7 @@ public class SignupActivityTest {
     }
 
     /**
-     * ATTENTION: YOU MUST DELETE THE USER ON THE FIREBASE FOR THIS TEST TO WORK
+     * Verifies that a completed signup displays the new user's dashboard details.
      */
     @Test
     public void redirectsToRoleSpecificDashboardWithUserNameAndRoleOnValidSignUp() {
@@ -192,6 +216,9 @@ public class SignupActivityTest {
         throw new AssertionError("Dashboard did not load in time");
     }
 
+    /**
+     * Verifies that the back-to-login link starts LoginActivity.
+     */
     @Test
     public void movesToLoginOnBackToLoginButtonPress() {
         Intents.init();
