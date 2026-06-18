@@ -45,4 +45,7 @@ dependencies {
     androidTestImplementation libs.espresso.intents
     androidTestImplementation libs.ext.junit
     implementation libs.firebase.auth
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:34.15.0')
+    implementation 'com.google.firebase:firebase-analytics'
 }
