@@ -12,7 +12,7 @@ public class FirebaseManager {
     private static final String USERS_PATH = "users";
     // The checked-in google-services.json does not provide a database URL, so database
     // calls use the project URL explicitly instead of relying on default initialization.
-    private static final String FIREBASE_URL = "https://grp8-app-default-rtdb.firebaseio.com/";
+    private static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     public static FirebaseUser getCurrentUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
