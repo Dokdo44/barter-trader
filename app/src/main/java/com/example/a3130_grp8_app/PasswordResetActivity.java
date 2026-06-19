@@ -38,27 +38,33 @@ public class PasswordResetActivity extends AppCompatActivity {
 
         resetButton.setOnClickListener(v -> requestPasswordReset());
 
-        backToLoginButton.setOnClickListener(v -> {
-            Intent intent = new Intent(
-                    PasswordResetActivity.this,
-                    LoginActivity.class
-            );
-            startActivity(intent);
-        });
+        backToLoginButton.setOnClickListener(v -> onBackToLoginClick());
     }
 
     private void requestPasswordReset() {
         String email = emailInput.getText().toString().trim();
         // Firebase Auth owns password reset delivery, so the Activity only triggers the request.
         FirebaseManager.sendPasswordResetEmail(email)
-                .addOnSuccessListener(unused -> {
-                    Snackbar.make(resetButton, "Reset email sent, Check your spam",
-                            Snackbar.LENGTH_LONG).show();
-                })
-                .addOnFailureListener(e -> {
-                    Snackbar.make(resetButton, "Failed: " + e.getMessage(),
-                            Snackbar.LENGTH_LONG).show();
-                });
+                .addOnSuccessListener(unused -> onResetRequestSuccess())
+                .addOnFailureListener(this::onResetFailure);
+    }
+
+    private void onBackToLoginClick() {
+        Intent intent = new Intent(
+                PasswordResetActivity.this,
+                LoginActivity.class
+        );
+        startActivity(intent);
+    }
+
+    private void onResetRequestSuccess() {
+        Snackbar.make(resetButton, "Reset email sent, Check your spam",
+                Snackbar.LENGTH_LONG).show();
+    }
+
+    private void onResetFailure(Exception e) {
+        Snackbar.make(resetButton, "Failed: " + e.getMessage(),
+                Snackbar.LENGTH_LONG).show();
     }
 
     private void checkResetButtonState() {

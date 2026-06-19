@@ -167,17 +167,21 @@ public class SignupActivity extends AppCompatActivity {
         FirebaseManager.createUser(emailInput.getText().toString().trim(),
                         passwordInput.getText().toString(),
                         roleSpinner.getSelectedItem().toString())
-                .addOnSuccessListener(unused -> {
-                    Intent roleSelectionActivityIntent = new Intent(this,
-                            RoleSpecificDashboardActivity.class);
-                    startActivity(roleSelectionActivityIntent);
-                    finish();
-                })
-                .addOnFailureListener(error -> {
-                    snackbar.setText("Error: could not create account");
-                    snackbar.show();
-                    // Re-enable the button only if the form is still valid.
-                    checkSignUpButtonState();
-                });
+                .addOnSuccessListener(this::onCreateUserSuccess)
+                .addOnFailureListener(this::onCreateUserFailure);
+    }
+
+    private void onCreateUserSuccess(Void unused) {
+        Intent roleSelectionActivityIntent = new Intent(this,
+                RoleSpecificDashboardActivity.class);
+        startActivity(roleSelectionActivityIntent);
+        finish();
+    }
+
+    private void onCreateUserFailure(Exception error) {
+        snackbar.setText("Error: could not create account");
+        snackbar.show();
+        // Re-enable the button only if the form is still valid.
+        checkSignUpButtonState();
     }
 }
