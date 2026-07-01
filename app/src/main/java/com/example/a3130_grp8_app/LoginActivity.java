@@ -2,8 +2,6 @@ package com.example.a3130_grp8_app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,8 +13,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.util.FormValidator;
+import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * LoginActivity handles Firebase Auth login and links to account creation/password reset.
@@ -29,10 +29,11 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordInput;
     private TextView resetPasswordLink;
     private TextView signUpLink;
-    private FirebaseAuth auth;
 
     /**
      * Initializes the login UI and wires auth-related click listeners.
+     *
+     * @param savedInstanceState prior Activity state provided by Android
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        auth = FirebaseAuth.getInstance();
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         loginButton = findViewById(R.id.loginButton);
@@ -55,20 +55,13 @@ public class LoginActivity extends AppCompatActivity {
         CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinatorLayout);
         snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_LONG);
 
-        TextWatcher emptyFieldsWatcher = createEmptyFieldsWatcher();
+        SimpleTextWatcher emptyFieldsWatcher = createEmptyFieldsWatcher();
         emailInput.addTextChangedListener(emptyFieldsWatcher);
         passwordInput.addTextChangedListener(emptyFieldsWatcher);
         loginButton.setOnClickListener(v -> submitLogin());
-        // Password reset goes to the password reset screen and uses Firebase Auth email reset.
-        resetPasswordLink.setOnClickListener(v -> {
-            Intent intent = new Intent(
-                    LoginActivity.this,
-                    PasswordResetActivity.class
-            );
-            startActivity(intent);
-        });
+        resetPasswordLink.setOnClickListener(v -> goToPasswordReset());
         // Signup is no longer a launcher activity, so login provides the path to account creation.
-        signUpLink.setOnClickListener(v -> startActivity(new Intent(this, SignupActivity.class)));
+        signUpLink.setOnClickListener(v -> goToSignup());
     }
 
     /**
@@ -81,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         // Disable while Auth checks credentials to avoid duplicate login requests.
         loginButton.setEnabled(false);
 
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+        FirebaseManager.signIn(email, password).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 startActivity(new Intent(LoginActivity.this, RoleSpecificDashboardActivity.class));
                 finish();
@@ -93,56 +86,37 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Sends a Firebase Auth password reset email to the address entered in the email field.
-     */
-    private void sendPasswordResetEmail() {
-        String email = emailInput.getText().toString().trim();
-        if (email.isEmpty()) {
-            snackbar.setText("Enter your email first");
-            snackbar.show();
-            return;
-        }
+    private void goToPasswordReset() {
+        startActivity(new Intent(this, PasswordResetActivity.class));
+    }
 
-        // Auth owns password reset delivery, so no database password lookup is needed.
-        FirebaseManager.sendPasswordResetEmail(email)
-                .addOnSuccessListener(unused -> {
-                    snackbar.setText("Password reset email sent");
-                    snackbar.show();
-                })
-                .addOnFailureListener(error -> {
-                    snackbar.setText("Could not send reset email");
-                    snackbar.show();
-                });
+    private void goToSignup() {
+        startActivity(new Intent(this, SignupActivity.class));
     }
 
     /**
      * Keeps login disabled until both credential fields have content.
      */
     private void updateLoginButtonState() {
-        loginButton.setEnabled(
-                emailInput.getText().length() != 0 && passwordInput.getText().length() != 0
-        );
+        loginButton.setEnabled(FormValidator.isLoginComplete(
+                emailInput.getText(),
+                passwordInput.getText()
+        ));
     }
 
     /**
      * Watches credential fields and updates the login button state after edits.
      */
-    private TextWatcher createEmptyFieldsWatcher() {
-        return new TextWatcher() {
+    private SimpleTextWatcher createEmptyFieldsWatcher() {
+        return new SimpleTextWatcher() {
+            /**
+             * Refreshes the login button after a credential field changes.
+             *
+             * @param s edited text from the watched field
+             */
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(android.text.Editable s) {
                 updateLoginButtonState();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
         };
     }
