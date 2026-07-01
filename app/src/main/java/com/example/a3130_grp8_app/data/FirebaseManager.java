@@ -3,6 +3,7 @@ package com.example.a3130_grp8_app.data;
 import com.example.a3130_grp8_app.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -17,13 +18,38 @@ public class FirebaseManager {
     private static final String USERS_PATH = "users";
     private static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
+    private static FirebaseAuth auth;
+    private static FirebaseDatabase db;
+
     /**
      * Returns the currently signed-in Firebase Auth user.
      *
      * @return current Firebase user, or null when no user is signed in
      */
     public static FirebaseUser getCurrentUser() {
-        return FirebaseAuth.getInstance().getCurrentUser();
+        return getAuth().getCurrentUser();
+    }
+
+    public static FirebaseDatabase getDb() {
+        if(db == null) {
+            db = FirebaseDatabase.getInstance();
+        }
+        return db;
+    }
+
+    public static FirebaseAuth getAuth() {
+        if(auth == null) {
+            auth = FirebaseAuth.getInstance();
+        }
+        return auth;
+    }
+
+    public static void setDb(FirebaseDatabase db) {
+        FirebaseManager.db = db;
+    }
+
+    public static void setAuth(FirebaseAuth auth) {
+        FirebaseManager.auth = auth;
     }
 
     /**
@@ -35,7 +61,7 @@ public class FirebaseManager {
      * @return task that completes after both Auth creation and profile storage finish
      */
     public static Task<Void> createUser(String email, String password, String role) {
-        return FirebaseAuth.getInstance()
+        return getAuth()
                 .createUserWithEmailAndPassword(email, password)
                 .continueWithTask(task -> {
                     if (!task.isSuccessful()) {
@@ -61,7 +87,7 @@ public class FirebaseManager {
      * @return Firebase Auth sign-in task
      */
     public static Task<AuthResult> signIn(String email, String password) {
-        return FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password);
+        return getAuth().signInWithEmailAndPassword(email, password);
     }
 
     /**
@@ -88,17 +114,17 @@ public class FirebaseManager {
      * @return Firebase Auth password reset task
      */
     public static Task<Void> sendPasswordResetEmail(String email) {
-        return FirebaseAuth.getInstance().sendPasswordResetEmail(email);
+        return getAuth().sendPasswordResetEmail(email);
     }
 
     /**
      * Clears the current Firebase Auth session.
      */
     public static void signOut() {
-        FirebaseAuth.getInstance().signOut();
+        getAuth().signOut();
     }
 
     private static DatabaseReference getUserReference(String uid) {
-        return FirebaseDatabase.getInstance(FIREBASE_URL).getReference(USERS_PATH).child(uid);
+        return getDb().getReference(USERS_PATH).child(uid);
     }
 }

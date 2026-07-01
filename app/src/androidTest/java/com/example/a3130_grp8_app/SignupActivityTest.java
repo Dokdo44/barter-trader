@@ -20,10 +20,13 @@ import static org.hamcrest.CoreMatchers.is;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.intent.Intents;
-import androidx.test.espresso.intent.matcher.IntentMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.util.FirebaseEmulator;
+
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +37,12 @@ public class SignupActivityTest {
     @Rule
     public ActivityScenarioRule<SignupActivity> activityTestRule =
             new ActivityScenarioRule<>(SignupActivity.class);
+
+    @Before
+    public void setUp() {
+        FirebaseManager.setDb(FirebaseEmulator.getDatabase());
+        FirebaseManager.setAuth(FirebaseEmulator.getAuth());
+    }
 
     /**
      * Verifies that the signup button starts disabled when required fields are empty.
