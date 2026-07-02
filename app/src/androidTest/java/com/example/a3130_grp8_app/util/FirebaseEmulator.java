@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.stream.Stream;
 
 public class FirebaseEmulator {
 
@@ -41,19 +42,16 @@ public class FirebaseEmulator {
     }
 
     public static void sendBulkDataToAuth(String pathFromAssets) throws Exception {
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        String json;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                context.getAssets().open(pathFromAssets)
-        ))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            json = sb.toString();
-        }
+       String jsonString = getJsonStringFromAssetsFile(pathFromAssets);
+       sendPostToAuth(jsonString.getBytes());
+    }
 
+    public static void sendBulkDataToDatabase(String pathFromAssets) throws Exception {
+        String jsonString = getJsonStringFromAssetsFile(pathFromAssets);
+        sendPutToDatabase(jsonString.getBytes());
+    }
+
+    private static void sendPostToAuth(byte[] body) throws IOException {
         String url = "http://10.0.2.2:" + EMULATOR_AUTH_PORT +
                 "/identitytoolkit.googleapis.com/v1/projects/" + EMULATOR_PROJECT_ID +
                 "/accounts:batchCreate";
@@ -67,43 +65,15 @@ public class FirebaseEmulator {
         conn.setDoOutput(true);
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(json.getBytes());
+            os.write(body);
         }
 
-        int responseCode = conn.getResponseCode();
-        if (responseCode != 200) {
-            String response;
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getErrorStream()))) {
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) sb.append(line);
-                response = sb.toString();
-            }
-            throw new Exception(
-                    "Failed to upload auth test data — response code: " + responseCode +
-                            "\nResponse: " + response
-            );
-        }
+        handleHttpResponse(conn);
+
         conn.disconnect();
     }
 
-    public static void sendBulkDataToDatabase(String pathFromAssets) throws Exception {
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        // Read fixture file from assets
-        String json;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                context.getAssets().open(pathFromAssets)
-        ))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            json = sb.toString();
-        }
-
-        // POST each document to the emulator
+    private static void sendPutToDatabase(byte[] body) throws IOException {
         String url = "http://10.0.2.2:" + EMULATOR_DATABASE_PORT + "/.json?ns="
                 + EMULATOR_PROJECT_ID + "-default-rtdb";
 
@@ -115,41 +85,54 @@ public class FirebaseEmulator {
         conn.setDoOutput(true);
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(json.getBytes());
+            os.write(body);
         }
 
-        int responseCode = conn.getResponseCode();
-        if (responseCode != 200) {
-            String response;
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getErrorStream()))) {
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) sb.append(line);
-                response = sb.toString();
-            }
-            throw new Exception(
-                    "Failed to upload test data — response code: " + responseCode +
-                            "\nResponse: " + response
-            );
-        }
+        handleHttpResponse(conn);
+
         conn.disconnect();
     }
 
-    private String readJsonFromAssetsFile(String pathFromAssets) throws Exception {
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        String json;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                context.getAssets().open(pathFromAssets)
-        ))) {
+    private static void handleHttpResponse(HttpURLConnection conn) throws IOException{
+        int responseCode = conn.getResponseCode();
+        if (responseCode != 200) {
+            String response = getHttpErrorStreamAsString(conn);
+            throw new IOException(
+                    "HTTP request to emulated database failed - response code: " + responseCode +
+                            "\nResponse: " + response
+            );
+        }
+    }
+
+    private static String getHttpErrorStreamAsString(HttpURLConnection conn) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) sb.append(line);
+        return sb.toString();
+    }
+
+    private static String getJsonStringFromAssetsFile(String pathFromAssets) throws Exception {
+        String jsonString;
+        try (BufferedReader reader = getBufferedReaderForAssetsFile(pathFromAssets)) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
-            json = sb.toString();
+            jsonString = sb.toString();
         }
-        return json;
+        return jsonString;
+    }
+
+    private static BufferedReader getBufferedReaderForAssetsFile(String pathFromAssets) throws IOException {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+
+        InputStream fileInputStream = context.getAssets().open(pathFromAssets);
+        InputStreamReader fileReader = new InputStreamReader(fileInputStream);
+
+        return new BufferedReader(fileReader);
     }
 
     public static void resetAuth() throws IOException {

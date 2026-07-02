@@ -55,7 +55,7 @@ public class FirebaseEmulatorTest {
     @Test
     public void dataUploadedToEmulatorSuccessfullyTest() throws Exception {
         FirebaseDatabase db = FirebaseEmulator.getDatabase();
-        FirebaseEmulator.sendBulkDataToDatabase(context.getAssets().open("FirebaseEmulatorTest/database_test_data.json"));
+        FirebaseEmulator.sendBulkDataToDatabase("FirebaseEmulatorTest/database_test_data.json");
 
         DatabaseReference ref = db.getReference("users");
 
@@ -100,7 +100,7 @@ public class FirebaseEmulatorTest {
     @Test
     public void usersUploadedToEmulatorSuccessfullyTest() throws Exception {
         FirebaseAuth auth = FirebaseEmulator.getAuth();
-        FirebaseEmulator.sendBulkDataToAuth(context.getAssets().open("FirebaseEmulatorTest/auth_test_data.json"));
+        FirebaseEmulator.sendBulkDataToAuth("FirebaseEmulatorTest/auth_test_data.json");
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -124,7 +124,7 @@ public class FirebaseEmulatorTest {
     @Test
     public void authResetsSuccessfullyTest() throws Exception {
         FirebaseAuth auth = FirebaseEmulator.getAuth();
-        FirebaseEmulator.sendBulkDataToAuth(context.getAssets().open("FirebaseEmulatorTest/auth_test_data.json"));
+        FirebaseEmulator.sendBulkDataToAuth("FirebaseEmulatorTest/auth_test_data.json");
 
         CountDownLatch signInLatch = new CountDownLatch(1);
 
@@ -166,7 +166,7 @@ public class FirebaseEmulatorTest {
     @Test
     public void dbResetsSuccessfullyTest() throws Exception {
         FirebaseDatabase db = FirebaseEmulator.getDatabase();
-        FirebaseEmulator.sendBulkDataToDatabase(context.getAssets().open("FirebaseEmulatorTest/database_test_data.json"));
+        FirebaseEmulator.sendBulkDataToDatabase("FirebaseEmulatorTest/database_test_data.json");
 
         DatabaseReference ref = db.getReference("users");
 
