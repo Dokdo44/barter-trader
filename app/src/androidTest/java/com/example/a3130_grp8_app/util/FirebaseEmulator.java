@@ -19,34 +19,48 @@ import java.util.stream.Stream;
 
 public class FirebaseEmulator {
 
-    private static final Context context = InstrumentationRegistry.getInstrumentation().getContext();
-
     private static final int EMULATOR_AUTH_PORT = BuildConfig.EMULATOR_AUTH_PORT;
     private static final int EMULATOR_DATABASE_PORT = BuildConfig.EMULATOR_DATABASE_PORT;
     private static final String EMULATOR_PROJECT_ID = BuildConfig.PROJECT_ID;
 
-    public static boolean useEmulator() {
-        return BuildConfig.DEBUG;
-    }
-
+    /***
+     * Get a FirebaseAuth instance that uses the local Firebase Authentication emulator
+     * @return a FirebaseAuth instance that uses the local Firebase Authentication emulator
+     */
     public static FirebaseAuth getAuth() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.useEmulator("10.0.2.2", EMULATOR_AUTH_PORT);
         return auth;
     }
 
+    /***
+     * Get a FirebaseDatabase instance that uses the local Firebase Realtime Database emulator
+     * @return a FirebaseDatabase instance that uses the local Firebase Realtime Database emulator
+     */
     public static FirebaseDatabase getDatabase() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         db.useEmulator("10.0.2.2", EMULATOR_DATABASE_PORT);
         return db;
     }
 
-    public static void sendBulkDataToAuth(String pathFromAssets) throws Exception {
+    /**
+     * Send bulk data, encoded in JSON, to the local Firebase Authentication emulator
+     * @param pathFromAssets the path to the JSON file that contains the data, relative to the
+     *                       assets folder
+     * @throws IOException if the JSON file is not found
+     */
+    public static void sendBulkDataToAuth(String pathFromAssets) throws IOException {
        String jsonString = getJsonStringFromAssetsFile(pathFromAssets);
        sendPostToAuth(jsonString.getBytes());
     }
 
-    public static void sendBulkDataToDatabase(String pathFromAssets) throws Exception {
+    /***
+     * send bulk data, encoded in JSON, to the local Firebase Realtime Database emulator
+     * @param pathFromAssets the path to the JSON file that contains the data, relative to the
+     *                       assets folder
+     * @throws IOException if the JSON file is not found
+     */
+    public static void sendBulkDataToDatabase(String pathFromAssets) throws IOException {
         String jsonString = getJsonStringFromAssetsFile(pathFromAssets);
         sendPutToDatabase(jsonString.getBytes());
     }
@@ -113,7 +127,7 @@ public class FirebaseEmulator {
         return sb.toString();
     }
 
-    private static String getJsonStringFromAssetsFile(String pathFromAssets) throws Exception {
+    private static String getJsonStringFromAssetsFile(String pathFromAssets) throws IOException {
         String jsonString;
         try (BufferedReader reader = getBufferedReaderForAssetsFile(pathFromAssets)) {
             StringBuilder sb = new StringBuilder();
