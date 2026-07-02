@@ -1,5 +1,9 @@
 package com.example.a3130_grp8_app.util;
 
+import android.content.Context;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import com.example.a3130_grp8_app.BuildConfig;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -14,6 +18,7 @@ import java.net.URI;
 
 public class FirebaseEmulator {
 
+    private static final Context context = InstrumentationRegistry.getInstrumentation().getContext();
 
     private static final int EMULATOR_AUTH_PORT = BuildConfig.EMULATOR_AUTH_PORT;
     private static final int EMULATOR_DATABASE_PORT = BuildConfig.EMULATOR_DATABASE_PORT;
@@ -35,9 +40,12 @@ public class FirebaseEmulator {
         return db;
     }
 
-    public static void sendBulkDataToAuth(InputStream is) throws Exception {
+    public static void sendBulkDataToAuth(String pathFromAssets) throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         String json;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                context.getAssets().open(pathFromAssets)
+        ))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -80,11 +88,13 @@ public class FirebaseEmulator {
         conn.disconnect();
     }
 
-    public static void sendBulkDataToDatabase(InputStream is) throws Exception {
-
+    public static void sendBulkDataToDatabase(String pathFromAssets) throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
         // Read fixture file from assets
         String json;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                context.getAssets().open(pathFromAssets)
+        ))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -124,6 +134,22 @@ public class FirebaseEmulator {
             );
         }
         conn.disconnect();
+    }
+
+    private String readJsonFromAssetsFile(String pathFromAssets) throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        String json;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                context.getAssets().open(pathFromAssets)
+        ))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            json = sb.toString();
+        }
+        return json;
     }
 
     public static void resetAuth() throws IOException {
