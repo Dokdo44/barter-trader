@@ -3,13 +3,17 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+ext {
+    firebaseBin    = "${rootDir}/.gradle/firebase/node_modules/.bin/firebase"
+    databasePort  =  9000
+    authPort       = 9099
+    testProjectId  = "group8-19144"
+}
+
 android {
     namespace 'com.example.a3130_grp8_app'
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk 36
+
 
     defaultConfig {
         applicationId "com.example.a3130_grp8_app"
@@ -17,8 +21,15 @@ android {
         targetSdk 36
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField 'int', 'EMULATOR_AUTH_PORT', "${project.ext.authPort}"
+        buildConfigField 'int', 'EMULATOR_DATABASE_PORT', "${project.ext.databasePort}"
+        buildConfigField 'String', 'PROJECT_ID', "\"${project.ext.testProjectId}\""
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -40,12 +51,94 @@ dependencies {
     implementation libs.firebase.database
     implementation libs.material
     implementation libs.commons.validator
+    androidTestImplementation libs.monitor
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.espresso.intents
     androidTestImplementation libs.ext.junit
     implementation libs.firebase.auth
-    // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:34.15.0')
-    implementation 'com.google.firebase:firebase-analytics'
+}
+
+// Script-level variable — shared across all task closures
+Process emulatorProcess = null
+
+tasks.register('installFirebaseCli', Exec) {
+    def marker = file("${rootDir}/.gradle/firebase/node_modules/.bin/firebase")
+    outputs.file(marker)
+    onlyIf { !marker.exists() }
+    commandLine 'npm', 'install', '--prefix', "${rootDir}/.gradle/firebase", 'firebase-tools'
+}
+
+tasks.register('installFirebaseEmulators', Exec) {
+    dependsOn 'installFirebaseCli'
+    def emulatorDir = file("${rootDir}/.gradle/firebase-emulators")
+    outputs.dir(emulatorDir)
+    onlyIf { !emulatorDir.exists() || emulatorDir.listFiles().length == 0 }
+    environment 'FIREBASE_EMULATORS_PATH', emulatorDir.absolutePath
+    environment 'CI', 'true'
+    commandLine "${rootDir}/.gradle/firebase/node_modules/.bin/firebase",
+            'setup:emulators:firestore', '--non-interactive'
+}
+
+tasks.register('startEmulators') {
+    dependsOn 'installFirebaseEmulators'
+    doLast {
+        def logFile = layout.buildDirectory.file("reports/firebase-emulator.log").get().asFile
+        logFile.parentFile.mkdirs()
+
+        emulatorProcess = new ProcessBuilder(  // assigns to script-level variable
+                firebaseBin, 'emulators:start',
+                '--only', 'database,auth,ui',
+                '--project', testProjectId,
+                '--non-interactive'
+        )
+                .directory(rootDir)
+                .redirectOutput(logFile)
+                .redirectErrorStream(true)
+                .start()
+
+        def ready = false
+        for (int i = 0; i < 60; i++) {
+            try {
+                def connection = URI.create("http://localhost:${databasePort}")
+                        .toURL()
+                        .openConnection() as HttpURLConnection
+                connection.connectTimeout = 500
+                connection.connect()
+                connection.disconnect()
+                ready = true
+                break
+            } catch (ignored) {
+                Thread.sleep(1000)
+                print "."
+            }
+        }
+
+        if (!ready) {
+            emulatorProcess?.destroy()
+            throw new GradleException("Emulators failed to start. Check ${logFile}.")
+        }
+        println "\nFirebase emulators ready."
+    }
+}
+
+tasks.register('stopEmulators') {  // NOT Exec type — it's just a plain task
+    doLast {
+        if (emulatorProcess != null) {  // reads script-level variable
+            emulatorProcess.destroy()
+            emulatorProcess.waitFor()
+            emulatorProcess = null
+            println "Firebase emulators stopped."
+        } else {
+            println "No emulator process found — skipping."
+        }
+    }
+}
+
+// Use configureEach to hook into connectedAndroidTest lazily
+tasks.configureEach { task ->
+    if (task.name == 'connectedDebugAndroidTest') {
+        task.dependsOn 'startEmulators'
+        task.finalizedBy 'stopEmulators'
+    }
 }
