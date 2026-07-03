@@ -1,13 +1,21 @@
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
 }
 
+def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+
 ext {
-    firebaseBin    = "${rootDir}/.gradle/firebase/node_modules/.bin/firebase"
-    databasePort  =  9000
-    authPort       = 9099
-    testProjectId  = "group8-19144"
+    firebaseBin   = isWindows
+            ? "${rootDir}/.gradle/firebase/node_modules/.bin/firebase.cmd"
+            : "${rootDir}/.gradle/firebase/node_modules/.bin/firebase"
+    databasePort  = 9000
+    authPort      = 9099
+    testProjectId = "group8-19144"
 }
 
 android {
@@ -63,10 +71,20 @@ dependencies {
 Process emulatorProcess = null
 
 tasks.register('installFirebaseCli', Exec) {
-    def marker = file("${rootDir}/.gradle/firebase/node_modules/.bin/firebase")
+    def marker = file(isWindows
+            ? "${rootDir}/.gradle/firebase/node_modules/.bin/firebase.cmd"
+            : "${rootDir}/.gradle/firebase/node_modules/.bin/firebase")
     outputs.file(marker)
     onlyIf { !marker.exists() }
-    commandLine 'npm', 'install', '--prefix', "${rootDir}/.gradle/firebase", 'firebase-tools'
+    Path path = Paths.get("${rootDir}/.gradle/firebase")
+    Files.createDirectories(path)
+    if (isWindows) {
+        commandLine 'cmd', '/c', 'npm', 'install', '--prefix', "${rootDir}/.gradle/firebase", 'firebase-tools'
+    } else {
+        commandLine 'npm', 'install', '--prefix', "${rootDir}/.gradle/firebase", 'firebase-tools'
+    }
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
 tasks.register('installFirebaseEmulators', Exec) {
@@ -76,8 +94,11 @@ tasks.register('installFirebaseEmulators', Exec) {
     onlyIf { !emulatorDir.exists() || emulatorDir.listFiles().length == 0 }
     environment 'FIREBASE_EMULATORS_PATH', emulatorDir.absolutePath
     environment 'CI', 'true'
-    commandLine "${rootDir}/.gradle/firebase/node_modules/.bin/firebase",
-            'setup:emulators:firestore', '--non-interactive'
+    if (isWindows) {
+        commandLine 'cmd', '/c', firebaseBin, 'setup:emulators:firestore', '--non-interactive'
+    } else {
+        commandLine firebaseBin, 'setup:emulators:firestore', '--non-interactive'
+    }
 }
 
 tasks.register('startEmulators') {
