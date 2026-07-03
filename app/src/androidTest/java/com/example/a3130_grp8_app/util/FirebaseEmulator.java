@@ -149,6 +149,10 @@ public class FirebaseEmulator {
         return new BufferedReader(fileReader);
     }
 
+    /***
+     * Empties the Auth database
+     * @throws IOException if the HTTP delete request fails
+     */
     public static void resetAuth() throws IOException {
         sendDelete(URI.create(
                 "http://10.0.2.2:" + EMULATOR_AUTH_PORT +
@@ -157,6 +161,10 @@ public class FirebaseEmulator {
         ));
     }
 
+    /***
+     * Empties the realtime database
+     * @throws IOException if the HTTP delete request fails
+     */
     public static void resetDatabase() throws IOException {
         sendDelete(URI.create(
                 "http://10.0.2.2:" + EMULATOR_DATABASE_PORT +

@@ -137,7 +137,8 @@ tasks.register('startEmulators') {
 
         if (!ready) {
             emulatorProcess?.destroy()
-            throw new GradleException("Emulators failed to start. Check ${logFile}.")
+            throw new GradleException("Emulators failed to start. Check ${logFile}.\n" +
+                    "If you have not logged in to the local Firebase, please run command \"${firebaseBin} login\"")
         }
         println "\nFirebase emulators ready."
     }
