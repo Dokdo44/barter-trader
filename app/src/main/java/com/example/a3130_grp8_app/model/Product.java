@@ -1,10 +1,9 @@
 package com.example.a3130_grp8_app.model;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 public class Product {
-    private String providerEmail;
+    private String providerUid;
     private String name;
     private String description;
     private String imageUrl;
@@ -14,9 +13,9 @@ public class Product {
     private float price;
     private ZonedDateTime timeUploaded;
 
-    public Product(String providerEmail, String name, String description, String imageUrl,
+    public Product(String providerUid, String name, String description, String imageUrl,
                    String[] categories, String address, boolean available, float price) {
-        this.providerEmail = providerEmail;
+        this.providerUid = providerUid;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -28,8 +27,8 @@ public class Product {
 
     public Product() {}
 
-    public String getProviderEmail() {
-        return providerEmail;
+    public String getProviderUid() {
+        return providerUid;
     }
 
     public String getName() {

@@ -16,5 +16,37 @@
       "email": "provider3@example.com",
       "role": "Seller"
     }
+  },
+  "products": {
+    "product1": {
+      "providerUid": "user2",
+      "name": "Toyota Something",
+      "description": "It's a real good car",
+      "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
+      "categories": ["Car", "Vehicle"],
+      "address": "1030 South Park St.",
+      "available": true,
+      "price": 100.20
+    },
+    "product2": {
+      "providerUid": "user3",
+      "name": "Ford Something",
+      "description": "It's a real good truck",
+      "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
+      "categories": ["Truck", "Vehicle"],
+      "address": "2066 Kline St.",
+      "available": true,
+      "price": 200.30
+    },
+    "product3": {
+      "providerUid": "user4",
+      "name": "Honda Something",
+      "description": "It's a real good car (this time a Honda)",
+      "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
+      "categories": ["Car", "Vehicle"],
+      "address": "1726 Hollis St.",
+      "available": false,
+      "price": 1000.00
+    }
   }
 }
