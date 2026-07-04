@@ -59,6 +59,7 @@ dependencies {
     implementation libs.firebase.database
     implementation libs.material
     implementation libs.commons.validator
+    androidTestImplementation libs.uiautomator
     androidTestImplementation libs.monitor
     testImplementation libs.junit
     androidTestImplementation libs.espresso.core
