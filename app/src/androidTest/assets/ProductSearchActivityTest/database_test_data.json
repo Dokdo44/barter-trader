@@ -26,6 +26,7 @@
       "categories": ["Car", "Vehicle"],
       "address": "1030 South Park St.",
       "available": true,
+      "timeUploaded": "2026-07-04 12:55:00",
       "price": 100.20
     },
     "product2": {
@@ -36,6 +37,7 @@
       "categories": ["Truck", "Vehicle"],
       "address": "2066 Kline St.",
       "available": true,
+      "timeUploaded": "2026-07-04 11:55:00",
       "price": 200.30
     },
     "product3": {
@@ -46,6 +48,7 @@
       "categories": ["Car", "Vehicle"],
       "address": "1726 Hollis St.",
       "available": false,
+      "timeUploaded": "2026-07-03 11:55:00",
       "price": 1000.00
     }
   }
