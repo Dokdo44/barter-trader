@@ -120,7 +120,20 @@ public class ProductSearchActivityTest {
         assertTrue(resultObject.exists());
         assertFalse(resultNotExist1.exists());
         assertFalse(resultNotExist2.exists());
-
     }
+
+    @Test
+    public void onlyShowsResultsWithCategories() {
+        Espresso.onView(withId(R.id.carChip)).perform(click());
+
+        UiObject resultObject1 = device.findObject(new UiSelector().textContains("Honda Something"));
+        UiObject resultObject2 = device.findObject(new UiSelector().textContains("Toyota Something"));
+        UiObject resultNotExist2 = device.findObject(new UiSelector().textContains("Ford Something"));
+
+        assertTrue(resultObject1.exists());
+        assertTrue(resultObject2.exists());
+        assertFalse(resultNotExist2.exists());
+    }
+
 
 }
