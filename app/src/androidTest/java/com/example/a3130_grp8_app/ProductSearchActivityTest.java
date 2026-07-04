@@ -106,7 +106,9 @@ public class ProductSearchActivityTest {
 
         Espresso.onView(withId(R.id.searchButton)).perform(click());
         UiObject resultObject = device.findObject(new UiSelector().textContains("Toyota Something"));
+        UiObject resultNotExist2 = device.findObject(new UiSelector().textContains("Ford Something"));
         assertTrue(resultObject.exists());
+        assertFalse(resultNotExist2.exists());
     }
 
     @Test
