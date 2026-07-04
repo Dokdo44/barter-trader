@@ -56,4 +56,17 @@ public class AddProductActivityTest {
         Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
 
     }
+
+    @Test
+    public void CreateListingButtonEnabledAfterTitleFilledAndCategorySelected()
+    {
+        Espresso.onView(withId(R.id.InputTitle)).perform(typeText("Test listing"));
+
+        Espresso.closeSoftKeyboard();
+
+        Espresso.onView(withId(R.id.CategorySpinner)).perform(click());
+        Espresso.onData(allOf(is(instanceOf(String.class)), is("decoration"))).perform(click());
+
+        Espresso.onView(withId(R.id.createListing)).check(matches(isEnabled()));
+    }
 }
