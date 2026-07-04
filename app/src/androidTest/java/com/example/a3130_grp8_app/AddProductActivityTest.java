@@ -33,4 +33,14 @@ public class AddProductActivityTest {
     {
         Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
     }
+
+    @Test
+    public void CreateListingButtonDisabledWhenOnlyTitleFilled()
+    {
+        Espresso.onView(withId(R.id.InputTitle)).perform(typeText("Test listing"));
+
+        Espresso.closeSoftKeyboard();
+
+        Espresso.onView(withId(R.id.loginButton)).check(matches(isNotEnabled()));
+    }
 }
