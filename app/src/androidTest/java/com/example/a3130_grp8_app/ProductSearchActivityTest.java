@@ -18,10 +18,6 @@ import java.io.IOException;
 @RunWith(AndroidJUnit4.class)
 public class ProductSearchActivityTest {
 
-    @Rule
-    public ActivityScenarioRule<ProductSearchActivity> activityTestRule =
-            new ActivityScenarioRule<>(ProductSearchActivity.class);
-
     @Before
     public void setUp() {
         FirebaseManager.setAuth(FirebaseEmulator.getAuth());
@@ -33,8 +29,5 @@ public class ProductSearchActivityTest {
         FirebaseEmulator.resetAuth();
         FirebaseEmulator.resetDatabase();
     }
-
-    @Test
-    public void
 
 }

@@ -1,5 +1,8 @@
 package com.example.a3130_grp8_app.model;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 public class Product {
     private String providerEmail;
     private String name;
@@ -9,6 +12,7 @@ public class Product {
     private String address;
     private boolean available;
     private float price;
+    private ZonedDateTime timeUploaded;
 
     public Product(String providerEmail, String name, String description, String imageUrl,
                    String[] categories, String address, boolean available, float price) {
