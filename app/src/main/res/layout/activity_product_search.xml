@@ -14,9 +14,10 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/searchConstraintLayout"
-            android:layout_width="200dp"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
-            tools:layout_editor_absoluteX="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             tools:layout_editor_absoluteY="277dp">
 
             <EditText
@@ -29,14 +30,77 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.chip.ChipGroup
-                android:id="@+id/category_chip_group"
+                android:id="@+id/categoryChipGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/searchEditText" />
+                app:layout_constraintTop_toBottomOf="@id/searchEditText">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/carChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Cars" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/truckChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Trucks" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/vehicleChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Vehicles" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/vicinityChipGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/categoryChipGroup">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/fiveKilometerChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="5km" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/tenKilometerChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="10km" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/twentyfiveKilometerChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="25km" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <Button
+                android:id="@+id/searchButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/vicinityChipGroup" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

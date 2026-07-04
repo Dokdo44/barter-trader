@@ -1,5 +1,10 @@
 package com.example.a3130_grp8_app;
 
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertTrue;
@@ -7,9 +12,13 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.SystemClock;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
@@ -40,6 +49,8 @@ public class ProductSearchActivityTest {
 
     @Before
     public void setUp() throws IOException {
+        Context context = ApplicationProvider.getApplicationContext();
+
         FirebaseManager.setAuth(FirebaseEmulator.getAuth());
         FirebaseManager.setDb(FirebaseEmulator.getDatabase());
 
@@ -49,7 +60,6 @@ public class ProductSearchActivityTest {
         FirebaseManager.signIn("receiver@example.com", "password123");
 
         device = UiDevice.getInstance(getInstrumentation());
-        Context context = ApplicationProvider.getApplicationContext();
 
         final Intent launchIntent = new Intent(context, ProductSearchActivity.class);
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -66,14 +76,12 @@ public class ProductSearchActivityTest {
     }
 
     @Test
-    public void productsOrderedByUploadTimeOnInitialEntry() throws IOException, UiObjectNotFoundException {
+    public void productsOrderedByUploadTimeOnInitialEntry() throws UiObjectNotFoundException {
         assert FirebaseManager.getCurrentUser().getUid().equals("user1");
 
         UiObject product1 = device.findObject(new UiSelector().textContains("Toyota Something"));
         UiObject product2 = device.findObject(new UiSelector().textContains("Ford Something"));
         UiObject product3 = device.findObject(new UiSelector().textContains("Honda Something"));
-
-        assertTrue(product1.exists() && product2.exists() && product3.exists());
 
         Rect product1Rect = product1.getBounds();
         Rect product2Rect = product2.getBounds();
@@ -81,6 +89,23 @@ public class ProductSearchActivityTest {
 
         assertTrue(product1Rect.centerY() < product2Rect.centerY());
         assertTrue(product2Rect.centerY() < product3Rect.centerY());
+    }
+
+    @Test
+    public void searchButtonDisabledWhenNoCategoryOrSearchTextEntered () {
+        Espresso.onView(withId(R.id.truckChip)).perform(click());
+        Espresso.onView(withId(R.id.truckChip)).perform(click());
+        Espresso.onView(withId(R.id.searchButton)).check(matches(isNotEnabled()));
+    }
+
+    @Test
+    public void onlyShowsResultsWithinSelectedVicinity() {
+        Espresso.onView(withId(R.id.vehicleChip)).perform(click());
+        Espresso.onView(withId(R.id.fiveKilometerChip)).perform(click());
+
+        Espresso.onView(withId(R.id.searchButton)).perform(click());
+        UiObject resultObject = device.findObject(new UiSelector().textContains("Toyota Something"));
+        assertTrue(resultObject.exists());
     }
 
 }

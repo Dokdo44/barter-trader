@@ -24,7 +24,7 @@
       "description": "It's a real good car",
       "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
       "categories": ["Car", "Vehicle"],
-      "address": "1030 South Park St.",
+      "address": "1030 South Park St., Halifax, NS B3W2X3, Canada",
       "available": true,
       "timeUploaded": "2026-07-04 12:55:00",
       "price": 100.20
@@ -35,7 +35,7 @@
       "description": "It's a real good truck",
       "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
       "categories": ["Truck", "Vehicle"],
-      "address": "2066 Kline St.",
+      "address": "405 E 45th St, New York, NY 10017, United States",
       "available": true,
       "timeUploaded": "2026-07-04 11:55:00",
       "price": 200.30
@@ -46,7 +46,7 @@
       "description": "It's a real good car (this time a Honda)",
       "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
       "categories": ["Car", "Vehicle"],
-      "address": "1726 Hollis St.",
+      "address": "15 Market Square, Saint John, NB E2L4L1, Canada",
       "available": false,
       "timeUploaded": "2026-07-03 11:55:00",
       "price": 1000.00
