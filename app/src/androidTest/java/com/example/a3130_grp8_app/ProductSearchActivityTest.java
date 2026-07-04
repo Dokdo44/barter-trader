@@ -7,6 +7,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -106,6 +107,20 @@ public class ProductSearchActivityTest {
         Espresso.onView(withId(R.id.searchButton)).perform(click());
         UiObject resultObject = device.findObject(new UiSelector().textContains("Toyota Something"));
         assertTrue(resultObject.exists());
+    }
+
+    @Test
+    public void onlyShowsResultsWithSearchText() {
+        Espresso.onView(withId(R.id.searchEditText)).perform(typeText("Honda"));
+
+        UiObject resultObject = device.findObject(new UiSelector().textContains("Honda Something"));
+        UiObject resultNotExist1 = device.findObject(new UiSelector().textContains("Toyota Something"));
+        UiObject resultNotExist2 = device.findObject(new UiSelector().textContains("Ford Something"));
+
+        assertTrue(resultObject.exists());
+        assertFalse(resultNotExist1.exists());
+        assertFalse(resultNotExist2.exists());
+
     }
 
 }
