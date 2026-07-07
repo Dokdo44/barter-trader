@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 public class AddProductActivityTest {
 
     @Rule
@@ -38,35 +39,74 @@ public class AddProductActivityTest {
     }
 
     @Test
-    public void CreateListingButtonDisabledWhenOnlyTitleFilled()
-    {
-        Espresso.onView(withId(R.id.InputTitle)).perform(typeText("Test listing"));
-
-        Espresso.closeSoftKeyboard();
-
+    public void createListingButtonDisabledWhenTitleMissing() {
+        fillRequiredFieldsExcept("title");
         Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
     }
 
     @Test
-    public void CreateListingButtonDisabledWhenOnlyCategorySelected()
-    {
-        Espresso.onView(withId(R.id.CategorySpinner)).perform(click());
-        Espresso.onData(allOf(is(instanceOf(String.class)), is("decoration"))).perform(click());
-
+    public void createListingButtonDisabledWhenDescriptionMissing() {
+        fillRequiredFieldsExcept("description");
         Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
-
     }
 
     @Test
-    public void CreateListingButtonEnabledAfterTitleFilledAndCategorySelected()
-    {
-        Espresso.onView(withId(R.id.InputTitle)).perform(typeText("Test listing"));
+    public void createListingButtonDisabledWhenLocationMissing() {
+        fillRequiredFieldsExcept("location");
+        Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
+    }
 
-        Espresso.closeSoftKeyboard();
+    @Test
+    public void createListingButtonDisabledWhenDateMissing() {
+        fillRequiredFieldsExcept("date");
+        Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
+    }
 
-        Espresso.onView(withId(R.id.CategorySpinner)).perform(click());
-        Espresso.onData(allOf(is(instanceOf(String.class)), is("decoration"))).perform(click());
+    @Test
+    public void createListingButtonDisabledWhenMarketValueMissing() {
+        fillRequiredFieldsExcept("marketValue");
+        Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
+    }
 
+    @Test
+    public void createListingButtonDisabledWhenCategoryNotSelected() {
+        fillRequiredFieldsExcept("category");
+        Espresso.onView(withId(R.id.createListing)).check(matches(isNotEnabled()));
+    }
+
+    @Test
+    public void createListingButtonEnabledWhenAllRequiredFieldsFilled() {
+        fillRequiredFieldsExcept(null);
         Espresso.onView(withId(R.id.createListing)).check(matches(isEnabled()));
+    }
+
+    private void fillRequiredFieldsExcept(String skipField) {
+        if (!"title".equals(skipField)) {
+            typeInto(R.id.InputTitle, "Test listing");
+        }
+        if (!"description".equals(skipField)) {
+            typeInto(R.id.InputDescription, "Test description");
+        }
+        if (!"location".equals(skipField)) {
+            typeInto(R.id.InputLocation, "Test address");
+        }
+        if (!"date".equals(skipField)) {
+            typeInto(R.id.InputDate, "06/07/2026");
+        }
+        if (!"marketValue".equals(skipField)) {
+            typeInto(R.id.InputMarketValue, "20");
+        }
+        if (!"category".equals(skipField)) {
+            selectCategory("Decoration");
+        }
+    }
+
+    private void typeInto(int viewId, String text) {
+        Espresso.onView(withId(viewId)).perform(typeText(text));
+        Espresso.closeSoftKeyboard();
+    }
+    private void selectCategory(String categoryName) {
+        Espresso.onView(withId(R.id.CategorySpinner)).perform(click());
+        Espresso.onData(allOf(is(instanceOf(String.class)), is(categoryName))).perform(click());
     }
 }
