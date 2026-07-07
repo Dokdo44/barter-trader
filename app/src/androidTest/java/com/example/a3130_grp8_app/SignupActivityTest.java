@@ -24,7 +24,6 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.util.FirebaseEmulator;
 
 import org.junit.Before;
 import org.junit.Rule;
