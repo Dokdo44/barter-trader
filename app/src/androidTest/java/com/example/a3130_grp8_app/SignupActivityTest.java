@@ -38,12 +38,6 @@ public class SignupActivityTest {
     public ActivityScenarioRule<SignupActivity> activityTestRule =
             new ActivityScenarioRule<>(SignupActivity.class);
 
-    @Before
-    public void setUp() {
-        FirebaseManager.setDb(FirebaseEmulator.getDatabase());
-        FirebaseManager.setAuth(FirebaseEmulator.getAuth());
-    }
-
     /**
      * Verifies that the signup button starts disabled when required fields are empty.
      */
