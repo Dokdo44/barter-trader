@@ -102,4 +102,20 @@ public class Product implements Serializable {
     public void setTimeUploaded(String timeUploaded) {
         this.timeUploaded = timeUploaded;
     }
+    public String getDateAvailable() {
+        return dateAvailable;
+    }
+
+    public void setDateAvailable(String dateAvailable) {
+        this.dateAvailable = dateAvailable;
+    }
+
+    public List<String> getPreferredItems() {
+        return preferredItems;
+    }
+
+    public void setPreferredItems(List<String> preferredItems) {
+        this.preferredItems = preferredItems;
+    }
+
 }
