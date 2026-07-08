@@ -2,6 +2,7 @@ package com.example.a3130_grp8_app.model;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Product {
@@ -64,6 +65,7 @@ public class Product {
     }
 
     public LocalDateTime getTimeUploaded() {
-        return LocalDateTime.parse(timeUploaded);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(timeUploaded, formatter);
     }
 }

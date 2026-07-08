@@ -3,6 +3,7 @@ package com.example.a3130_grp8_app;
 import android.content.Context;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -21,6 +22,7 @@ import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +31,9 @@ public class ProductSearchActivity extends AppCompatActivity {
 
     FirebaseDatabase db;
     DatabaseReference productReference;
+
+    private List<Product> products = new ArrayList<>();
+    FirebaseManager manager = FirebaseManager.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,13 +52,15 @@ public class ProductSearchActivity extends AppCompatActivity {
         Button searchButton = findViewById(R.id.searchButton);
         searchButton.setEnabled(false);
         searchButton.setOnClickListener(v -> onSearch());
+        beforeSearchPage();
 
     }
 
     private void beforeSearchPage()
     {
-        ScrollView productContainer = findViewById(R.id.SearchResultView);
-
+        LinearLayout productContainer = findViewById(R.id.searchResultsLayout);
+        loadProductsWithListener();
+        displaySearchResults(productContainer);
 
     }
     private void onSearch()
@@ -61,8 +68,43 @@ public class ProductSearchActivity extends AppCompatActivity {
 
     }
 
-    private void displaySearchResults()
+    private void displaySearchResults(LinearLayout productContainer)
     {
+        productContainer.removeAllViews();
 
+        for (Product product : products)
+        {
+            TextView productView = new TextView(this);
+            productView.setText(product.getName());
+            productView.setTextSize(20);
+
+            productContainer.addView(productView);
+        }
+    }
+
+    private void  sortProductsByDate()
+    {
+        products.sort((p1, p2) -> {
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-DD HH:mm:ss");
+
+            return p2.getTimeUploaded().compareTo(p1.getTimeUploaded());
+        });
+    }
+
+    private void loadProductsWithListener()
+    {
+        manager.addProductChildEventListener("timeUploaded", new FirebaseManager.ProductChildEventListener()
+        {
+            @Override
+            public void onGetProduct (Product product)
+            {
+                if (product == null) return;
+                products.add(product);
+                sortProductsByDate();
+
+            }
+
+
+        });
     }
 }
