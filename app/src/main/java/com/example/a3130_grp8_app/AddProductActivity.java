@@ -9,10 +9,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 
@@ -103,6 +110,37 @@ public class AddProductActivity extends AppCompatActivity {
             Toast.makeText(this, "Upload Photo (Mock for now)", Toast.LENGTH_SHORT).show();
         }
         private void onCreateListingButtonClick() {
+            createListingButton.setEnabled(false);
+
+            String name = titleInput.getText().toString().trim();
+            String description = descriptionInput.getText().toString().trim();
+            String address = locationInput.getText().toString().trim();
+            double price = parsePrice(marketValueInput.getText().toString().trim());
+            List<String> categories = Collections.singletonList( (String) categorySpinner.getSelectedItem());
+            String providerUid = FirebaseManager.getCurrentUser() != null ? FirebaseManager.getCurrentUser().getUid() : null;
+            String timeUploaded = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CANADA)
+                    .format(new Date());
+
+            Product product = new Product(name, description, address, price, categories, true, "placeholder", providerUid, timeUploaded);
+
+            FirebaseManager.createProduct(product).addOnSuccessListener(productId -> onCreateListingSuccess()).addOnFailureListener(this::onCreateListingFailure);
 
         }
-    }
+
+        private double parsePrice(String rawValue) {
+            try {
+                return Double.parseDouble(rawValue);
+            } catch (NumberFormatException e) {
+            return 0.0;
+            }
+        }
+        private void onCreateListingSuccess() {
+            Toast.makeText(this, "Listing created", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        private void onCreateListingFailure(Exception error) {
+            Toast.makeText(this, "Could not create listing", Toast.LENGTH_SHORT).show();
+            createListingButton.setEnabled(true);
+        }
+
+}
