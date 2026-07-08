@@ -3,6 +3,7 @@ package com.example.a3130_grp8_app;
 import android.content.Context;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -33,6 +34,11 @@ public class ProductSearchActivity extends AppCompatActivity {
     DatabaseReference productReference;
 
     private List<Product> products = new ArrayList<>();
+
+    EditText searchField;
+
+    LinearLayout productContainer;
+
     FirebaseManager manager = FirebaseManager.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,38 +53,59 @@ public class ProductSearchActivity extends AppCompatActivity {
             return insets;
 
         });
-        //db = FirebaseManager.getDb();
-        //productReference = db.getReference("products");
+
         Button searchButton = findViewById(R.id.searchButton);
         searchButton.setEnabled(false);
         searchButton.setOnClickListener(v -> onSearch());
+        searchField = findViewById(R.id.searchEditText);
+        productContainer = findViewById(R.id.searchResultsLayout);
         beforeSearchPage();
+        searchButton.setEnabled(true);
 
     }
 
     private void beforeSearchPage()
     {
-        LinearLayout productContainer = findViewById(R.id.searchResultsLayout);
+
         loadProductsWithListener();
-        displaySearchResults(productContainer);
+        displaySearchResults(productContainer, "", false);
 
     }
     private void onSearch()
     {
+        loadProductsWithListener();
+        displaySearchResults(productContainer, searchField.getText().toString(), true);
 
     }
 
-    private void displaySearchResults(LinearLayout productContainer)
+    private void displaySearchResults(LinearLayout productContainer, String searchText, boolean isSearching)
     {
         productContainer.removeAllViews();
 
         for (Product product : products)
         {
-            TextView productView = new TextView(this);
-            productView.setText(product.getName());
-            productView.setTextSize(20);
+            if (!isSearching) {
+                TextView productView = new TextView(this);
+                productView.setText(product.getName());
+                productView.setTextSize(20);
 
-            productContainer.addView(productView);
+                productContainer.addView(productView);
+            }
+            else
+            {
+                if (product.getName().contains(searchText))
+                {
+                    TextView productView = new TextView(this);
+                    productView.setText(product.getName());
+                    productView.setTextSize(20);
+
+                    productContainer.addView(productView);
+                }
+                else
+                {
+                    continue;
+                }
+            }
         }
     }
 
@@ -91,8 +118,11 @@ public class ProductSearchActivity extends AppCompatActivity {
         });
     }
 
+
+
     private void loadProductsWithListener()
     {
+        products.clear();
         manager.addProductChildEventListener("timeUploaded", new FirebaseManager.ProductChildEventListener()
         {
             @Override
@@ -101,6 +131,7 @@ public class ProductSearchActivity extends AppCompatActivity {
                 if (product == null) return;
                 products.add(product);
                 sortProductsByDate();
+
 
             }
 

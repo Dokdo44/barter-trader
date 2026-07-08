@@ -178,6 +178,7 @@ public class ProductSearchActivityTest {
     @Test
     public void onlyShowsResultsWithSearchText() {
         Espresso.onView(withId(R.id.searchEditText)).perform(typeText("Honda"));
+        Espresso.onView(withId(R.id.searchButton)).perform(click());
 
         UiObject resultObject = device.findObject(new UiSelector().textContains("Honda Something"));
         UiObject resultNotExist1 = device.findObject(new UiSelector().textContains("Toyota Something"));
