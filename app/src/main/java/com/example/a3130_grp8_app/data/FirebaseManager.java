@@ -1,7 +1,5 @@
 package com.example.a3130_grp8_app.data;
 
-import android.provider.ContactsContract;
-
 import com.example.a3130_grp8_app.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Task;
@@ -138,7 +136,7 @@ public class FirebaseManager {
      * @return taskt that resolves to the product
      */
     public static Task<Product> getProduct(String productId) {
-        return getProductReference().child(productId).get().continueWith(task -> task.getResult().getValue(Product.class));
+        return getProductsReference().child(productId).get().continueWith(task -> task.getResult().getValue(Product.class));
     }
     private static DatabaseReference getProductsReference() {
         return getDb().getReference(PRODUCTS_PATH);

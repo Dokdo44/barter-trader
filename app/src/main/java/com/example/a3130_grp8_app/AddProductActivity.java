@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Arrays;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -117,11 +118,14 @@ public class AddProductActivity extends AppCompatActivity {
             String address = locationInput.getText().toString().trim();
             double price = parsePrice(marketValueInput.getText().toString().trim());
             List<String> categories = Collections.singletonList( (String) categorySpinner.getSelectedItem());
+            String dateAvailable = dateInput.getText().toString().trim();
+            List<String> preferredItems = Arrays.asList(
+                    preferredItemsInput.getText().toString().split("\\s*,\\s*"));
             String providerUid = FirebaseManager.getCurrentUser() != null ? FirebaseManager.getCurrentUser().getUid() : null;
-            String timeUploaded = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CANADA)
+            String timeUploaded = new SimpleDateFormat("yyyy-MM-dd' T 'HH:mm:ss", Locale.CANADA)
                     .format(new Date());
 
-            Product product = new Product(name, description, address, price, categories, true, "placeholder", providerUid, timeUploaded);
+            Product product = new Product(name, description, address, price, categories, true, "placeholder", providerUid, timeUploaded, dateAvailable, preferredItems);
 
             FirebaseManager.createProduct(product).addOnSuccessListener(productId -> onCreateListingSuccess()).addOnFailureListener(this::onCreateListingFailure);
 

@@ -14,12 +14,15 @@ public class Product implements Serializable {
     private String providerUid;
 
     private String timeUploaded;
+    private String dateAvailable;
+    private List<String> preferredItems;
 
     public Product() {
 
     }
 
-    public Product(String name, String description, String address, double price, List<String> categories, boolean available, String imageUrl, String providerUid, String timeUploaded) {
+    public Product(String name, String description, String address, double price, List<String> categories, boolean available,
+                   String imageUrl, String providerUid, String timeUploaded, String dateAvailable, List<String> preferredItems) {
         this.name = name;
         this.description = description;
         this.address = address;
@@ -29,6 +32,8 @@ public class Product implements Serializable {
         this.imageUrl = imageUrl;
         this.providerUid = providerUid;
         this.timeUploaded = timeUploaded;
+        this.dateAvailable = dateAvailable;
+        this.preferredItems = preferredItems != null ? preferredItems : new ArrayList<>();
     }
 
     public String getName() {
