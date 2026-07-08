@@ -43,6 +43,8 @@ import com.google.firebase.auth.MultiFactor;
 import com.google.firebase.auth.MultiFactorInfo;
 import com.google.firebase.auth.UserInfo;
 
+import net.bytebuddy.asm.Advice;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,8 +53,10 @@ import org.mockito.invocation.InvocationOnMock;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -66,11 +70,44 @@ public class ProductSearchActivityTest {
     private ArrayList<Product> products;
     private FirebaseUser firebaseUser;
 
+    enum OrderOptions {
+        PROVIDER_UID,
+        NAME,
+        DESCRIPTION,
+        IMAGE_URL,
+        CATEGORIES,
+        ADDRESS,
+        AVAILABLE,
+        PRICE,
+        TIME_UPLOADED
+    }
+
     private class TestFirebaseManager extends FirebaseManager {
+
+        private Comparator<Product> getProductComparator(String orderBy) {
+            return new Comparator<Product>() {
+                @Override
+                public int compare(Product productA, Product productB) {
+                    return switch(orderBy) {
+                        case "providerUid" -> CharSequence.compare(productA.getProviderUid(), productB.getProviderUid());
+                        case "name" -> CharSequence.compare(productA.getName(), productB.getName());
+                        case "description" -> CharSequence.compare(productA.getDescription(), productB.getDescription());
+                        case "imageUrl" -> CharSequence.compare(productA.getImageUrl(), productB.getImageUrl());
+                        case "address" ->  CharSequence.compare(productA.getAddress(), productB.getAddress());
+                        case "available" -> Boolean.compare(productA.isAvailable(), productB.isAvailable());
+                        case "price" -> Float.compare(productA.getPrice(), productB.getPrice());
+                        case "timeUploaded" -> productA.getTimeUploaded().compareTo(productB.getTimeUploaded());
+                        default -> throw new IllegalStateException("invalid orderBy string: " + orderBy);
+                    };
+                }
+            };
+        }
+
         @Override
         public void addProductChildEventListener(
                 String orderBy,
                 ProductChildEventListener productChildEventListener) {
+            products.sort(getProductComparator(orderBy));
             for(Product product : products) {
                 productChildEventListener.onGetProduct(product);
             }
