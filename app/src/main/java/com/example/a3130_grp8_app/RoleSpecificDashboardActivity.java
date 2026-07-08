@@ -48,7 +48,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     private void loadCurrentUserProfile() {
         try {
             // The dashboard reads role/email from /users/{uid}, not from the Auth credential record.
-            FirebaseManager.getCurrentUserProfile()
+            FirebaseManager.getInstance().getCurrentUserProfile()
                     .addOnSuccessListener(this::onGetProfileSuccess)
                     .addOnFailureListener(this::onGetProfileFailure);
         } catch (FirebaseConnectionError e) {
@@ -65,7 +65,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onLogoutButtonClick() {
-        FirebaseManager.signOut();
+        FirebaseManager.getInstance().signOut();
         startActivity(new Intent(this, LoginActivity.class));
         finish();
     }

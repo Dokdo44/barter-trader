@@ -62,106 +62,11 @@ dependencies {
     androidTestImplementation libs.uiautomator
     androidTestImplementation libs.monitor
     testImplementation libs.junit
+    testImplementation libs.jackson.databind
+    androidTestImplementation libs.jackson.databind
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.espresso.intents
     androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.mockito.android
     implementation libs.firebase.auth
-}
-
-// Script-level variable — shared across all task closures
-Process emulatorProcess = null
-
-tasks.register('installFirebaseCli', Exec) {
-    def marker = file(isWindows
-            ? "${rootDir}/.gradle/firebase/node_modules/.bin/firebase.cmd"
-            : "${rootDir}/.gradle/firebase/node_modules/.bin/firebase")
-    outputs.file(marker)
-    onlyIf { !marker.exists() }
-    Path path = Paths.get("${rootDir}/.gradle/firebase")
-    Files.createDirectories(path)
-    if (isWindows) {
-        commandLine 'cmd', '/c', 'npm', 'install', '--prefix', "${rootDir}/.gradle/firebase", 'firebase-tools'
-    } else {
-        commandLine 'npm', 'install', '--prefix', "${rootDir}/.gradle/firebase", 'firebase-tools'
-    }
-    standardOutput = System.out
-    errorOutput = System.err
-}
-
-tasks.register('installFirebaseEmulators', Exec) {
-    dependsOn 'installFirebaseCli'
-    def emulatorDir = file("${rootDir}/.gradle/firebase-emulators")
-    outputs.dir(emulatorDir)
-    onlyIf { !emulatorDir.exists() || emulatorDir.listFiles().length == 0 }
-    environment 'FIREBASE_EMULATORS_PATH', emulatorDir.absolutePath
-    environment 'CI', 'true'
-    if (isWindows) {
-        commandLine 'cmd', '/c', firebaseBin, 'setup:emulators:firestore', '--non-interactive'
-    } else {
-        commandLine firebaseBin, 'setup:emulators:firestore', '--non-interactive'
-    }
-}
-
-tasks.register('startEmulators') {
-    dependsOn 'installFirebaseEmulators'
-    doLast {
-        def logFile = layout.buildDirectory.file("reports/firebase-emulator.log").get().asFile
-        logFile.parentFile.mkdirs()
-
-        emulatorProcess = new ProcessBuilder(  // assigns to script-level variable
-                firebaseBin, 'emulators:start',
-                '--only', 'database,auth,ui',
-                '--project', testProjectId,
-                '--non-interactive'
-        )
-                .directory(rootDir)
-                .redirectOutput(logFile)
-                .redirectErrorStream(true)
-                .start()
-
-        def ready = false
-        for (int i = 0; i < 60; i++) {
-            try {
-                def connection = URI.create("http://localhost:${databasePort}")
-                        .toURL()
-                        .openConnection() as HttpURLConnection
-                connection.connectTimeout = 500
-                connection.connect()
-                connection.disconnect()
-                ready = true
-                break
-            } catch (ignored) {
-                Thread.sleep(1000)
-                print "."
-            }
-        }
-
-        if (!ready) {
-            emulatorProcess?.destroy()
-            throw new GradleException("Emulators failed to start. Check ${logFile}.\n" +
-                    "If you have not logged in to the local Firebase, please run command \"${firebaseBin} login\"")
-        }
-        println "\nFirebase emulators ready."
-    }
-}
-
-tasks.register('stopEmulators') {  // NOT Exec type — it's just a plain task
-    doLast {
-        if (emulatorProcess != null) {  // reads script-level variable
-            emulatorProcess.destroy()
-            emulatorProcess.waitFor()
-            emulatorProcess = null
-            println "Firebase emulators stopped."
-        } else {
-            println "No emulator process found — skipping."
-        }
-    }
-}
-
-// Use configureEach to hook into connectedAndroidTest lazily
-tasks.configureEach { task ->
-    if (task.name == 'connectedDebugAndroidTest') {
-        task.dependsOn 'startEmulators'
-        task.finalizedBy 'stopEmulators'
-    }
 }

@@ -1,6 +1,6 @@
 {
   "users": {
-    "user1": {
+    "user1":{
       "email": "receiver@example.com",
       "role": "Buyer"
     },
@@ -17,8 +17,8 @@
       "role": "Seller"
     }
   },
-  "products": {
-    "product1": {
+  "products": [
+    {
       "providerUid": "user2",
       "name": "Toyota Something",
       "description": "It's a real good car",
@@ -29,7 +29,7 @@
       "timeUploaded": "2026-07-04 12:55:00",
       "price": 100.20
     },
-    "product2": {
+    {
       "providerUid": "user3",
       "name": "Ford Something",
       "description": "It's a real good truck",
@@ -40,7 +40,7 @@
       "timeUploaded": "2026-07-04 11:55:00",
       "price": 200.30
     },
-    "product3": {
+    {
       "providerUid": "user4",
       "name": "Honda Something",
       "description": "It's a real good car (this time a Honda)",
@@ -51,5 +51,5 @@
       "timeUploaded": "2026-07-03 11:55:00",
       "price": 1000.00
     }
-  }
+  ]
 }
