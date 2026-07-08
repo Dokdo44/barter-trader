@@ -2,6 +2,8 @@ package com.example.a3130_grp8_app;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -16,6 +18,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 
 import com.example.a3130_grp8_app.model.Product;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -74,13 +78,19 @@ public class ProductSearchActivity extends AppCompatActivity {
     private void onSearch()
     {
         loadProductsWithListener();
+
+
         displaySearchResults(productContainer, searchField.getText().toString(), true);
+
+
 
     }
 
     private void displaySearchResults(LinearLayout productContainer, String searchText, boolean isSearching)
     {
         productContainer.removeAllViews();
+        ChipGroup categoryChipGroup = findViewById(R.id.categoryChipGroup);
+        List<String> selectedCategories = getSelectedChipTexts(categoryChipGroup);
 
         for (Product product : products)
         {
@@ -93,7 +103,7 @@ public class ProductSearchActivity extends AppCompatActivity {
             }
             else
             {
-                if (product.getName().contains(searchText))
+                if (product.getName().contains(searchText) && matchesAtLeastOne(product.getCategories(), new ArrayList<>(selectedCategories)))
                 {
                     TextView productView = new TextView(this);
                     productView.setText(product.getName());
@@ -118,7 +128,33 @@ public class ProductSearchActivity extends AppCompatActivity {
         });
     }
 
+    private List<String> getSelectedChipTexts(ChipGroup chipGroup) {
+        List<String> selectedTexts = new ArrayList<>();
 
+        for (Integer id : chipGroup.getCheckedChipIds()) {
+            Chip chip = chipGroup.findViewById(id);
+
+            if (chip != null) {
+                selectedTexts.add(chip.getText().toString());
+            }
+        }
+
+        return selectedTexts;
+    }
+
+    private boolean matchesAtLeastOne(ArrayList<String> itemCategories, ArrayList<String> selectedCategories)
+    {
+        if (selectedCategories.isEmpty()) return true;
+
+        for (String category: itemCategories)
+        {
+            if (selectedCategories.contains(category))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void loadProductsWithListener()
     {

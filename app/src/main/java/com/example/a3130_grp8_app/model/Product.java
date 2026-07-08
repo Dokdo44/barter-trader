@@ -1,5 +1,7 @@
 package com.example.a3130_grp8_app.model;
 
+import android.widget.ArrayAdapter;
+
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -63,6 +65,8 @@ public class Product {
     public float getPrice() {
         return price;
     }
+
+
 
     public LocalDateTime getTimeUploaded() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

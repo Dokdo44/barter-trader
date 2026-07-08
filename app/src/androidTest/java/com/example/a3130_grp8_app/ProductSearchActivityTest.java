@@ -192,6 +192,7 @@ public class ProductSearchActivityTest {
     @Test
     public void onlyShowsResultsWithCategories() {
         Espresso.onView(withId(R.id.carChip)).perform(click());
+        Espresso.onView(withId(R.id.searchButton)).perform(click());
 
         UiObject resultObject1 = device.findObject(new UiSelector().textContains("Honda Something"));
         UiObject resultObject2 = device.findObject(new UiSelector().textContains("Toyota Something"));
