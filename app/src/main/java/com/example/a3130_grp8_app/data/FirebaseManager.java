@@ -1,8 +1,12 @@
 package com.example.a3130_grp8_app.data;
 
+import android.provider.ContactsContract;
+
 import com.example.a3130_grp8_app.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Task;
+import com.example.a3130_grp8_app.model.Product;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class FirebaseManager {
 
     private static final String USERS_PATH = "users";
+    private static final String PRODUCTS_PATH = "product";
     private static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private static FirebaseAuth auth;
@@ -105,6 +110,38 @@ public class FirebaseManager {
         // Dashboard data comes from /users/{uid}, keeping role separate from Auth credentials.
         return getUserReference(firebaseUser.getUid()).get()
                 .continueWith(task -> task.getResult().getValue(User.class));
+    }
+
+    /**
+     * Saves new product listing under /product/{productId}
+     *
+     * @param product product to save
+     * @return task to resolve generated product id
+     */
+    public static Task<String> createProduct(Product product) {
+        DatabaseReference newRef = getProductsReference().push();
+        String productId = newRef.getKey();
+        if (productId == null) {
+            return Tasks.forException(new FirebaseConnectionError());
+        }
+        return newRef.setValue(product).continueWith(task -> {
+            if(!task.isSuccessful()) {
+                throw task.getException();
+            }
+            return productId;
+        });
+    }
+
+    /**
+     *
+     * @param productId Id of the product to load
+     * @return taskt that resolves to the product
+     */
+    public static Task<Product> getProduct(String productId) {
+        return getProductReference().child(productId).get().continueWith(task -> task.getResult().getValue(Product.class));
+    }
+    private static DatabaseReference getProductsReference() {
+        return getDb().getReference(PRODUCTS_PATH);
     }
 
     /**
