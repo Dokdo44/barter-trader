@@ -74,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         // Disable while Auth checks credentials to avoid duplicate login requests.
         loginButton.setEnabled(false);
 
-        FirebaseManager.signIn(email, password).addOnCompleteListener(this, task -> {
+        FirebaseManager.getInstance().signIn(email, password).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 startActivity(new Intent(LoginActivity.this, RoleSpecificDashboardActivity.class));
                 finish();

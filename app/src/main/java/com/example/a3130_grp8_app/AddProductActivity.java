@@ -121,7 +121,9 @@ public class AddProductActivity extends AppCompatActivity {
             String dateAvailable = dateInput.getText().toString().trim();
             List<String> preferredItems = Arrays.asList(
                     preferredItemsInput.getText().toString().split("\\s*,\\s*"));
-            String providerUid = FirebaseManager.getCurrentUser() != null ? FirebaseManager.getCurrentUser().getUid() : null;
+            String providerUid = FirebaseManager.getInstance().getCurrentUser() != null
+                    ? FirebaseManager.getInstance().getCurrentUser().getUid()
+                    : null;
             String timeUploaded = new SimpleDateFormat("yyyy-MM-dd' T 'HH:mm:ss", Locale.CANADA)
                     .format(new Date());
 
