@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -37,23 +39,15 @@ import java.util.Locale;
 
 public class ProductListActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap googleMap;
-    private SupportMapFragment mapFragment;
-    private FragmentManager fragmentManager;
-    private Button mapViewButton;
-
     private FusedLocationProviderClient fusedLocationClient;
     private Geocoder geocoder;
 
-    private final ActivityResultLauncher<String> requestPermissionsOnViewMapButton =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    enableMyLocationIfPermitted();
-                    showMap();
-                } else {
-                    Log.d("debug", "User rejected permissions");
-                }
-            });
+    private SupportMapFragment mapFragment;
+    private FragmentManager fragmentManager;
+    private GoogleMap googleMap;
+
+    private Button mapViewButton;
+
 
 
     @Override
@@ -82,7 +76,6 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
     }
 
     private final View.OnClickListener onMapViewButtonClick = view -> {
-
         if(mapFragment.isHidden()) {
             showMapOrGetPermissions();
         } else {
@@ -99,49 +92,79 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
         fragmentManager.beginTransaction().hide(mapFragment).commit();
     }
 
+    private LatLng getLatLngForAddressString(String addressString)
+            throws
+            IOException,
+            IllegalArgumentException{
+        List<Address> addressResults;
+        addressResults = geocoder.getFromLocationName(addressString, 1);
+        if(addressResults == null || addressResults.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Address had no geolocation results: " + addressString
+            );
+        }
+        Address address = addressResults.get(0);
+        return new LatLng(address.getLatitude(), address.getLongitude());
+    }
+
+    private String createProductSnippet(Product product) {
+        return String.format(
+                "Price: %s, Categories: %s, Address: %s\n",
+                product.getPrice(),
+                String.join(", ", product.getCategories()),
+                product.getAddress()
+        );
+    }
+
+    private void addMapMarkerForProduct(Product product) {
+        try {
+            LatLng position = getLatLngForAddressString(product.getAddress());
+            Marker marker = googleMap.addMarker(
+                    new MarkerOptions()
+                    .position(position)
+                    .title(product.getName())
+                    .snippet(createProductSnippet(product))
+            );
+            if(marker != null) {
+                marker.setTag(product);
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            Log.e("error", e.getMessage());
+        }
+    }
+
     FirebaseManager.ProductChildEventListener productChildEventListener =
             new FirebaseManager.ProductChildEventListener() {
         @Override
         public void onGetProduct(Product product) {
-            List<Address> addressResults;
-            try {
-                addressResults = geocoder.getFromLocationName(product.getAddress(), 1);
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-                return;
-            }
-            if(addressResults == null || addressResults.isEmpty()) {
-                System.err.println("Was not able to get address for product: " + product.getAddress());
-                return;
-            }
-            Address address = addressResults.get(0);
-            LatLng position = new LatLng(address.getLatitude(), address.getLongitude());
-
-            Marker marker = googleMap.addMarker(new MarkerOptions()
-                    .position(position)
-                    .title(product.getName())
-                    .snippet(Float.toString(product.getPrice())));
-            if(marker != null) {
-                marker.setTag(product);
-            }
+            addMapMarkerForProduct(product);
         }
     };
+
+    private void onMarkerInfoWindowClick(Marker marker) {
+        Product product = (Product) marker.getTag();
+        if(product == null) return;
+
+        Intent intent = new Intent(this, ProductDetailActivity.class);
+        intent.putExtra("PRODUCT_NAME", product.getName());
+        startActivity(intent);
+    }
 
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
         updateCameraLocation();
 
-        FirebaseManager.getInstance().addProductChildEventListener("address", productChildEventListener);
+        FirebaseManager
+                .getInstance()
+                .addProductChildEventListener("address", productChildEventListener);
 
-        googleMap.setOnInfoWindowClickListener(marker -> {
-            Product product = (Product) marker.getTag();
-            if(product == null) return;
+        googleMap.setOnInfoWindowClickListener(this::onMarkerInfoWindowClick);
+    }
 
-            Intent intent = new Intent(this, ProductDetailActivity.class);
-            intent.putExtra("PRODUCT_NAME", product.getName());
-            startActivity(intent);
-        });
+    @SuppressLint("MissingPermission")
+    private void enableMyLocationIfPermitted() {
+        googleMap.setMyLocationEnabled(true);
     }
 
     private boolean haveLocationPermissions() {
@@ -157,6 +180,20 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
                 || coarseLocationPermissions == PackageManager.PERMISSION_GRANTED;
     }
 
+    private void handlePermissionsResultOnViewMapButtonClick(boolean isGranted) {
+        if (isGranted) {
+            enableMyLocationIfPermitted();
+            showMap();
+        } else {
+            Log.d("debug", "User rejected permissions");
+        }
+    }
+
+    private final ActivityResultLauncher<String> requestPermissionsOnViewMapButtonClick =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    this::handlePermissionsResultOnViewMapButtonClick);
+
     private void showMapOrGetPermissions() {
         if(haveLocationPermissions()) {
             if(!googleMap.isMyLocationEnabled()) {
@@ -166,25 +203,23 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
             return;
         }
 
-        requestPermissionsOnViewMapButton.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        requestPermissionsOnViewMapButtonClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-    @SuppressLint("MissingPermission")
-    private void enableMyLocationIfPermitted() {
-        googleMap.setMyLocationEnabled(true);
+    private void updateCameraByLocation(Location location) {
+        if(location != null) {
+            LatLng targetLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(targetLatLng, 10.0f);
+            googleMap.animateCamera(cameraUpdate);
+            return;
+        }
+        throw new RuntimeException("Could not get location");
     }
 
     @SuppressLint("MissingPermission")
     private void updateCameraLocation() {
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if(location != null) {
-                        LatLng targetLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(targetLatLng, 10.0f);
-                        googleMap.animateCamera(cameraUpdate);
-                        return;
-                    }
-                    throw new RuntimeException("Could not get location");
-                });
+        fusedLocationClient
+                .getLastLocation()
+                .addOnSuccessListener(this, this::updateCameraByLocation);
     }
 }
