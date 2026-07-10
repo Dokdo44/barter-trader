@@ -44,7 +44,7 @@ public class PasswordResetActivity extends AppCompatActivity {
     private void requestPasswordReset() {
         String email = emailInput.getText().toString().trim();
         // Firebase Auth owns password reset delivery, so the Activity only triggers the request.
-        FirebaseManager.sendPasswordResetEmail(email)
+        FirebaseManager.getInstance().sendPasswordResetEmail(email)
                 .addOnSuccessListener(unused -> onResetRequestSuccess())
                 .addOnFailureListener(this::onResetFailure);
     }

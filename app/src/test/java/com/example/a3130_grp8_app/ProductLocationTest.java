@@ -7,6 +7,7 @@ import com.example.a3130_grp8_app.model.Product;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,11 +20,11 @@ public class ProductLocationTest {
                 name,
                 "A description",
                 null,
-                new String[]{category},
+                new ArrayList<String>(List.of(category)),
                 address,
                 true,
                 0.0f,
-                LocalDateTime.now()
+                LocalDateTime.now().toString()
         );
     }
 
@@ -83,8 +84,8 @@ public class ProductLocationTest {
 
         String category = "Furniture";
         List<Product> result = products.stream()
-                .filter(p -> Arrays.asList(p.getCategories()).contains(category))
-                .collect(Collectors.toList());
+                .filter(p -> Arrays.asList(p.getCategories()).contains(List.of(category)))
+                .toList();
 
         assertEquals(2, result.size());
     }

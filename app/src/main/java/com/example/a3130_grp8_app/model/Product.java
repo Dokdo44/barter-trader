@@ -1,22 +1,26 @@
 package com.example.a3130_grp8_app.model;
 
+import android.widget.ArrayAdapter;
+
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class Product {
     private String providerUid;
     private String name;
     private String description;
     private String imageUrl;
-    private String[] categories;
+    private ArrayList<String> categories;
     private String address;
     private boolean available;
     private float price;
-    private LocalDateTime timeUploaded;
+    private String timeUploaded;
 
     public Product(String providerUid, String name, String description, String imageUrl,
-                   String[] categories, String address, boolean available, float price,
-                   LocalDateTime timeUploaded) {
+                   ArrayList<String> categories, String address, boolean available, float price,
+                   String timeUploaded) {
         this.providerUid = providerUid;
         this.name = name;
         this.description = description;
@@ -46,7 +50,7 @@ public class Product {
         return imageUrl;
     }
 
-    public String[] getCategories() {
+    public ArrayList<String> getCategories() {
         return categories;
     }
 
@@ -62,7 +66,10 @@ public class Product {
         return price;
     }
 
+
+
     public LocalDateTime getTimeUploaded() {
-        return timeUploaded;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(timeUploaded, formatter);
     }
 }
