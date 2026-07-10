@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
@@ -34,8 +34,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class ProductListActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -46,7 +44,16 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
 
     private FusedLocationProviderClient fusedLocationClient;
     private Geocoder geocoder;
-    private final CountDownLatch mapInitializedLatch = new CountDownLatch(1);
+
+    private final ActivityResultLauncher<String> requestPermissionsOnViewMapButton =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    enableMyLocationIfPermitted();
+                    showMap();
+                } else {
+                    Log.d("debug", "User rejected permissions");
+                }
+            });
 
 
     @Override
@@ -54,26 +61,43 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_list);
 
+        initGms();
+        initMapViewButton();
+    }
+
+    private void initGms() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        mapFragment =
-                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);
-
         fragmentManager = getSupportFragmentManager();
+        mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.mapFragment);
+        fragmentManager.beginTransaction().hide(mapFragment).commit();
+        mapFragment.getMapAsync(this);
+    }
 
+    private void initMapViewButton() {
         mapViewButton = findViewById(R.id.mapViewButton);
         mapViewButton.setOnClickListener(onMapViewButtonClick);
     }
 
     private final View.OnClickListener onMapViewButtonClick = view -> {
+
         if(mapFragment.isHidden()) {
-            fragmentManager.beginTransaction().show(mapFragment).commit();
+            showMapOrGetPermissions();
         } else {
-            fragmentManager.beginTransaction().hide(mapFragment).commit();
+            hideMap();
         }
     };
+
+    private void showMap() {
+        fragmentManager.beginTransaction().show(mapFragment).commit();
+        updateCameraLocation();
+    }
+
+    private void hideMap() {
+        fragmentManager.beginTransaction().hide(mapFragment).commit();
+    }
 
     FirebaseManager.ProductChildEventListener productChildEventListener =
             new FirebaseManager.ProductChildEventListener() {
@@ -106,9 +130,7 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
-        enableMyLocation();
         updateCameraLocation();
-        mapInitializedLatch.countDown();
 
         FirebaseManager.getInstance().addProductChildEventListener("address", productChildEventListener);
 
@@ -122,24 +144,34 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
         });
     }
 
-    private final ActivityResultLauncher<String> requestPermissionsLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    enableMyLocation();
-                } else {
-                    throw new RuntimeException("This is a temporary exception showing that location must be enabled");
-                }
-            });
-    @SuppressLint("MissingPermission")
-    private void enableMyLocation() {
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-        == PackageManager.PERMISSION_GRANTED
-        || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-        == PackageManager.PERMISSION_GRANTED) {
-            googleMap.setMyLocationEnabled(true);
+    private boolean haveLocationPermissions() {
+        int fineLocationPermissions = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+        int coarseLocationPermissions = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        );
+
+        return fineLocationPermissions == PackageManager.PERMISSION_GRANTED
+                || coarseLocationPermissions == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void showMapOrGetPermissions() {
+        if(haveLocationPermissions()) {
+            if(!googleMap.isMyLocationEnabled()) {
+                enableMyLocationIfPermitted();
+            }
+            showMap();
             return;
         }
-        requestPermissionsLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+
+        requestPermissionsOnViewMapButton.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void enableMyLocationIfPermitted() {
+        googleMap.setMyLocationEnabled(true);
     }
 
     @SuppressLint("MissingPermission")
