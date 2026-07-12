@@ -34,10 +34,11 @@ public class ViewRequestsActivityTest {
      */
     @Test
     public void allRequestsDisplayedTest() {
-        // Given a provider is logged in
-        // And the product has requests
-        // When the provider opens the product listing
-        // Then all submitted requests should be displayed
+        // All submitted requests should be displayed
+        Espresso.onView(withText("intrestedbuyer1@gmail.com"))
+                .check(matches(isDisplayed()));
+        Espresso.onView(withText("intrestedbuyer2@gmail.com"))
+                .check(matches(isDisplayed()));
     }
 
     /**
@@ -45,10 +46,12 @@ public class ViewRequestsActivityTest {
      */
     @Test
     public void requesterNameAndDetailsDisplayedTest() {
-        // Given requests exist
-        // When viewing the request list
-        // Then each request should display the requester's name
-        // And request details
+        // The requester's email and request status should be displayed
+        Espresso.onView(withText("intrestedbuyer1@gmail.com"))
+                .check(matches(isDisplayed()));
+
+        Espresso.onView(withText("Pending"))
+                .check(matches(isDisplayed()));
     }
 
     /**
@@ -56,9 +59,9 @@ public class ViewRequestsActivityTest {
      */
     @Test
     public void noRequestsMessageDisplayedTest() {
-        // Given there are no requests
-        // When viewing the request list
-        // Then "No requests have been submitted" should be displayed
+        // If no offers are present then "No offers have been submitted" should be displayed
+        Espresso.onView(withText("No offers have been submitted"))
+                .check(matches(isDisplayed()));
     }
 
     /**
@@ -66,8 +69,13 @@ public class ViewRequestsActivityTest {
      */
     @Test
     public void clickingRequestOpensRequesterDetailsTest() {
-        // Given requests are displayed
-        // When a request is clicked
+        // Given requests are displayed and we click an offer
+        Espresso.onView(withText("intrestedbuyer1@gmail.com"))
+                .perform(click());
         // Then the requester details screen should be shown
+        Espresso.onView(withText("intrestedbuyer1@gmail.com"))
+                .check(matches(isDisplayed()));
+        Espresso.onView(withText("pending"))
+                .check(matches(isDisplayed()));
     }
 }
