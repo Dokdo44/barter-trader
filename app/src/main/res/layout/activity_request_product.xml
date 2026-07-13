@@ -19,15 +19,25 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/requestProductTitle"
+            android:id="@+id/productTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Request This Product"
             android:textSize="22sp"
             android:textStyle="bold"
+            android:paddingBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/productDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/productCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:paddingBottom="16dp"/>
 
-        <!-- Shown after a successful request submission -->
         <TextView
             android:id="@+id/requestSuccess"
             android:layout_width="wrap_content"
@@ -41,6 +51,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Request Item"/>
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back to Dashboard"
+            android:layout_marginTop="16dp"/>
 
     </LinearLayout>
 

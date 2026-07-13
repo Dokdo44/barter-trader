@@ -19,6 +19,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private TextView dashboardEmail;
     private TextView dashboardRole;
+    private Button requestButton;
 
     /**
      * Initializes dashboard views, logout behavior, and profile loading.
@@ -39,17 +40,20 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardRole = findViewById(R.id.dashboardRole);
         Button logoutButton = findViewById(R.id.logoutButton);
         Button productButton = findViewById(R.id.productButton);
+        requestButton = findViewById(R.id.requestButton);
 
-        //add product button will start AddProduct activity. Only visibly if user role is buyer.
+        // Add product button will start AddProduct activity. Only visible if user role is seller.
         productButton.setVisibility(View.INVISIBLE);
-        productButton.setOnClickListener( v -> onAddProductButtonClick());
+        productButton.setOnClickListener(v -> onAddProductButtonClick());
+
+        // Temporary button to test request product flow independently of product detail page
+        requestButton.setOnClickListener(v ->
+                startActivity(new Intent(this, RequestProductActivity.class)));
 
         // Logout clears the Auth session and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
 
         loadCurrentUserProfile();
-
-
     }
 
     private void loadCurrentUserProfile() {
@@ -94,20 +98,15 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardRole.setText("");
     }
 
-    private void addProductButtonSetup()
-    {
+    private void addProductButtonSetup() {
         Button productButton = findViewById(R.id.productButton);
-        if (dashboardRole.getText().equals("Seller dashboard"))
-        {
+        if (dashboardRole.getText().equals("Seller dashboard")) {
             productButton.setVisibility(View.VISIBLE);
         }
-        return;
     }
-    private void onAddProductButtonClick()
-    {
-        startActivity(new Intent (this, AddProductActivity.class));
+
+    private void onAddProductButtonClick() {
+        startActivity(new Intent(this, AddProductActivity.class));
         finish();
     }
-
-
 }

@@ -95,7 +95,7 @@ public class ProductSearchActivityTest {
                         case "imageUrl" -> CharSequence.compare(productA.getImageUrl(), productB.getImageUrl());
                         case "address" ->  CharSequence.compare(productA.getAddress(), productB.getAddress());
                         case "available" -> Boolean.compare(productA.isAvailable(), productB.isAvailable());
-                        case "price" -> Float.compare(productA.getPrice(), productB.getPrice());
+                        case "price" -> Double.compare(productA.getPrice(), productB.getPrice());
                         case "timeUploaded" -> productA.getTimeUploaded().compareTo(productB.getTimeUploaded());
                         default -> throw new IllegalStateException("invalid orderBy string: " + orderBy);
                     };

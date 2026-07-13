@@ -60,7 +60,7 @@ public class RequestProductActivityTest {
      * Verifies that a submitted request exists in the database.
      */
     @Test
-    public void requestRecordExistsInDatabaseTest() {
+    public void requestRecordExistsInDatabaseTest() throws InterruptedException{
         ActivityScenario.launch(RequestProductActivity.class);
         Espresso.onView(withId(R.id.requestButton)).perform(click());
         TestAuthHelper.waitForDisplayedView(R.id.requestSuccess);
