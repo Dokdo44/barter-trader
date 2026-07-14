@@ -1,7 +1,5 @@
 package com.example.a3130_grp8_app.data;
 
-import android.net.Uri;
-
 import com.example.a3130_grp8_app.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.ProductListing;
 import com.example.a3130_grp8_app.model.User;
@@ -12,8 +10,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 /**
  * Centralizes Firebase Auth and Realtime Database calls so Activities do not hold business logic.
@@ -21,13 +17,11 @@ import com.google.firebase.storage.StorageReference;
 public class FirebaseManager {
 
     private static final String USERS_PATH = "users";
-    private static final String LISTINGS_PATH = "listings";
-    private static final String LISTING_PHOTOS_PATH = "listing_photos";
+    private static final String PRODUCT_PATH = "product";
     private static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private static FirebaseAuth auth;
     private static FirebaseDatabase db;
-    private static FirebaseStorage storage;
 
     /**
      * Returns the currently signed-in Firebase Auth user.
@@ -52,23 +46,12 @@ public class FirebaseManager {
         return auth;
     }
 
-    public static FirebaseStorage getStorage() {
-        if(storage == null) {
-            storage = FirebaseStorage.getInstance();
-        }
-        return storage;
-    }
-
     public static void setDb(FirebaseDatabase db) {
         FirebaseManager.db = db;
     }
 
     public static void setAuth(FirebaseAuth auth) {
         FirebaseManager.auth = auth;
-    }
-
-    public static void setStorage(FirebaseStorage storage) {
-        FirebaseManager.storage = storage;
     }
 
     /**
@@ -137,15 +120,13 @@ public class FirebaseManager {
     }
 
     /**
-     * Saves a provider listing and uploads its attached photo when one was selected.
+     * Saves a provider listing, including its optional Base64 photo, in Realtime Database.
      *
-     * @param listing listing form data without the final Firebase id and photo URL
-     * @param photoUri selected local image URI, or null when no photo was attached
-     * @return task that completes after photo upload and database save finish
+     * @param listing listing form data without the final Firebase id and provider uid
+     * @return task that completes after the database save finishes
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public static Task<Void> createProductListing(ProductListing listing, Uri photoUri)
-            throws FirebaseConnectionError {
+    public static Task<Void> createProductListing(ProductListing listing) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getCurrentUser();
         if (firebaseUser == null) {
             throw new FirebaseConnectionError();
@@ -160,26 +141,7 @@ public class FirebaseManager {
         listing.id = listingId;
         listing.providerUid = firebaseUser.getUid();
 
-        if (photoUri == null) {
-            return listingReference.setValue(listing);
-        }
-
-        StorageReference photoReference = getListingPhotoReference(firebaseUser.getUid(), listingId);
-        // Upload the selected image first, then save the public download URL with the listing.
-        return photoReference.putFile(photoUri)
-                .continueWithTask(uploadTask -> {
-                    if (!uploadTask.isSuccessful()) {
-                        throw uploadTask.getException();
-                    }
-                    return photoReference.getDownloadUrl();
-                })
-                .continueWithTask(urlTask -> {
-                    if (!urlTask.isSuccessful()) {
-                        throw urlTask.getException();
-                    }
-                    listing.photoUrl = urlTask.getResult().toString();
-                    return listingReference.setValue(listing);
-                });
+        return listingReference.setValue(listing);
     }
 
     /**
@@ -194,14 +156,6 @@ public class FirebaseManager {
     }
 
     private static DatabaseReference getListingsReference() {
-        return getDb().getReference(LISTINGS_PATH);
-    }
-
-    private static StorageReference getListingPhotoReference(String uid, String listingId) {
-        return getStorage()
-                .getReference()
-                .child(LISTING_PHOTOS_PATH)
-                .child(uid)
-                .child(listingId + ".jpg");
+        return getDb().getReference(PRODUCT_PATH);
     }
 }

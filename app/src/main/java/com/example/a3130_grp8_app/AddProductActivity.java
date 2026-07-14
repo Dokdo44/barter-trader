@@ -1,8 +1,11 @@
 package com.example.a3130_grp8_app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.text.Editable;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,9 +28,15 @@ import com.example.a3130_grp8_app.model.ProductListing;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class AddProductActivity extends AppCompatActivity {
 
     private static final String[] CATEGORY_OPTIONS = {"Select a Category", "Decoration", "Sports", "Technology", "Personal Care", "Other"};
+    private static final int MAX_PHOTO_SIZE_PIXELS = 600;
+    private static final int PHOTO_JPEG_QUALITY = 70;
 
     private EditText titleInput;
     private EditText descriptionInput;
@@ -149,7 +158,7 @@ public class AddProductActivity extends AppCompatActivity {
     private void onCreateListingButtonClick() {
         setSubmitting(true);
         try {
-            FirebaseManager.createProductListing(createListingFromForm(), selectedPhotoUri)
+            FirebaseManager.createProductListing(createListingFromForm())
                     .addOnCompleteListener(this, task -> {
                         setSubmitting(false);
                         if (task.isSuccessful()) {
@@ -166,8 +175,8 @@ public class AddProductActivity extends AppCompatActivity {
         }
     }
 
-    private ProductListing createListingFromForm() {
-        // FirebaseManager assigns the Firebase id, signed-in provider uid, and uploaded photo URL.
+    private ProductListing createListingFromForm() throws FirebaseConnectionError {
+        // FirebaseManager assigns the Firebase id and signed-in provider uid before saving.
         return new ProductListing(
                 null,
                 null,
@@ -178,8 +187,47 @@ public class AddProductActivity extends AppCompatActivity {
                 marketValueInput.getText().toString().trim(),
                 preferredItemsInput.getText().toString().trim(),
                 categorySpinner.getSelectedItem().toString(),
-                null
+                encodeSelectedPhoto()
         );
+    }
+
+    private String encodeSelectedPhoto() throws FirebaseConnectionError {
+        if (selectedPhotoUri == null) {
+            return null;
+        }
+
+        try (InputStream photoStream = getContentResolver().openInputStream(selectedPhotoUri)) {
+            if (photoStream == null) {
+                throw new FirebaseConnectionError();
+            }
+
+            Bitmap sourceBitmap = BitmapFactory.decodeStream(photoStream);
+            if (sourceBitmap == null) {
+                throw new FirebaseConnectionError();
+            }
+
+            Bitmap scaledBitmap = scaleBitmapForDatabase(sourceBitmap);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, PHOTO_JPEG_QUALITY, outputStream);
+            return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP);
+        } catch (IOException error) {
+            throw new FirebaseConnectionError();
+        }
+    }
+
+    private Bitmap scaleBitmapForDatabase(Bitmap sourceBitmap) {
+        int width = sourceBitmap.getWidth();
+        int height = sourceBitmap.getHeight();
+        int largestSide = Math.max(width, height);
+        if (largestSide <= MAX_PHOTO_SIZE_PIXELS) {
+            return sourceBitmap;
+        }
+
+        float scale = (float) MAX_PHOTO_SIZE_PIXELS / largestSide;
+        int scaledWidth = Math.round(width * scale);
+        int scaledHeight = Math.round(height * scale);
+        // Realtime Database stores the image as text, so scaling limits the saved payload size.
+        return Bitmap.createScaledBitmap(sourceBitmap, scaledWidth, scaledHeight, true);
     }
 
     private void setSubmitting(boolean submitting) {

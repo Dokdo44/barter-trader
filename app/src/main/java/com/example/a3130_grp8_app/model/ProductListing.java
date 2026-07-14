@@ -13,7 +13,7 @@ public class ProductListing {
     public String marketValue;
     public String preferredItems;
     public String category;
-    public String photoUrl;
+    public String photoBase64;
 
     public ProductListing() {
         // Required by Firebase when it deserializes listing data.
@@ -21,7 +21,7 @@ public class ProductListing {
 
     public ProductListing(String id, String providerUid, String title, String description,
                           String location, String dateOfAvailability, String marketValue,
-                          String preferredItems, String category, String photoUrl) {
+                          String preferredItems, String category, String photoBase64) {
         this.id = id;
         this.providerUid = providerUid;
         this.title = title;
@@ -31,6 +31,6 @@ public class ProductListing {
         this.marketValue = marketValue;
         this.preferredItems = preferredItems;
         this.category = category;
-        this.photoUrl = photoUrl;
+        this.photoBase64 = photoBase64;
     }
 }
