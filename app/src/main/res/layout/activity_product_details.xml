@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/productDetailsMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="20dp"
+        tools:ignore="MissingConstraints">
 
         <Button
             android:id="@+id/goBackToListingsButton"
@@ -40,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Category: Furniture"
+            android:text="Category: "
             android:textSize="18sp" />
 
         <TextView
@@ -48,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Location: Halifax, NS"
+            android:text="Location: "
             android:textSize="18sp" />
 
         <TextView
@@ -56,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Available: 2026-07-08"
+            android:text="Available: "
             android:textSize="18sp" />
 
         <TextView
@@ -64,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Approximate Market Value: $100"
+            android:text="Approximate Market Value: "
             android:textSize="18sp" />
 
         <TextView
@@ -72,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Provider ID:"
+            android:text="Provider ID: "
             android:textSize="16sp" />
 
         <TextView
@@ -80,7 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Date Posted:"
+            android:text="Date Posted: "
             android:textSize="16sp" />
 
         <TextView
@@ -103,7 +105,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Preferred Items"
+            android:text="Preferred Items: "
             android:textSize="20sp"
             android:textStyle="bold" />
 
