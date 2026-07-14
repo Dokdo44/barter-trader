@@ -1,12 +1,9 @@
 package com.example.a3130_grp8_app;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,12 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.model.User;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 
 public class ProductDetailsActivity extends AppCompatActivity {
@@ -85,5 +77,19 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 .addOnFailureListener(error -> {
                     Snackbar.make(productDetailsView,"Unable to load product details", Snackbar.LENGTH_SHORT).show();
                 });
+    }
+
+    private WindowInsetsCompat onApplyWindowInsets(
+            View view,
+            WindowInsetsCompat insets
+    ){
+        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+        );
+        return insets;
     }
 }

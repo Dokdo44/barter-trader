@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/productDetailsMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,10 +11,17 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <Button
+            android:id="@+id/goBackToListingsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Back" />
+
         <ImageView
             android:id="@+id/productImage"
             android:layout_width="match_parent"
             android:layout_height="250dp"
+            android:layout_marginTop="16dp"
             android:contentDescription="Product image"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_foreground" />
@@ -27,28 +36,52 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/productMarketValue"
+            android:id="@+id/productCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Approximate Value"
+            android:text="Category: Furniture"
             android:textSize="18sp" />
 
         <TextView
             android:id="@+id/productLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Location"
+            android:layout_marginTop="8dp"
+            android:text="Location: Halifax, NS"
             android:textSize="18sp" />
 
         <TextView
             android:id="@+id/productAvailability"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Availability"
+            android:layout_marginTop="8dp"
+            android:text="Available: 2026-07-08"
             android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/productMarketValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Approximate Market Value: $100"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/providerID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Provider ID:"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/datePosted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Date Posted:"
+            android:textSize="16sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -65,6 +98,29 @@
             android:layout_marginTop="8dp"
             android:text="Product description"
             android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Preferred Items"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/productPreferredItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="None specified"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/requestItemButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Request Item" />
 
     </LinearLayout>
 
