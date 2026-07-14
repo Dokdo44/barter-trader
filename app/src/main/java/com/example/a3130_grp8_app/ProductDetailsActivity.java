@@ -60,7 +60,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
         productAvailability = findViewById(R.id.productAvailability);
         productMarketValue = findViewById(R.id.productMarketValue);
         productDescription = findViewById(R.id.productDescription);
-        providerID = findViewById(R.id.providerID);
         datePosted = findViewById(R.id.datePosted);
         productPreferredItems = findViewById(R.id.productPreferredItems);
 
@@ -114,17 +113,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             "Available: " + product.isAvailable()
                     );
                     productMarketValue.setText(
-                            "Approximate Market Value: $" + product.getPrice()
+                            "Approximate Market Value: " + product.getPrice() + "$"
                     );
                     productDescription.setText(
                             product.getDescription()
                     );
-                    providerID.setText(
-                            "Provider: " + product.getProviderUid()
-                    );
-                    datePosted.setText(
-                            "Posted: " + product.getTimeUploaded()
-                    );
+                    datePosted.setText(product.getTimeUploaded());
                     if (product.getPreferredItems() != null && !product.getPreferredItems().isEmpty()) {
                         productPreferredItems.setText(
                                 String.join(", ", product.getPreferredItems())
