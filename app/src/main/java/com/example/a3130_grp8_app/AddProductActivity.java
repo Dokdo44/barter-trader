@@ -19,6 +19,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.FirebaseConnectionError;
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.ProductListing;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 
@@ -39,6 +42,7 @@ public class AddProductActivity extends AppCompatActivity {
     private TextView addPhotoPrompt;
     private Uri selectedPhotoUri;
     private ActivityResultLauncher<String[]> photoPickerLauncher;
+    private boolean isSubmitting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +96,7 @@ public class AddProductActivity extends AppCompatActivity {
                 dateInput.getText(),
                 marketValueInput.getText(),
                 categorySpinner.getSelectedItemPosition()
-        ));
+        ) && !isSubmitting);
     }
     private SimpleTextWatcher createRequiredFieldsWatcher() {
         return new SimpleTextWatcher() {
@@ -143,6 +147,44 @@ public class AddProductActivity extends AppCompatActivity {
     }
 
     private void onCreateListingButtonClick() {
+        setSubmitting(true);
+        try {
+            FirebaseManager.createProductListing(createListingFromForm(), selectedPhotoUri)
+                    .addOnCompleteListener(this, task -> {
+                        setSubmitting(false);
+                        if (task.isSuccessful()) {
+                            Toast.makeText(this, "Listing posted", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Could not post listing", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } catch (FirebaseConnectionError error) {
+            // A provider must be signed in before Firebase can save the listing under their uid.
+            setSubmitting(false);
+            Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    private ProductListing createListingFromForm() {
+        // FirebaseManager assigns the Firebase id, signed-in provider uid, and uploaded photo URL.
+        return new ProductListing(
+                null,
+                null,
+                titleInput.getText().toString().trim(),
+                descriptionInput.getText().toString().trim(),
+                locationInput.getText().toString().trim(),
+                dateInput.getText().toString().trim(),
+                marketValueInput.getText().toString().trim(),
+                preferredItemsInput.getText().toString().trim(),
+                categorySpinner.getSelectedItem().toString(),
+                null
+        );
+    }
+
+    private void setSubmitting(boolean submitting) {
+        isSubmitting = submitting;
+        createListingButton.setText(submitting ? "Posting..." : "Post Listing");
+        checkCreateListingButtonState();
     }
 }
