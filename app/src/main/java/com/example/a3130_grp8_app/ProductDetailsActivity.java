@@ -23,7 +23,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private TextView productAvailability;
     private TextView productMarketValue;
     private TextView productDescription;
-    private TextView providerID;
     private TextView datePosted;
     private TextView productPreferredItems;
 
@@ -104,7 +103,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
                     productName.setText(product.getName());
                     productCategory.setText(
-                            "Category: " + product.getCategories()
+                            "Category: " + String.join(", ", product.getCategories())
                     );
                     productLocation.setText(
                             "Location: " + product.getAddress()
