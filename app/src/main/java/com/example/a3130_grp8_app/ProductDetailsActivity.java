@@ -117,7 +117,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     productDescription.setText(
                             product.getDescription()
                     );
-                    datePosted.setText(product.getTimeUploaded());
+                    datePosted.setText(
+                            "Date Posted" + product.getTimeUploaded()
+                    );
                     if (product.getPreferredItems() != null && !product.getPreferredItems().isEmpty()) {
                         productPreferredItems.setText(
                                 String.join(", ", product.getPreferredItems())
