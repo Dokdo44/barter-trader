@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Base64;
 import android.text.Editable;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,19 +23,28 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.a3130_grp8_app.FirebaseConnectionError;
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.model.ProductListing;
+import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
+import com.example.a3130_grp8_app.data.SupabaseStorageManager;
 
-import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 public class AddProductActivity extends AppCompatActivity {
 
     private static final String[] CATEGORY_OPTIONS = {"Select a Category", "Decoration", "Sports", "Technology", "Personal Care", "Other"};
-    private static final int MAX_PHOTO_SIZE_PIXELS = 600;
-    private static final int PHOTO_JPEG_QUALITY = 70;
+    private static final int MAX_PHOTO_SIZE_PIXELS = 1080;
 
     private EditText titleInput;
     private EditText descriptionInput;
@@ -52,6 +60,8 @@ public class AddProductActivity extends AppCompatActivity {
     private Uri selectedPhotoUri;
     private ActivityResultLauncher<String[]> photoPickerLauncher;
     private boolean isSubmitting;
+
+    private final ExecutorService photoUploadExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +100,13 @@ public class AddProductActivity extends AppCompatActivity {
         createListingButton.setOnClickListener(v -> onCreateListingButtonClick());
         checkCreateListingButtonState();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        photoUploadExecutor.shutdownNow();
+    }
+
 
     private ArrayAdapter<String> createCategoryAdapter() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
@@ -157,8 +174,39 @@ public class AddProductActivity extends AppCompatActivity {
 
     private void onCreateListingButtonClick() {
         setSubmitting(true);
+
+        String listingId = FirebaseManager.reserveProductId();
+        if(listingId == null) {
+            setSubmitting(false);
+            Toast.makeText(this, "Could not create listing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Product product = createProductFromForm();
+
+        if (selectedPhotoUri == null) {
+            saveProduct(listingId, product);
+            return;
+        }
+        photoUploadExecutor.execute(() -> {
+            try {
+                Bitmap scaledPhoto = decodeAndScaleSelectedPhoto();
+                String photoUrl = SupabaseStorageManager.uploadListingPhoto(scaledPhoto, listingId);
+                runOnUiThread(() -> {
+                    product.setImageUrl(photoUrl);
+                    saveProduct(listingId, product);
+                        });
+            } catch (IOException error) {
+
+                runOnUiThread(() -> {
+                    setSubmitting(false);
+                    Toast.makeText(this, "Could not upload photo", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+    private void saveProduct(String listingId, Product product) {
         try {
-            FirebaseManager.createProductListing(createListingFromForm())
+            FirebaseManager.saveProduct(listingId, product)
                     .addOnCompleteListener(this, task -> {
                         setSubmitting(false);
                         if (task.isSuccessful()) {
@@ -169,53 +217,56 @@ public class AddProductActivity extends AppCompatActivity {
                         }
                     });
         } catch (FirebaseConnectionError error) {
-            // A provider must be signed in before Firebase can save the listing under their uid.
             setSubmitting(false);
             Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private ProductListing createListingFromForm() throws FirebaseConnectionError {
-        // FirebaseManager assigns the Firebase id and signed-in provider uid before saving.
-        return new ProductListing(
-                null,
-                null,
-                titleInput.getText().toString().trim(),
-                descriptionInput.getText().toString().trim(),
-                locationInput.getText().toString().trim(),
-                dateInput.getText().toString().trim(),
-                marketValueInput.getText().toString().trim(),
-                preferredItemsInput.getText().toString().trim(),
-                categorySpinner.getSelectedItem().toString(),
-                encodeSelectedPhoto()
-        );
+    private Product createProductFromForm() {
+
+        String name = titleInput.getText().toString().trim();
+
+        String description = descriptionInput.getText().toString().trim();
+
+        String address = locationInput.getText().toString().trim();
+
+        String dateAvailable = dateInput.getText().toString().trim();
+
+        float price = parsePrice(marketValueInput.getText().toString().trim());
+
+        List<String> preferredItems = Arrays.asList(
+                preferredItemsInput.getText().toString().split("\\s*,\\s*"));
+
+        List<String> categories = new ArrayList<>(
+                Collections.singletonList((String) categorySpinner.getSelectedItem()));
+
+        String timeUploaded = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+                .format(new Date());
+
+        return new Product(null, name, description, null, categories, address, true, price,
+                timeUploaded, dateAvailable, preferredItems);
     }
 
-    private String encodeSelectedPhoto() throws FirebaseConnectionError {
-        if (selectedPhotoUri == null) {
-            return null;
+    private float parsePrice(String rawValue) {
+        try {
+            return Float.parseFloat(rawValue);
+        } catch (NumberFormatException e) {
+            return 0f;
         }
-
+    }
+    private Bitmap decodeAndScaleSelectedPhoto() throws IOException {
         try (InputStream photoStream = getContentResolver().openInputStream(selectedPhotoUri)) {
             if (photoStream == null) {
-                throw new FirebaseConnectionError();
+                throw new IOException("Could not open selected photo");
             }
-
             Bitmap sourceBitmap = BitmapFactory.decodeStream(photoStream);
             if (sourceBitmap == null) {
-                throw new FirebaseConnectionError();
+                throw new IOException("Could not decode selected photo");
             }
-
-            Bitmap scaledBitmap = scaleBitmapForDatabase(sourceBitmap);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, PHOTO_JPEG_QUALITY, outputStream);
-            return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP);
-        } catch (IOException error) {
-            throw new FirebaseConnectionError();
+            return scaleBitmap(sourceBitmap);
         }
     }
-
-    private Bitmap scaleBitmapForDatabase(Bitmap sourceBitmap) {
+    private Bitmap scaleBitmap(Bitmap sourceBitmap) {
         int width = sourceBitmap.getWidth();
         int height = sourceBitmap.getHeight();
         int largestSide = Math.max(width, height);
@@ -226,10 +277,8 @@ public class AddProductActivity extends AppCompatActivity {
         float scale = (float) MAX_PHOTO_SIZE_PIXELS / largestSide;
         int scaledWidth = Math.round(width * scale);
         int scaledHeight = Math.round(height * scale);
-        // Realtime Database stores the image as text, so scaling limits the saved payload size.
         return Bitmap.createScaledBitmap(sourceBitmap, scaledWidth, scaledHeight, true);
     }
-
     private void setSubmitting(boolean submitting) {
         isSubmitting = submitting;
         createListingButton.setText(submitting ? "Posting..." : "Post Listing");
