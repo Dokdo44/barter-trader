@@ -30,7 +30,7 @@ public class LogoutTest {
     private void createAndSignInTestUser() throws Exception {
         String email = TestAuthHelper.uniqueEmail("logout");
         TestAuthHelper.createUserProfile(email, Test_Password, "Buyer");
-        Tasks.await(FirebaseManager.signIn(email, Test_Password), 15, TimeUnit.SECONDS);
+        Tasks.await(FirebaseManager.getInstance().signIn(email, Test_Password), 15, TimeUnit.SECONDS);
     }
 
     /**
@@ -46,7 +46,7 @@ public class LogoutTest {
         Espresso.onView(withId(R.id.logoutButton)).perform(click());
 
         TestAuthHelper.waitForDisplayedView(R.id.loginMain);
-        assertNull(FirebaseManager.getCurrentUser());
+        assertNull(FirebaseManager.getInstance().getCurrentUser());
     }
 
     /**

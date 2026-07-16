@@ -225,26 +225,34 @@ public class AddProductActivity extends AppCompatActivity {
     private Product createProductFromForm() {
 
         String name = titleInput.getText().toString().trim();
-
         String description = descriptionInput.getText().toString().trim();
-
         String address = locationInput.getText().toString().trim();
-
         String dateAvailable = dateInput.getText().toString().trim();
-
         float price = parsePrice(marketValueInput.getText().toString().trim());
-
         List<String> preferredItems = Arrays.asList(
-                preferredItemsInput.getText().toString().split("\\s*,\\s*"));
-
+                preferredItemsInput.getText().toString().split("\\s*,\\s*")
+        );
         List<String> categories = new ArrayList<>(
-                Collections.singletonList((String) categorySpinner.getSelectedItem()));
+                Collections.singletonList((String) categorySpinner.getSelectedItem())
+        );
+        String timeUploaded = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA).format(new Date());
 
-        String timeUploaded = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-                .format(new Date());
+        Product product = new Product();
+        product.setName(name);
+        product.setDescription(description);
+        product.setAddress(address);
+        product.setPrice(price);
+        product.setCategories(categories);
+        product.setAvailable(true);
+        product.setTimeUploaded(timeUploaded);
+        product.setDateAvailable(dateAvailable);
+        product.setPreferredItems(preferredItems);
 
-        return new Product(null, name, description, null, categories, address, true, price,
-                timeUploaded, dateAvailable, preferredItems);
+        return product;
+
+
+
+
     }
 
     private float parsePrice(String rawValue) {

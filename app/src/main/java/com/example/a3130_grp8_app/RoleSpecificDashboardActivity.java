@@ -40,22 +40,20 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.logoutButton);
         Button productButton = findViewById(R.id.productButton);
 
-        //add product button will start AddProduct activity. Only visibly if user role is buyer.
+        // Add product button will start AddProduct activity. Only visible if user role is seller.
         productButton.setVisibility(View.INVISIBLE);
-        productButton.setOnClickListener( v -> onAddProductButtonClick());
+        productButton.setOnClickListener(v -> onAddProductButtonClick());
 
         // Logout clears the Auth session and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
 
         loadCurrentUserProfile();
-
-
     }
 
     private void loadCurrentUserProfile() {
         try {
             // The dashboard reads role/email from /users/{uid}, not from the Auth credential record.
-            FirebaseManager.getCurrentUserProfile()
+            FirebaseManager.getInstance().getCurrentUserProfile()
                     .addOnSuccessListener(this::onGetProfileSuccess)
                     .addOnFailureListener(this::onGetProfileFailure);
         } catch (FirebaseConnectionError e) {
@@ -72,7 +70,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onLogoutButtonClick() {
-        FirebaseManager.signOut();
+        FirebaseManager.getInstance().signOut();
         startActivity(new Intent(this, LoginActivity.class));
         finish();
     }
@@ -94,20 +92,15 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardRole.setText("");
     }
 
-    private void addProductButtonSetup()
-    {
+    private void addProductButtonSetup() {
         Button productButton = findViewById(R.id.productButton);
-        if (dashboardRole.getText().equals("Seller dashboard"))
-        {
+        if (dashboardRole.getText().equals("Seller dashboard")) {
             productButton.setVisibility(View.VISIBLE);
         }
-        return;
     }
-    private void onAddProductButtonClick()
-    {
-        startActivity(new Intent (this, AddProductActivity.class));
+
+    private void onAddProductButtonClick() {
+        startActivity(new Intent(this, AddProductActivity.class));
         finish();
     }
-
-
 }

@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
 
         // MainActivity is the only launcher; it routes based on the current Firebase Auth session.
-        Class<?> nextActivity = FirebaseManager.getCurrentUser() == null
+        Class<?> nextActivity = FirebaseManager.getInstance().getCurrentUser() == null
                 ? LoginActivity.class
                 : RoleSpecificDashboardActivity.class;
 

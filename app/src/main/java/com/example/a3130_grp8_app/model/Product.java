@@ -4,67 +4,119 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 public class Product implements Serializable {
-    private String providerUid;
     private String name;
     private String description;
-    private String imageUrl;
-    private List<String> categories;
     private String address;
-    private boolean available;
     private float price;
+    private List<String> categories;
+    private boolean available;
+    private String imageUrl;
+    private String providerUid;
+
     private String timeUploaded;
     private String dateAvailable;
     private List<String> preferredItems;
 
     public Product() {
-    }
-    public Product(String providerUid, String name, String description, String imageUrl,
-                   List<String> categories, String address, boolean available, float price,
-                   String timeUploaded, String dateAvailable, List<String> preferredItems) {
 
-        this.providerUid = providerUid;
+    }
+
+    public Product(String name, String description, String address, float price, List<String> categories, boolean available,
+                   String imageUrl, String providerUid, String timeUploaded, String dateAvailable, List<String> preferredItems) {
         this.name = name;
         this.description = description;
-        this.imageUrl = imageUrl;
-        this.categories = categories != null ? categories : new ArrayList<>();
         this.address = address;
-        this.available = available;
         this.price = price;
+        this.categories = categories != null ? categories : new ArrayList<>();
+        this.available = available;
+        this.imageUrl = imageUrl;
+        this.providerUid = providerUid;
         this.timeUploaded = timeUploaded;
         this.dateAvailable = dateAvailable;
         this.preferredItems = preferredItems != null ? preferredItems : new ArrayList<>();
     }
 
-    public String getProviderUid() { return providerUid; }
-    public void setProviderUid(String providerUid) { this.providerUid = providerUid; }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getAddress() {
+        return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public float getPrice() {
+        return price;
+    }
+    public void setPrice(float price) {
+        this.price = price;
+    }
 
-    public List<String> getCategories() { return categories; }
-    public void setCategories(List<String> categories) { this.categories = categories; }
+    public List<String> getCategories() {
+        return categories;
+    }
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
+    }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
+    public boolean isAvailable() {
+        return available;
+    }
 
-    public boolean isAvailable() { return available; }
-    public void setAvailable(boolean available) { this.available = available; }
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
 
-    public float getPrice() { return price; }
-    public void setPrice(float price) { this.price = price; }
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-    public String getTimeUploaded() { return timeUploaded; }
-    public void setTimeUploaded(String timeUploaded) { this.timeUploaded = timeUploaded; }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
-    public String getDateAvailable() { return dateAvailable; }
-    public void setDateAvailable(String dateAvailable) { this.dateAvailable = dateAvailable; }
+    public String getProviderUid() {
+        return providerUid;
+    }
 
-    public List<String> getPreferredItems() { return preferredItems; }
-    public void setPreferredItems(List<String> preferredItems) { this.preferredItems = preferredItems; }
+    public void setProviderUid(String providerUid) {
+        this.providerUid = providerUid;
+    }
+
+    public String getTimeUploaded() {
+        return timeUploaded;
+    }
+
+    public void setTimeUploaded(String timeUploaded) {
+        this.timeUploaded = timeUploaded;
+    }
+    public String getDateAvailable() {
+        return dateAvailable;
+    }
+
+    public void setDateAvailable(String dateAvailable) {
+        this.dateAvailable = dateAvailable;
+    }
+
+    public List<String> getPreferredItems() {
+        return preferredItems;
+    }
+
+    public void setPreferredItems(List<String> preferredItems) {
+        this.preferredItems = preferredItems;
+    }
+
 }
+
