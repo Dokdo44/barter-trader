@@ -1,7 +1,7 @@
 package com.example.a3130_grp8_app.data;
 
 import com.example.a3130_grp8_app.FirebaseConnectionError;
-import com.example.a3130_grp8_app.model.ProductListing;
+import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Firebase;
@@ -119,29 +119,19 @@ public class FirebaseManager {
         return getAuth().sendPasswordResetEmail(email);
     }
 
-    /**
-     * Saves a provider listing, including its optional Base64 photo, in Realtime Database.
-     *
-     * @param listing listing form data without the final Firebase id and provider uid
-     * @return task that completes after the database save finishes
-     * @throws FirebaseConnectionError when no Auth user is signed in
-     */
-    public static Task<Void> createProductListing(ProductListing listing) throws FirebaseConnectionError {
+
+    public static String reserveProductId() {
+        return getProductsReference().push().getKey();
+    }
+
+    public static Task<Void> saveProduct(String productId, Product product) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getCurrentUser();
-        if (firebaseUser == null) {
+        if (firebaseUser == null || productId == null) {
             throw new FirebaseConnectionError();
         }
 
-        DatabaseReference listingReference = getListingsReference().push();
-        String listingId = listingReference.getKey();
-        if (listingId == null) {
-            throw new FirebaseConnectionError();
-        }
-
-        listing.id = listingId;
-        listing.providerUid = firebaseUser.getUid();
-
-        return listingReference.setValue(listing);
+        product.setProviderUid(firebaseUser.getUid());
+        return getProductsReference().child(productId).setValue(product);
     }
 
     /**
@@ -155,7 +145,7 @@ public class FirebaseManager {
         return getDb().getReference(USERS_PATH).child(uid);
     }
 
-    private static DatabaseReference getListingsReference() {
+    private static DatabaseReference getProductsReference() {
         return getDb().getReference(PRODUCT_PATH);
     }
 }
