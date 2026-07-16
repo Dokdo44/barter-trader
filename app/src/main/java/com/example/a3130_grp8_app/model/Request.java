@@ -1,5 +1,7 @@
 package com.example.a3130_grp8_app.model;
 
+import java.util.List;
+
 /**
  * Represents a request made by a receiver for a product
  */
@@ -9,17 +11,19 @@ public class Request {
     private String receiverEmail;
     private String receiverUid;
     private String status;
+    private List<String> offeredItems;
 
     // empty constructor for Firebase
     public Request() {
     }
 
-    public Request(String requestId, String productId, String receiverEmail, String receiverUid) {
+    public Request(String requestId, String productId, String receiverEmail, String receiverUid, List<String> offeredItems) {
         this.requestId = requestId;
         this.productId = productId;
         this.receiverEmail = receiverEmail;
         this.receiverUid = receiverUid;
         this.status = "pending";
+        this.offeredItems = offeredItems;
     }
 
     // getters and setters
