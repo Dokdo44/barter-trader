@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -99,7 +100,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         ).show();
                         return;
                     }
-
+                    // Image URL to image
+                    Glide.with(this)
+                            .load(product.getImageUrl())
+                            .placeholder(R.drawable.ic_launcher_foreground)
+                            .error(R.drawable.ic_launcher_foreground)
+                            .into(productImage);
                     productName.setText(product.getName());
                     productCategory.setText(
                             "Category: " + String.join(", ", product.getCategories())
