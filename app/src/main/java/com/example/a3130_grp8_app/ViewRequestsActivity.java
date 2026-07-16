@@ -26,6 +26,8 @@ public class ViewRequestsActivity extends AppCompatActivity {
     private ListView requestListView;
     private TextView noRequestsText;
     private List<String> requestList;
+    private List<String> requestKeys;
+    private List<Request> requests;
     private ArrayAdapter<String> adapter;
 
     @Override
@@ -37,6 +39,8 @@ public class ViewRequestsActivity extends AppCompatActivity {
         noRequestsText = findViewById(R.id.noRequestsText);
 
         requestList = new ArrayList<>();
+        requestKeys = new ArrayList<>();
+        requests = new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, requestList);
         requestListView.setAdapter(adapter);
 
@@ -44,30 +48,52 @@ public class ViewRequestsActivity extends AppCompatActivity {
         if (productId == null) productId = "dummy_product_001";
         loadRequests(productId);
 
-
         // show requester details when clicked
         requestListView.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedRequest = requestList.get(position);
-            new android.app.AlertDialog.Builder(this)
-                    .setTitle("Requester Details")
-                    .setMessage("Email: " + selectedRequest + "\nStatus: pending")
-                    .setPositiveButton("Close", null)
-                    .show();
+            String requestKey = requestKeys.get(position);
+            Request request = requests.get(position);
+            showRequestDetailsDialog(requestKey, request);
         });
+    }
+
+    private void showRequestDetailsDialog(String requestKey, Request request) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Requester Details")
+                .setMessage("Email: " + request.getReceiverEmail() + "\nStatus: " + request.getStatus())
+                .setPositiveButton("Accept", (dialog, which) ->
+                        updateRequestStatus(requestKey, "accepted"))
+                .setNegativeButton("Decline", (dialog, which) ->
+                        updateRequestStatus(requestKey, "declined"))
+                .setNeutralButton("Close", null)
+                .show();
+    }
+
+    private void updateRequestStatus(String requestKey, String status) {
+        FirebaseManager.updateRequestStatus(requestKey, status)
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(this, "Request " + status, Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to update request: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show());
     }
 
     // loads requests from firebase for the product
     private void loadRequests(String productId) {
-        FirebaseManager.getInstance().getDb().getReference("requests")                .orderByChild("productId")
+        FirebaseManager.getInstance().getDb().getReference("requests")
+                .orderByChild("productId")
                 .equalTo(productId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         requestList.clear();
+                        requestKeys.clear();
+                        requests.clear();
                         for (DataSnapshot child : snapshot.getChildren()) {
                             Request request = child.getValue(Request.class);
                             if (request != null) {
                                 requestList.add(request.getReceiverEmail() + " - " + request.getStatus());
+                                requestKeys.add(child.getKey());
+                                requests.add(request);
                             }
                         }
 
