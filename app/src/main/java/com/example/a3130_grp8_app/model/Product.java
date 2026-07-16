@@ -7,7 +7,7 @@ public class Product implements Serializable {
     private String name;
     private String description;
     private String address;
-    private double price;
+    private float price;
     private List<String> categories;
     private boolean available;
     private String imageUrl;
@@ -21,7 +21,7 @@ public class Product implements Serializable {
 
     }
 
-    public Product(String name, String description, String address, double price, List<String> categories, boolean available,
+    public Product(String name, String description, String address, float price, List<String> categories, boolean available,
                    String imageUrl, String providerUid, String timeUploaded, String dateAvailable, List<String> preferredItems) {
         this.name = name;
         this.description = description;
@@ -57,10 +57,10 @@ public class Product implements Serializable {
         this.address = address;
     }
 
-    public double getPrice() {
+    public float getPrice() {
         return price;
     }
-    public void setPrice(double price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
@@ -119,3 +119,4 @@ public class Product implements Serializable {
     }
 
 }
+

@@ -1,5 +1,6 @@
 package com.example.a3130_grp8_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -67,13 +68,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         goBackToListingsButton.setOnClickListener(v -> finish());
 
-        requestItemButton.setOnClickListener(v ->
-                Snackbar.make(
-                        productDetailsView,
-                        "WIP",
-                        Snackbar.LENGTH_SHORT
-                ).show()
-        );
+        requestItemButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, RequestProductActivity.class);
+            intent.putExtra("PRODUCT_ID", productId);
+            startActivity(intent);
+        });
 
         // Product ID passed from the search results or homepage.
         productId = getIntent().getStringExtra("productId");
