@@ -113,7 +113,11 @@
               <option name="preferredColumnWidths">
                 <map>
                   <entry key="Duration" value="90" />
+<<<<<<< HEAD
                   <entry key="Medium_Phone" value="120" />
+=======
+                  <entry key="Pixel_2" value="120" />
+>>>>>>> 902d4197d9e4e862f3e70d3336b042c4db6bec9c
                   <entry key="Tests" value="360" />
                 </map>
               </option>
