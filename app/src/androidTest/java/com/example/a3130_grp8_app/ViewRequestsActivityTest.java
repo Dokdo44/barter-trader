@@ -45,9 +45,12 @@ public class ViewRequestsActivityTest {
      * Verifies that each request displays the requester's name and request details.
      */
     @Test
-    public void requesterEmailDisplayedTest() {
-        // The requester's email should be displayed
+    public void requesterNameAndDetailsDisplayedTest() {
+        // The requester's email and request status should be displayed
         Espresso.onView(withText("intrestedbuyer1@gmail.com"))
+                .check(matches(isDisplayed()));
+
+        Espresso.onView(withText("Pending"))
                 .check(matches(isDisplayed()));
     }
 
@@ -65,13 +68,14 @@ public class ViewRequestsActivityTest {
      * Verifies that clicking a request opens the requester's full trade details.
      */
     @Test
-    public void clickingRequestDisplaysRequesterInformationTest() {
+    public void clickingRequestOpensRequesterDetailsTest() {
         // Given requests are displayed and we click an offer
         Espresso.onView(withText("intrestedbuyer1@gmail.com"))
                 .perform(click());
-
-        // Then the requester information should be displayed
+        // Then the requester details screen should be shown
         Espresso.onView(withText("intrestedbuyer1@gmail.com"))
+                .check(matches(isDisplayed()));
+        Espresso.onView(withText("pending"))
                 .check(matches(isDisplayed()));
     }
 }

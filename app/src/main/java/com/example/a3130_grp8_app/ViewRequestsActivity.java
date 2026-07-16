@@ -41,19 +41,24 @@ public class ViewRequestsActivity extends AppCompatActivity {
         requestListView.setAdapter(adapter);
 
         String productId = getIntent().getStringExtra("productId");
+        if (productId == null) productId = "dummy_product_001";
         loadRequests(productId);
+
 
         // show requester details when clicked
         requestListView.setOnItemClickListener((parent, view, position, id) -> {
             String selectedRequest = requestList.get(position);
-            Toast.makeText(this, "Requester: " + selectedRequest, Toast.LENGTH_LONG).show();
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Requester Details")
+                    .setMessage("Email: " + selectedRequest + "\nStatus: pending")
+                    .setPositiveButton("Close", null)
+                    .show();
         });
     }
 
     // loads requests from firebase for the product
     private void loadRequests(String productId) {
-        FirebaseManager.getDb().getReference("requests")
-                .orderByChild("productId")
+        FirebaseManager.getInstance().getDb().getReference("requests")                .orderByChild("productId")
                 .equalTo(productId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -62,7 +67,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
                         for (DataSnapshot child : snapshot.getChildren()) {
                             Request request = child.getValue(Request.class);
                             if (request != null) {
-                                requestList.add(request.getReceiverEmail());
+                                requestList.add(request.getReceiverEmail() + " - " + request.getStatus());
                             }
                         }
 
