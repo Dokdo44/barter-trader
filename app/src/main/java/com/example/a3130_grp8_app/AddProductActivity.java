@@ -116,7 +116,7 @@ public class AddProductActivity extends AppCompatActivity {
             String name = titleInput.getText().toString().trim();
             String description = descriptionInput.getText().toString().trim();
             String address = locationInput.getText().toString().trim();
-            double price = parsePrice(marketValueInput.getText().toString().trim());
+            float price = parsePrice(marketValueInput.getText().toString().trim());
             List<String> categories = Collections.singletonList( (String) categorySpinner.getSelectedItem());
             String dateAvailable = dateInput.getText().toString().trim();
             List<String> preferredItems = Arrays.asList(
@@ -133,13 +133,14 @@ public class AddProductActivity extends AppCompatActivity {
 
         }
 
-        private double parsePrice(String rawValue) {
+        private float parsePrice(String rawValue) {
             try {
-                return Double.parseDouble(rawValue);
+                return Float.parseFloat(rawValue);
             } catch (NumberFormatException e) {
-            return 0.0;
+                return 0.0f;
             }
         }
+
         private void onCreateListingSuccess() {
             Toast.makeText(this, "Listing created", Toast.LENGTH_SHORT).show();
             finish();

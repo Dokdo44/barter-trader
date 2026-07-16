@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+
+
 def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
 
 ext {
@@ -57,10 +59,12 @@ dependencies {
     implementation libs.appcompat
     implementation libs.constraintlayout
     implementation libs.firebase.database
+    implementation libs.play.services.location
     implementation libs.material
     implementation libs.commons.validator
     implementation libs.uiautomator
     androidTestImplementation libs.uiautomator
+    implementation libs.play.services.maps
     androidTestImplementation libs.monitor
     testImplementation libs.junit
     testImplementation libs.jackson.databind
@@ -69,5 +73,10 @@ dependencies {
     androidTestImplementation libs.espresso.intents
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.mockito.android
+    implementation libs.secrets.gradle.plugin
+    implementation libs.play.services.location
     implementation libs.firebase.auth
 }
+
+// Script-level variable — shared across all task closures
+Process emulatorProcess = null
