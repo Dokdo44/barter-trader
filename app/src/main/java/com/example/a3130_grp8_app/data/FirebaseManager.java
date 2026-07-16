@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.List;
+
 /**
  * Centralizes Firebase Auth and Realtime Database calls so Activities do not hold business logic.
  */
@@ -234,7 +236,8 @@ public class FirebaseManager {
      * @return a Task that resolves on success
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public static Task<Void> submitRequest(String productId) throws FirebaseConnectionError {
+    public static Task<Void> submitRequest(String productId, String requesterName,
+                                           String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
             throw new FirebaseConnectionError();
@@ -250,8 +253,7 @@ public class FirebaseManager {
                 throw new Exception("Could not retrieve product");
             }
 
-            Boolean available = productTask.getResult().child("available")
-                    .getValue(Boolean.class);
+            Boolean available = productTask.getResult().child("available").getValue(Boolean.class);
             if (available == null || !available) {
                 throw new Exception("Product is no longer available");
             }
@@ -275,7 +277,9 @@ public class FirebaseManager {
                 throw new FirebaseConnectionError();
             }
 
-            return requestsRef.child(requestId).setValue(new Request(productId, receiverUid));
+            return requestsRef.child(requestId).setValue(
+                    new Request(productId, receiverUid, requesterName,
+                            requesterLocation, offeredItems));
         });
     }
 }

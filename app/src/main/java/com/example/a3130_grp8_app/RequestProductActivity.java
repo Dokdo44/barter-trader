@@ -1,9 +1,11 @@
 package com.example.a3130_grp8_app;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -14,26 +16,23 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.model.Product;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Temporary activity to demonstrate request functionality independently of the product detail page.
- * Replace DUMMY_PRODUCT_ID and setupDummyProduct() with values passed via Intent
- * when integrating with the real product detail page.
+ * Displays the Send Request form for a product.
+ * Accepts productId via Intent extra "PRODUCT_ID".
  */
 public class RequestProductActivity extends AppCompatActivity {
 
-    // String productId = getIntent().getStringExtra("PRODUCT_ID");
-    private static final String DUMMY_PRODUCT_ID = "dummy_product_001";
-
+    private String productId;
     private Button requestButton;
     private TextView requestSuccess;
-    private TextView productTitle;
-    private TextView productDescription;
-    private TextView productCategory;
+    private EditText nameInput;
+    private EditText locationInput;
+    private LinearLayout checkboxContainer;
     private Snackbar snackbar;
 
     @Override
@@ -42,76 +41,87 @@ public class RequestProductActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_request_product);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.requestProductMain), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.requestProductMain), (v, insets) -> {
+                    Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                    return insets;
+                });
 
         requestButton = findViewById(R.id.requestButton);
         requestSuccess = findViewById(R.id.requestSuccess);
-        productTitle = findViewById(R.id.productTitle);
-        productDescription = findViewById(R.id.productDescription);
-        productCategory = findViewById(R.id.productCategory);
+        nameInput = findViewById(R.id.nameInput);
+        locationInput = findViewById(R.id.locationInput);
+        checkboxContainer = findViewById(R.id.checkboxContainer);
 
         CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinatorLayout);
         snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);
 
-        // productTitle.setText(getIntent().getStringExtra("PRODUCT_TITLE"));
-        // productDescription.setText(getIntent().getStringExtra("PRODUCT_DESCRIPTION"));
-        // productCategory.setText(getIntent().getStringExtra("PRODUCT_CATEGORY"));
-        setupDummyProduct();
+        productId = getIntent().getStringExtra("PRODUCT_ID");
 
-        // requestButton.setOnClickListener(v -> submitRequest(productId));
-        requestButton.setOnClickListener(v -> submitRequest(DUMMY_PRODUCT_ID));
+        loadProductPreferredItems(productId);
 
-        Button backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, RoleSpecificDashboardActivity.class));
-            finish();
+        requestButton.setOnClickListener(v -> submitRequest(productId));
+
+        findViewById(R.id.backButton).setOnClickListener(v -> finish());
+    }
+
+    /**
+     * Loads the product's preferred items from Firebase to populate checkboxes.
+     *
+     * @param productId the product to load preferred items for
+     */
+    private void loadProductPreferredItems(String productId) {
+        if (productId == null) return;
+        FirebaseManager.getProduct(productId).addOnSuccessListener(product -> {
+            if (product != null && product.getPreferredItems() != null) {
+                populateCheckboxes(product.getPreferredItems());
+            }
         });
     }
 
     /**
-     * Sets up for testing purposes.
-     * Remove when integrating with the real product detail page.
+     * Dynamically creates a checkbox for each preferred item.
+     *
+     * @param preferredItems list of items the provider wants in exchange
      */
-    private void setupDummyProduct() {
-        Product dummyProduct = new Product(
-                "Dummy Test Bike",
-                "A dummy product for testing requests",
-                "1869 Upper Water St, Halifax, NS",
-                0.0,
-                Collections.singletonList("Sports"),
-                true,
-                null,
-                "dummy_provider_uid",
-                "2025-07-13",
-                "2025-07-20",
-                Collections.emptyList()
-        );
+    private void populateCheckboxes(List<String> preferredItems) {
+        checkboxContainer.removeAllViews();
+        for (String item : preferredItems) {
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setText(item);
+            checkBox.setTextSize(16f);
+            checkboxContainer.addView(checkBox);
+        }
+    }
 
-        // Uses the same FirebaseManager instance as submitRequest so both point to the same DB
-        FirebaseManager.getInstance().getDb()
-                .getReference("product")
-                .child(DUMMY_PRODUCT_ID)
-                .setValue(dummyProduct);
-
-        productTitle.setText(dummyProduct.getName());
-        productDescription.setText(dummyProduct.getDescription());
-        productCategory.setText(dummyProduct.getCategories().get(0));
+    /**
+     * Returns a list of checked item names from the checkbox container.
+     */
+    private List<String> getSelectedItems() {
+        List<String> selected = new ArrayList<>();
+        for (int i = 0; i < checkboxContainer.getChildCount(); i++) {
+            CheckBox checkBox = (CheckBox) checkboxContainer.getChildAt(i);
+            if (checkBox.isChecked()) {
+                selected.add(checkBox.getText().toString());
+            }
+        }
+        return selected;
     }
 
     /**
      * Submits a request for the given product ID.
-     * This method is ready to be dropped into the product detail page as-is.
      *
      * @param productId the ID of the product to request
      */
     private void submitRequest(String productId) {
         requestButton.setEnabled(false);
+        String name = nameInput.getText().toString().trim();
+        String location = locationInput.getText().toString().trim();
+        List<String> selectedItems = getSelectedItems();
+
         try {
-            FirebaseManager.submitRequest(productId)
+            FirebaseManager.submitRequest(productId, name, location, selectedItems)
                     .addOnSuccessListener(unused -> {
                         requestButton.setVisibility(View.GONE);
                         requestSuccess.setVisibility(View.VISIBLE);

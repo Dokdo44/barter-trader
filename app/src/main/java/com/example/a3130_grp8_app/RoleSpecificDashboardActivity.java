@@ -46,10 +46,6 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         productButton.setVisibility(View.INVISIBLE);
         productButton.setOnClickListener(v -> onAddProductButtonClick());
 
-        // Temporary button to test request product flow independently of product detail page
-        requestButton.setOnClickListener(v ->
-                startActivity(new Intent(this, RequestProductActivity.class)));
-
         // Logout clears the Auth session and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
 

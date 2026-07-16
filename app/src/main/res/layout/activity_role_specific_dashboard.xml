@@ -35,17 +35,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dashboardEmail"
-        app:layout_constraintBottom_toTopOf="@id/requestButton"/>
-
-    <!-- Temporary button to test request product flow - remove when product detail page is ready -->
-    <Button
-        android:id="@+id/requestButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Test Request Product"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardRole"
         app:layout_constraintBottom_toTopOf="@id/productButton"/>
 
     <Button
@@ -55,7 +44,7 @@
         android:text="Add Product"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/requestButton"
+        app:layout_constraintTop_toBottomOf="@id/dashboardRole"
         app:layout_constraintBottom_toTopOf="@id/logoutButton"/>
 
     <Button
