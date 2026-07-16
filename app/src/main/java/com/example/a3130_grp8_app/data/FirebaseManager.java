@@ -265,4 +265,18 @@ public class FirebaseManager {
                             requesterLocation, offeredItems));
         });
     }
+
+    /**
+     * Updates the status of an existing request (e.g. "accepted" or "declined").
+     *
+     * @param requestId the Firebase key of the request
+     * @param status the new status to set
+     * @return a Task that resolves on success
+     */
+    public static Task<Void> updateRequestStatus(String requestId, String status) {
+        return getInstance().getDb().getReference(REQUESTS_PATH)
+                .child(requestId)
+                .child("status")
+                .setValue(status);
+    }
 }
