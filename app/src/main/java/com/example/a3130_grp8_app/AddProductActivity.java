@@ -1,32 +1,42 @@
 package com.example.a3130_grp8_app;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.text.Editable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Arrays;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.FirebaseConnectionError;
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.model.ProductListing;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class AddProductActivity extends AppCompatActivity {
 
     private static final String[] CATEGORY_OPTIONS = {"Select a Category", "Decoration", "Sports", "Technology", "Personal Care", "Other"};
+    private static final int MAX_PHOTO_SIZE_PIXELS = 600;
+    private static final int PHOTO_JPEG_QUALITY = 70;
 
     private EditText titleInput;
     private EditText descriptionInput;
@@ -37,10 +47,19 @@ public class AddProductActivity extends AppCompatActivity {
     private Spinner categorySpinner;
     private Button createListingButton;
     private View addPhotoPlaceholder;
+    private ImageView selectedPhotoPreview;
+    private TextView addPhotoPrompt;
+    private Uri selectedPhotoUri;
+    private ActivityResultLauncher<String[]> photoPickerLauncher;
+    private boolean isSubmitting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Registers the system image picker before the click handler tries to launch it.
+        photoPickerLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(),
+                this::handleSelectedPhoto);
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.add_product_activity);
@@ -54,6 +73,8 @@ public class AddProductActivity extends AppCompatActivity {
         categorySpinner = findViewById(R.id.CategorySpinner);
         createListingButton = findViewById(R.id.createListing);
         addPhotoPlaceholder = findViewById(R.id.addPhotoPlaceholder);
+        selectedPhotoPreview = findViewById(R.id.selectedPhotoPreview);
+        addPhotoPrompt = findViewById(R.id.addPhotoPrompt);
 
         categorySpinner.setAdapter(createCategoryAdapter());
 
@@ -84,7 +105,7 @@ public class AddProductActivity extends AppCompatActivity {
                 dateInput.getText(),
                 marketValueInput.getText(),
                 categorySpinner.getSelectedItemPosition()
-        ));
+        ) && !isSubmitting);
     }
     private SimpleTextWatcher createRequiredFieldsWatcher() {
         return new SimpleTextWatcher() {
@@ -107,44 +128,111 @@ public class AddProductActivity extends AppCompatActivity {
             }
         };
     }
-        private void onAddPhotoClick() {
-            Toast.makeText(this, "Upload Photo (Mock for now)", Toast.LENGTH_SHORT).show();
-        }
-        private void onCreateListingButtonClick() {
-            createListingButton.setEnabled(false);
+    private void onAddPhotoClick() {
+        // Opens the device document picker so providers can attach an existing image.
+        photoPickerLauncher.launch(new String[]{"image/*"});
+    }
 
-            String name = titleInput.getText().toString().trim();
-            String description = descriptionInput.getText().toString().trim();
-            String address = locationInput.getText().toString().trim();
-            double price = parsePrice(marketValueInput.getText().toString().trim());
-            List<String> categories = Collections.singletonList( (String) categorySpinner.getSelectedItem());
-            String dateAvailable = dateInput.getText().toString().trim();
-            List<String> preferredItems = Arrays.asList(
-                    preferredItemsInput.getText().toString().split("\\s*,\\s*"));
-            String providerUid = FirebaseManager.getCurrentUser() != null ? FirebaseManager.getCurrentUser().getUid() : null;
-            String timeUploaded = new SimpleDateFormat("yyyy-MM-dd' T 'HH:mm:ss", Locale.CANADA)
-                    .format(new Date());
-
-            Product product = new Product(name, description, address, price, categories, true, "placeholder", providerUid, timeUploaded, dateAvailable, preferredItems);
-
-            FirebaseManager.createProduct(product).addOnSuccessListener(productId -> onCreateListingSuccess()).addOnFailureListener(this::onCreateListingFailure);
-
+    void handleSelectedPhoto(Uri photoUri) {
+        if (photoUri == null) {
+            return;
         }
 
-        private double parsePrice(String rawValue) {
-            try {
-                return Double.parseDouble(rawValue);
-            } catch (NumberFormatException e) {
-            return 0.0;
+        selectedPhotoUri = photoUri;
+        // Keep read access to the selected photo after the picker returns to this Activity.
+        try {
+            getContentResolver().takePersistableUriPermission(photoUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch (SecurityException ignored) {
+            // Some test or provider URIs are preview-only and do not grant persistable access.
+        }
+        selectedPhotoPreview.setImageURI(photoUri);
+        selectedPhotoPreview.setVisibility(View.VISIBLE);
+        addPhotoPrompt.setText("Change Photo");
+        Toast.makeText(this, "Photo attached", Toast.LENGTH_SHORT).show();
+    }
+
+    Uri getSelectedPhotoUri() {
+        return selectedPhotoUri;
+    }
+
+    private void onCreateListingButtonClick() {
+        setSubmitting(true);
+        try {
+            FirebaseManager.createProductListing(createListingFromForm())
+                    .addOnCompleteListener(this, task -> {
+                        setSubmitting(false);
+                        if (task.isSuccessful()) {
+                            Toast.makeText(this, "Listing posted", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Could not post listing", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } catch (FirebaseConnectionError error) {
+            // A provider must be signed in before Firebase can save the listing under their uid.
+            setSubmitting(false);
+            Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private ProductListing createListingFromForm() throws FirebaseConnectionError {
+        // FirebaseManager assigns the Firebase id and signed-in provider uid before saving.
+        return new ProductListing(
+                null,
+                null,
+                titleInput.getText().toString().trim(),
+                descriptionInput.getText().toString().trim(),
+                locationInput.getText().toString().trim(),
+                dateInput.getText().toString().trim(),
+                marketValueInput.getText().toString().trim(),
+                preferredItemsInput.getText().toString().trim(),
+                categorySpinner.getSelectedItem().toString(),
+                encodeSelectedPhoto()
+        );
+    }
+
+    private String encodeSelectedPhoto() throws FirebaseConnectionError {
+        if (selectedPhotoUri == null) {
+            return null;
+        }
+
+        try (InputStream photoStream = getContentResolver().openInputStream(selectedPhotoUri)) {
+            if (photoStream == null) {
+                throw new FirebaseConnectionError();
             }
+
+            Bitmap sourceBitmap = BitmapFactory.decodeStream(photoStream);
+            if (sourceBitmap == null) {
+                throw new FirebaseConnectionError();
+            }
+
+            Bitmap scaledBitmap = scaleBitmapForDatabase(sourceBitmap);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, PHOTO_JPEG_QUALITY, outputStream);
+            return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP);
+        } catch (IOException error) {
+            throw new FirebaseConnectionError();
         }
-        private void onCreateListingSuccess() {
-            Toast.makeText(this, "Listing created", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-        private void onCreateListingFailure(Exception error) {
-            Toast.makeText(this, "Could not create listing", Toast.LENGTH_SHORT).show();
-            createListingButton.setEnabled(true);
+    }
+
+    private Bitmap scaleBitmapForDatabase(Bitmap sourceBitmap) {
+        int width = sourceBitmap.getWidth();
+        int height = sourceBitmap.getHeight();
+        int largestSide = Math.max(width, height);
+        if (largestSide <= MAX_PHOTO_SIZE_PIXELS) {
+            return sourceBitmap;
         }
 
+        float scale = (float) MAX_PHOTO_SIZE_PIXELS / largestSide;
+        int scaledWidth = Math.round(width * scale);
+        int scaledHeight = Math.round(height * scale);
+        // Realtime Database stores the image as text, so scaling limits the saved payload size.
+        return Bitmap.createScaledBitmap(sourceBitmap, scaledWidth, scaledHeight, true);
+    }
+
+    private void setSubmitting(boolean submitting) {
+        isSubmitting = submitting;
+        createListingButton.setText(submitting ? "Posting..." : "Post Listing");
+        checkCreateListingButtonState();
+    }
 }

@@ -1,10 +1,9 @@
 package com.example.a3130_grp8_app.data;
 
 import com.example.a3130_grp8_app.FirebaseConnectionError;
+import com.example.a3130_grp8_app.model.ProductListing;
 import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Task;
-import com.example.a3130_grp8_app.model.Product;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,7 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class FirebaseManager {
 
     private static final String USERS_PATH = "users";
-    private static final String PRODUCTS_PATH = "product";
+    private static final String PRODUCT_PATH = "product";
     private static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private static FirebaseAuth auth;
@@ -111,38 +110,6 @@ public class FirebaseManager {
     }
 
     /**
-     * Saves new product listing under /product/{productId}
-     *
-     * @param product product to save
-     * @return task to resolve generated product id
-     */
-    public static Task<String> createProduct(Product product) {
-        DatabaseReference newRef = getProductsReference().push();
-        String productId = newRef.getKey();
-        if (productId == null) {
-            return Tasks.forException(new FirebaseConnectionError());
-        }
-        return newRef.setValue(product).continueWith(task -> {
-            if(!task.isSuccessful()) {
-                throw task.getException();
-            }
-            return productId;
-        });
-    }
-
-    /**
-     *
-     * @param productId Id of the product to load
-     * @return taskt that resolves to the product
-     */
-    public static Task<Product> getProduct(String productId) {
-        return getProductsReference().child(productId).get().continueWith(task -> task.getResult().getValue(Product.class));
-    }
-    private static DatabaseReference getProductsReference() {
-        return getDb().getReference(PRODUCTS_PATH);
-    }
-
-    /**
      * Sends a Firebase Auth password reset email.
      *
      * @param email account email that should receive the reset message
@@ -150,6 +117,31 @@ public class FirebaseManager {
      */
     public static Task<Void> sendPasswordResetEmail(String email) {
         return getAuth().sendPasswordResetEmail(email);
+    }
+
+    /**
+     * Saves a provider listing, including its optional Base64 photo, in Realtime Database.
+     *
+     * @param listing listing form data without the final Firebase id and provider uid
+     * @return task that completes after the database save finishes
+     * @throws FirebaseConnectionError when no Auth user is signed in
+     */
+    public static Task<Void> createProductListing(ProductListing listing) throws FirebaseConnectionError {
+        FirebaseUser firebaseUser = getCurrentUser();
+        if (firebaseUser == null) {
+            throw new FirebaseConnectionError();
+        }
+
+        DatabaseReference listingReference = getListingsReference().push();
+        String listingId = listingReference.getKey();
+        if (listingId == null) {
+            throw new FirebaseConnectionError();
+        }
+
+        listing.id = listingId;
+        listing.providerUid = firebaseUser.getUid();
+
+        return listingReference.setValue(listing);
     }
 
     /**
@@ -161,5 +153,9 @@ public class FirebaseManager {
 
     private static DatabaseReference getUserReference(String uid) {
         return getDb().getReference(USERS_PATH).child(uid);
+    }
+
+    private static DatabaseReference getListingsReference() {
+        return getDb().getReference(PRODUCT_PATH);
     }
 }
