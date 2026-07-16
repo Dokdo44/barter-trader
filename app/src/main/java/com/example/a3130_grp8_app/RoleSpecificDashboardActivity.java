@@ -19,7 +19,6 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private TextView dashboardEmail;
     private TextView dashboardRole;
-    private Button requestButton;
 
     /**
      * Initializes dashboard views, logout behavior, and profile loading.
@@ -40,7 +39,6 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardRole = findViewById(R.id.dashboardRole);
         Button logoutButton = findViewById(R.id.logoutButton);
         Button productButton = findViewById(R.id.productButton);
-        requestButton = findViewById(R.id.requestButton);
 
         // Add product button will start AddProduct activity. Only visible if user role is seller.
         productButton.setVisibility(View.INVISIBLE);
