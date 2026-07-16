@@ -29,6 +29,8 @@ public class SignupActivity extends AppCompatActivity {
 
     private static final String[] ROLE_SPINNER_OPTIONS = {"Select a Role", "Buyer", "Seller"};
 
+    private FirebaseManager firebaseManager;
+
     // View variables
     private EditText emailInput;
     private EditText passwordInput;
@@ -53,6 +55,8 @@ public class SignupActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        firebaseManager = FirebaseManager.getInstance();
 
         // Find relevant views
         emailInput = findViewById(R.id.emailInput);
@@ -164,7 +168,7 @@ public class SignupActivity extends AppCompatActivity {
         signUpButton.setEnabled(false);
 
         // Create the Auth account first; the dashboard opens only after profile data is saved.
-        FirebaseManager.createUser(emailInput.getText().toString().trim(),
+        firebaseManager.createUser(emailInput.getText().toString().trim(),
                         passwordInput.getText().toString(),
                         roleSpinner.getSelectedItem().toString())
                 .addOnSuccessListener(this::onCreateUserSuccess)

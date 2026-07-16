@@ -12,34 +12,41 @@
         android:text="Dashboard"
         android:textSize="28sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/dashboardEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/dashboardEmail"/>
 
-    <!-- Filled from the Realtime Database profile at /users/{uid}. -->
     <TextView
         android:id="@+id/dashboardEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Loading account..."
-        app:layout_constraintBottom_toTopOf="@id/dashboardRole"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardTitle" />
+        app:layout_constraintTop_toBottomOf="@id/dashboardTitle"
+        app:layout_constraintBottom_toTopOf="@id/dashboardRole"/>
 
-    <!-- Shows the saved role so the dashboard can branch into buyer/seller behavior later. -->
     <TextView
         android:id="@+id/dashboardRole"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Loading role..."
-        app:layout_constraintBottom_toTopOf="@id/logoutButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardEmail" />
+        app:layout_constraintTop_toBottomOf="@id/dashboardEmail"
+        app:layout_constraintBottom_toTopOf="@id/productButton"/>
 
-    <!-- Clears the Firebase Auth session and returns the user to login. -->
+    <Button
+        android:id="@+id/productButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Product"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dashboardRole"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"/>
+
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
@@ -48,5 +55,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardRole" />
+        app:layout_constraintTop_toBottomOf="@id/productButton"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

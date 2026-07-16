@@ -1,25 +1,31 @@
 package com.example.a3130_grp8_app.model;
 
-/**
- * Represents a request made by a receiver for a product
- */
+import java.util.List;
+
 public class Request {
     private String requestId;
     private String productId;
     private String receiverEmail;
     private String receiverUid;
     private String status;
+    private long timestamp;
+    private String requesterName;
+    private String requesterLocation;
+    private List<String> offeredItems;
 
-    // empty constructor for Firebase
-    public Request() {
-    }
+    public Request() {}
 
-    public Request(String requestId, String productId, String receiverEmail, String receiverUid) {
+    public Request(String requestId, String productId, String receiverEmail, String receiverUid,
+                   String requesterName, String requesterLocation, List<String> offeredItems) {
         this.requestId = requestId;
         this.productId = productId;
         this.receiverEmail = receiverEmail;
         this.receiverUid = receiverUid;
         this.status = "pending";
+        this.timestamp = System.currentTimeMillis();
+        this.requesterName = requesterName;
+        this.requesterLocation = requesterLocation;
+        this.offeredItems = offeredItems;
     }
 
     // getters and setters
@@ -36,5 +42,16 @@ public class Request {
     public void setReceiverUid(String receiverUid) { this.receiverUid = receiverUid; }
 
     public String getStatus() { return status; }
+    public long getTimestamp() { return timestamp; }
+    public String getRequesterName() { return requesterName; }
+    public String getRequesterLocation() { return requesterLocation; }
+    public List<String> getOfferedItems() { return offeredItems; }
+
+    public void setProductId(String productId) { this.productId = productId; }
+    public void setReceiverUid(String receiverUid) { this.receiverUid = receiverUid; }
     public void setStatus(String status) { this.status = status; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    public void setRequesterName(String requesterName) { this.requesterName = requesterName; }
+    public void setRequesterLocation(String requesterLocation) { this.requesterLocation = requesterLocation; }
+    public void setOfferedItems(List<String> offeredItems) { this.offeredItems = offeredItems; }
 }

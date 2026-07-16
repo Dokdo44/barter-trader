@@ -38,6 +38,11 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardEmail = findViewById(R.id.dashboardEmail);
         dashboardRole = findViewById(R.id.dashboardRole);
         Button logoutButton = findViewById(R.id.logoutButton);
+        Button productButton = findViewById(R.id.productButton);
+
+        // Add product button will start AddProduct activity. Only visible if user role is seller.
+        productButton.setVisibility(View.INVISIBLE);
+        productButton.setOnClickListener(v -> onAddProductButtonClick());
 
         // Logout clears the Auth session and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
@@ -48,7 +53,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     private void loadCurrentUserProfile() {
         try {
             // The dashboard reads role/email from /users/{uid}, not from the Auth credential record.
-            FirebaseManager.getCurrentUserProfile()
+            FirebaseManager.getInstance().getCurrentUserProfile()
                     .addOnSuccessListener(this::onGetProfileSuccess)
                     .addOnFailureListener(this::onGetProfileFailure);
         } catch (FirebaseConnectionError e) {
@@ -65,7 +70,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onLogoutButtonClick() {
-        FirebaseManager.signOut();
+        FirebaseManager.getInstance().signOut();
         startActivity(new Intent(this, LoginActivity.class));
         finish();
     }
@@ -79,10 +84,23 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
         dashboardEmail.setText(user.getEmail());
         dashboardRole.setText(user.getRole() + " dashboard");
+        addProductButtonSetup();
     }
 
     private void onGetProfileFailure(Exception error) {
         dashboardEmail.setText("Could not load account");
         dashboardRole.setText("");
+    }
+
+    private void addProductButtonSetup() {
+        Button productButton = findViewById(R.id.productButton);
+        if (dashboardRole.getText().equals("Seller dashboard")) {
+            productButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void onAddProductButtonClick() {
+        startActivity(new Intent(this, AddProductActivity.class));
+        finish();
     }
 }
