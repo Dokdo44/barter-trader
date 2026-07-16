@@ -29,7 +29,16 @@
             android:clickable="true"
             android:focusable="true">
 
+            <ImageView
+                android:id="@+id/selectedPhotoPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="Selected product photo"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
             <TextView
+                android:id="@+id/addPhotoPrompt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
