@@ -14,13 +14,13 @@ public class Product implements Serializable {
     private float price;
     private String timeUploaded;
     private String dateAvailable;
-    private String preferredItems;
+    private List<String> preferredItems;
 
     public Product() {
     }
     public Product(String providerUid, String name, String description, String imageUrl,
                    List<String> categories, String address, boolean available, float price,
-                   String timeUploaded, String dateAvailable, String preferredItems) {
+                   String timeUploaded, String dateAvailable, List<String> preferredItems) {
 
         this.providerUid = providerUid;
         this.name = name;
@@ -32,7 +32,7 @@ public class Product implements Serializable {
         this.price = price;
         this.timeUploaded = timeUploaded;
         this.dateAvailable = dateAvailable;
-        this.preferredItems = preferredItems;
+        this.preferredItems = preferredItems != null ? preferredItems : new ArrayList<>();
     }
 
     public String getProviderUid() { return providerUid; }
@@ -65,6 +65,6 @@ public class Product implements Serializable {
     public String getDateAvailable() { return dateAvailable; }
     public void setDateAvailable(String dateAvailable) { this.dateAvailable = dateAvailable; }
 
-    public String getPreferredItems() { return preferredItems; }
-    public void setPreferredItems(String preferredItems) { this.preferredItems = preferredItems; }
+    public List<String> getPreferredItems() { return preferredItems; }
+    public void setPreferredItems(List<String> preferredItems) { this.preferredItems = preferredItems; }
 }
