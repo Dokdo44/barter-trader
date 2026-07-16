@@ -62,16 +62,20 @@ dependencies {
     implementation libs.play.services.location
     implementation libs.material
     implementation libs.commons.validator
+    implementation libs.uiautomator
+    androidTestImplementation libs.uiautomator
     implementation libs.play.services.maps
     androidTestImplementation libs.monitor
     testImplementation libs.junit
+    testImplementation libs.jackson.databind
+    androidTestImplementation libs.jackson.databind
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.espresso.intents
     androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.jackson.databind
-    implementation libs.firebase.auth
+    androidTestImplementation libs.mockito.android
     implementation libs.secrets.gradle.plugin
     implementation libs.play.services.location
+    implementation libs.firebase.auth
 }
 
 // Script-level variable — shared across all task closures

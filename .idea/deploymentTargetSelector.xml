@@ -6,15 +6,19 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="LoginActivityTest">
+      <SelectionState runConfigName="productsOrderedByUploadTimeOnInitialEntry()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="Product List Activity">
+      <SelectionState runConfigName="searchButtonDisabledWhenNoCategoryOrSearchTextEntered()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="mapViewButtonShowsMapTest()">
+      <SelectionState runConfigName="onlyShowsResultsWithinSelectedVicinity()">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="onlyShowsResultsWithSearchText()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

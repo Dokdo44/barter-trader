@@ -44,6 +44,9 @@ public class FirebaseManager {
     }
 
     public static void install(FirebaseManager firebaseManager) {
+        if(instance != null) {
+            throw new IllegalStateException("FirebaseManager singleton already initialized");
+        }
         instance = firebaseManager;
     }
 
