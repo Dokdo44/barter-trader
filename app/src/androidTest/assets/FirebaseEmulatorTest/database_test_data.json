@@ -1,0 +1,14 @@
+{
+  "users": {
+    "user1": {
+      "name": "Alice",
+      "email": "alice@example.com",
+      "age": 30
+    },
+    "user2": {
+      "name": "Bob",
+      "email": "bob@example.com",
+      "age": 25
+    }
+  }
+}

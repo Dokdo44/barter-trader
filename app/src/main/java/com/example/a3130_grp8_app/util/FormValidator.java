@@ -63,4 +63,12 @@ public final class FormValidator {
     public static boolean isLoginComplete(CharSequence email, CharSequence password) {
         return hasText(email) && hasText(password);
     }
+
+    public static boolean isListingComplete (CharSequence title, CharSequence description,
+                                             CharSequence location, CharSequence dateOfAvailability,
+                                             CharSequence marketValue, int CategoryPosition) {
+
+        return hasText(title) && hasText(location) && hasText(description) && hasText(dateOfAvailability)
+                && hasText(marketValue) && CategoryPosition != 0;
+    }
 }

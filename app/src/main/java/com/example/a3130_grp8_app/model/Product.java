@@ -1,75 +1,122 @@
 package com.example.a3130_grp8_app.model;
 
-import android.widget.ArrayAdapter;
-
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.io.Serializable;
 import java.util.ArrayList;
-
-public class Product {
-    private String providerUid;
+import java.util.List;
+public class Product implements Serializable {
     private String name;
     private String description;
-    private String imageUrl;
-    private ArrayList<String> categories;
     private String address;
-    private boolean available;
     private float price;
-    private String timeUploaded;
+    private List<String> categories;
+    private boolean available;
+    private String imageUrl;
+    private String providerUid;
 
-    public Product(String providerUid, String name, String description, String imageUrl,
-                   ArrayList<String> categories, String address, boolean available, float price,
-                   String timeUploaded) {
-        this.providerUid = providerUid;
-        this.name = name;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.categories = categories;
-        this.address = address;
-        this.available = available;
-        this.price = price;
-        this.timeUploaded = timeUploaded;
+    private String timeUploaded;
+    private String dateAvailable;
+    private List<String> preferredItems;
+
+    public Product() {
+
     }
 
-    public Product() {}
-
-    public String getProviderUid() {
-        return providerUid;
+    public Product(String name, String description, String address, float price, List<String> categories, boolean available,
+                   String imageUrl, String providerUid, String timeUploaded, String dateAvailable, List<String> preferredItems) {
+        this.name = name;
+        this.description = description;
+        this.address = address;
+        this.price = price;
+        this.categories = categories != null ? categories : new ArrayList<>();
+        this.available = available;
+        this.imageUrl = imageUrl;
+        this.providerUid = providerUid;
+        this.timeUploaded = timeUploaded;
+        this.dateAvailable = dateAvailable;
+        this.preferredItems = preferredItems != null ? preferredItems : new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getDescription() {
         return description;
     }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public ArrayList<String> getCategories() {
-        return categories;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getAddress() {
         return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+    public List<String> getCategories() {
+        return categories;
+    }
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 
     public boolean isAvailable() {
         return available;
     }
 
-    public float getPrice() {
-        return price;
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
-
-
-    public LocalDateTime getTimeUploaded() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(timeUploaded, formatter);
+    public String getImageUrl() {
+        return imageUrl;
     }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getProviderUid() {
+        return providerUid;
+    }
+
+    public void setProviderUid(String providerUid) {
+        this.providerUid = providerUid;
+    }
+
+    public String getTimeUploaded() {
+        return timeUploaded;
+    }
+
+    public void setTimeUploaded(String timeUploaded) {
+        this.timeUploaded = timeUploaded;
+    }
+    public String getDateAvailable() {
+        return dateAvailable;
+    }
+
+    public void setDateAvailable(String dateAvailable) {
+        this.dateAvailable = dateAvailable;
+    }
+
+    public List<String> getPreferredItems() {
+        return preferredItems;
+    }
+
+    public void setPreferredItems(List<String> preferredItems) {
+        this.preferredItems = preferredItems;
+    }
+
 }
+

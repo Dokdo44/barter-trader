@@ -16,15 +16,17 @@ public class ProductLocationTest {
 
     private Product makeProduct(String name, String category, String address) {
         return new Product(
-                "uid123",
                 name,
                 "A description",
-                null,
-                new ArrayList<String>(List.of(category)),
                 address,
-                true,
                 0.0f,
-                LocalDateTime.now().toString()
+                new ArrayList<>(List.of(category)),
+                true,
+                null,
+                "uid123",
+                LocalDateTime.now().toString(),
+                null,
+                new ArrayList<>()
         );
     }
 

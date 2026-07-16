@@ -6,19 +6,11 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="productsOrderedByUploadTimeOnInitialEntry()">
+      <SelectionState runConfigName="FirebaseEmulatorTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="searchButtonDisabledWhenNoCategoryOrSearchTextEntered()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="onlyShowsResultsWithinSelectedVicinity()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="onlyShowsResultsWithSearchText()">
+      <SelectionState runConfigName="SignupActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

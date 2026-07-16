@@ -145,7 +145,7 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
         Product product = (Product) marker.getTag();
         if(product == null) return;
 
-        Intent intent = new Intent(this, ProductDetailActivity.class);
+        Intent intent = new Intent(this, ProductDetailsActivity.class);
         intent.putExtra("PRODUCT_NAME", product.getName());
         startActivity(intent);
     }

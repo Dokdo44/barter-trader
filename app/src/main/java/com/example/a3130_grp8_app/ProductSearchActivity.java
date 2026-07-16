@@ -142,17 +142,18 @@ public class ProductSearchActivity extends AppCompatActivity {
         return selectedTexts;
     }
 
-    private boolean matchesAtLeastOne(ArrayList<String> itemCategories, ArrayList<String> selectedCategories)
+    private boolean matchesAtLeastOne(List<String> itemCategories, List<String> selectedCategories)
     {
         if (selectedCategories.isEmpty()) return true;
 
-        for (String category: itemCategories)
+        for (String category : itemCategories)
         {
             if (selectedCategories.contains(category))
             {
                 return true;
             }
         }
+
         return false;
     }
 
