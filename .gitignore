@@ -15,3 +15,4 @@
 local.properties
 firebase-debug.log
 .idea/deploymentTargetSelector.xml
+.gitlab-ci-local/*
