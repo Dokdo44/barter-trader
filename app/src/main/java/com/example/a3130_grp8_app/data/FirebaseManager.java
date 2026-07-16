@@ -52,20 +52,10 @@ public class FirebaseManager {
         instance = firebaseManager;
     }
 
-    /**
-     * Returns the currently signed-in Firebase Auth user.
-     *
-     * @return current Firebase user, or null when no user is signed in
-     */
     public FirebaseUser getCurrentUser() {
         return getAuth().getCurrentUser();
     }
 
-    /**
-     * Returns the Firebase Realtime Database instance using the project URL.
-     *
-     * @return Firebase database instance
-     */
     public FirebaseDatabase getDb() {
         if (db == null) {
             db = FirebaseDatabase.getInstance(FIREBASE_URL);
@@ -88,14 +78,6 @@ public class FirebaseManager {
         this.auth = auth;
     }
 
-    /**
-     * Creates an Auth account and stores the app profile under the new user's uid.
-     *
-     * @param email    email address for Firebase Auth and the app profile
-     * @param password password for Firebase Auth account creation
-     * @param role     selected app role to store in Realtime Database
-     * @return task that completes after both Auth creation and profile storage finish
-     */
     public Task<Void> createUser(String email, String password, String role) {
         return getAuth()
                 .createUserWithEmailAndPassword(email, password)
@@ -114,23 +96,10 @@ public class FirebaseManager {
                 });
     }
 
-    /**
-     * Signs in with Firebase Auth using email/password credentials.
-     *
-     * @param email    email address entered on the login screen
-     * @param password password entered on the login screen
-     * @return Firebase Auth sign-in task
-     */
     public Task<AuthResult> signIn(String email, String password) {
         return getAuth().signInWithEmailAndPassword(email, password);
     }
 
-    /**
-     * Loads the current user's app profile from Realtime Database.
-     *
-     * @return task that resolves to the current user's profile
-     * @throws FirebaseConnectionError when no Auth user is signed in
-     */
     public Task<User> getCurrentUserProfile() throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getCurrentUser();
         if (firebaseUser == null) {
@@ -170,6 +139,20 @@ public class FirebaseManager {
     public static Task<Product> getProduct(String productId) {
         return getProductsReference().child(productId).get()
                 .continueWith(task -> task.getResult().getValue(Product.class));
+    }
+
+    public static String reserveProductId() {
+        return getProductsReference().push().getKey();
+    }
+
+    public static Task<Void> saveProduct(String productId, Product product) throws FirebaseConnectionError {
+        FirebaseUser firebaseUser = getInstance().getCurrentUser();
+        if (firebaseUser == null || productId == null) {
+            throw new FirebaseConnectionError();
+        }
+
+        product.setProviderUid(firebaseUser.getUid());
+        return getProductsReference().child(productId).setValue(product);
     }
 
     private static DatabaseReference getProductsReference() {
