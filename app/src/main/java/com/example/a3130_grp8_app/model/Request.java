@@ -2,6 +2,9 @@ package com.example.a3130_grp8_app.model;
 
 import java.util.List;
 
+/**
+ * Represents a request made by a receiver for a product
+ */
 public class Request {
     private String requestId;
     private String productId;
