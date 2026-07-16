@@ -58,8 +58,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
 
     // loads requests from firebase for the product
     private void loadRequests(String productId) {
-        FirebaseManager.getDb().getReference("requests")
-                .orderByChild("productId")
+        FirebaseManager.getInstance().getDb().getReference("requests")                .orderByChild("productId")
                 .equalTo(productId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
