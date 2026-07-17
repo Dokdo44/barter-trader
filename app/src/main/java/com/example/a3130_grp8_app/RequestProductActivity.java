@@ -80,7 +80,7 @@ public class RequestProductActivity extends AppCompatActivity {
      */
     private void loadProductPreferredItems(String productId) {
         if (productId == null) return;
-        FirebaseManager.getProduct(productId).addOnSuccessListener(product -> {
+        FirebaseManager.getInstance().getProduct(productId).addOnSuccessListener(product -> {
             if (product != null && product.getPreferredItems() != null) {
                 populateCheckboxes(product.getPreferredItems());
             }
@@ -128,7 +128,7 @@ public class RequestProductActivity extends AppCompatActivity {
         List<String> selectedItems = getSelectedItems();
 
         try {
-            FirebaseManager.submitRequest(productId, name, location, selectedItems)
+            FirebaseManager.getInstance().submitRequest(productId, name, location, selectedItems)
                     .addOnSuccessListener(unused -> {
                         requestButton.setVisibility(View.GONE);
                         requestSuccess.setVisibility(View.VISIBLE);

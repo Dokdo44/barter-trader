@@ -80,7 +80,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
     }
 
     private void updateRequestStatus(String requestKey, String status) {
-        FirebaseManager.updateRequestStatus(requestKey, status)
+        FirebaseManager.getInstance().updateRequestStatus(requestKey, status)
                 .addOnSuccessListener(unused ->
                         Toast.makeText(this, "Request " + status, Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->

@@ -148,7 +148,7 @@ public class FirebaseManager {
      * @param productId Id of the product to load
      * @return task that resolves to the product
      */
-    public static Task<Product> getProduct(String productId) {
+    public Task<Product> getProduct(String productId) {
         return getProductsReference().child(productId).get()
                 .continueWith(task -> task.getResult().getValue(Product.class));
     }
@@ -270,7 +270,7 @@ public class FirebaseManager {
      * @return a Task that resolves on success
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public static Task<Void> submitRequest(String productId, String requesterName,
+    public Task<Void> submitRequest(String productId, String requesterName,
                                            String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
@@ -324,7 +324,7 @@ public class FirebaseManager {
      * @param status the new status to set
      * @return a Task that resolves on success
      */
-    public static Task<Void> updateRequestStatus(String requestId, String status) {
+    public Task<Void> updateRequestStatus(String requestId, String status) {
         return getInstance().getDb().getReference(REQUESTS_PATH)
                 .child(requestId)
                 .child("status")

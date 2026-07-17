@@ -96,7 +96,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     }
 
     private void loadProductById(String productId) {
-        FirebaseManager.getProduct(productId)
+        FirebaseManager.getInstance().getProduct(productId)
                 .addOnSuccessListener(onFindProductByIdSuccess)
                 .addOnFailureListener(error ->
                         Snackbar.make(
