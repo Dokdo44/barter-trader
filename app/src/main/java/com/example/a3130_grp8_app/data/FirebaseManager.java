@@ -38,6 +38,11 @@ public class FirebaseManager {
 
     protected FirebaseManager() {}
 
+    /**
+     * Returns the singleton instance of the Firebase manager.
+     *
+     * @return the shared FirebaseManager instance
+     */
     public static FirebaseManager getInstance() {
         if (instance == null) {
             instance = new FirebaseManager();
@@ -45,6 +50,12 @@ public class FirebaseManager {
         return instance;
     }
 
+    /**
+     * Installs the singleton instance for the application.
+     *
+     * @param firebaseManager the FirebaseManager instance to install
+     * @throws IllegalStateException if the singleton has already been initialized
+     */
     public static void install(FirebaseManager firebaseManager) {
         if (instance != null) {
             throw new IllegalStateException("FirebaseManager singleton already initialized");
@@ -52,10 +63,20 @@ public class FirebaseManager {
         instance = firebaseManager;
     }
 
+    /**
+     * Returns the currently authenticated Firebase user.
+     *
+     * @return the signed-in Firebase user, or {@code null} if no user is signed in
+     */
     public FirebaseUser getCurrentUser() {
         return getAuth().getCurrentUser();
     }
 
+    /**
+     * Returns the Firebase Realtime Database instance.
+     *
+     * @return the database instance
+     */
     public FirebaseDatabase getDb() {
         if (db == null) {
             db = FirebaseDatabase.getInstance(FIREBASE_URL);
@@ -63,6 +84,11 @@ public class FirebaseManager {
         return db;
     }
 
+    /**
+     * Returns the Firebase Authentication instance.
+     *
+     * @return the authentication instance
+     */
     public FirebaseAuth getAuth() {
         if (auth == null) {
             auth = FirebaseAuth.getInstance();
@@ -70,14 +96,32 @@ public class FirebaseManager {
         return auth;
     }
 
+    /**
+     * Sets the Firebase Realtime Database instance.
+     *
+     * @param db the database instance to use
+     */
     public void setDb(FirebaseDatabase db) {
         this.db = db;
     }
 
+    /**
+     * Sets the Firebase Authentication instance.
+     *
+     * @param auth the authentication instance to use
+     */
     public void setAuth(FirebaseAuth auth) {
         this.auth = auth;
     }
 
+    /**
+     * Creates a new user account and stores the user's profile information.
+     *
+     * @param email the user's email address
+     * @param password the user's password
+     * @param role the user's role
+     * @return a Task that completes when the account and profile have been created
+     */
     public Task<Void> createUser(String email, String password, String role) {
         return getAuth()
                 .createUserWithEmailAndPassword(email, password)
@@ -96,10 +140,23 @@ public class FirebaseManager {
                 });
     }
 
+    /**
+     * Signs a user into Firebase Authentication.
+     *
+     * @param email the user's email address
+     * @param password the user's password
+     * @return a Task that resolves to the authentication result
+     */
     public Task<AuthResult> signIn(String email, String password) {
         return getAuth().signInWithEmailAndPassword(email, password);
     }
 
+    /**
+     * Retrieves the profile of the currently signed-in user.
+     *
+     * @return a Task that resolves to the user's profile
+     * @throws FirebaseConnectionError if no user is currently signed in
+     */
     public Task<User> getCurrentUserProfile() throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getCurrentUser();
         if (firebaseUser == null) {
@@ -141,10 +198,23 @@ public class FirebaseManager {
                 .continueWith(task -> task.getResult().getValue(Product.class));
     }
 
+    /**
+     * Reserves and returns a unique product ID.
+     *
+     * @return a newly generated product ID
+     */
     public static String reserveProductId() {
         return getProductsReference().push().getKey();
     }
 
+    /**
+     * Saves a product under the specified product ID.
+     *
+     * @param productId the ID of the product
+     * @param product the product to save
+     * @return a Task that completes when the product has been saved
+     * @throws FirebaseConnectionError if no user is signed in or the product ID is invalid
+     */
     public static Task<Void> saveProduct(String productId, Product product) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null || productId == null) {
@@ -205,6 +275,12 @@ public class FirebaseManager {
         public abstract void onGetProduct(Product product);
     }
 
+    /**
+     * Registers a listener for product changes ordered by the specified field.
+     *
+     * @param orderBy the child field used to order products
+     * @param productChildEventListener the listener that receives product events
+     */
     public void addProductChildEventListener(String orderBy,
                                              ProductChildEventListener productChildEventListener) {
         getDb().getReference(PRODUCTS_PATH)
