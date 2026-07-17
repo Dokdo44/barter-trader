@@ -141,6 +141,9 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         productSearchResultAdapter = new ProductSearchResultAdapter(this, new ArrayList<>());
         productRecyclerView.setAdapter(productSearchResultAdapter);
 
+        Button backButton = findViewById(R.id.backButtonSearch);
+        backButton.setOnClickListener(v -> finish());
+
         initGms();
         initMapViewButton();
 
