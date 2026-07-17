@@ -17,6 +17,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * Activity responsible for displaying detailed information about a product listing.
+ *
+ * Loads product information from Firebase and displays it which then allows users to request the product.
+ */
 public class ProductDetailsActivity extends AppCompatActivity {
     private ImageView productImage;
     private TextView productName;

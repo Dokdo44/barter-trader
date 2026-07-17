@@ -18,6 +18,17 @@ public class Request {
 
     public Request() {}
 
+    /**
+     * Creates a new product request with the specified details.
+     *
+     * @param requestId the unique ID of the request
+     * @param productId the ID of the requested product
+     * @param receiverEmail the email address of the product owner
+     * @param receiverUid the UID of the product owner
+     * @param requesterName the name of the requester
+     * @param requesterLocation the requester's location
+     * @param offeredItems the items offered in exchange
+     */
     public Request(String requestId, String productId, String receiverEmail, String receiverUid,
                    String requesterName, String requesterLocation, List<String> offeredItems) {
         this.requestId = requestId;
@@ -31,7 +42,17 @@ public class Request {
         this.offeredItems = offeredItems;
     }
 
-    // used by FirebaseManager - requestId/receiverEmail set separately via setters
+    /**
+     * Creates a new product request without a request ID or receiver email.
+     *
+     * Mainly used by FirebaseManager when these values are assigned separately through setters.
+     *
+     * @param productId the ID of the requested product
+     * @param receiverUid the UID of the product owner
+     * @param requesterName the name of the requester
+     * @param requesterLocation the requester's location
+     * @param offeredItems the items offered in exchange
+     */
     public Request(String productId, String receiverUid, String requesterName,
                    String requesterLocation, List<String> offeredItems) {
         this.productId = productId;
@@ -43,7 +64,7 @@ public class Request {
         this.offeredItems = offeredItems;
     }
 
-    // getters and setters
+    // Getters and Setters
     public String getRequestId() { return requestId; }
     public void setRequestId(String requestId) { this.requestId = requestId; }
 

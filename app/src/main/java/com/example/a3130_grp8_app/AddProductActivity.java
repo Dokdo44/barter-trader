@@ -41,6 +41,12 @@ import java.util.concurrent.Executors;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Activity responsible for creating and submitting new product listings.
+ *
+ * Handles user input validation, photo selection, image uploading,
+ * and saving product data to Firebase.
+ */
 public class AddProductActivity extends AppCompatActivity {
 
     private static final String[] CATEGORY_OPTIONS = {"Select a Category", "Decoration", "Sports", "Technology", "Personal Care", "Other"};
@@ -63,6 +69,11 @@ public class AddProductActivity extends AppCompatActivity {
 
     private final ExecutorService photoUploadExecutor = Executors.newSingleThreadExecutor();
 
+    /**
+     * Initializes the activity, sets up UI components, listeners, and form validation.
+     *
+     * @param savedInstanceState the previously saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +112,11 @@ public class AddProductActivity extends AppCompatActivity {
         checkCreateListingButtonState();
     }
 
+    /**
+     * Cleans up resources used by the activity.
+     *
+     * Shuts down the photo upload executor when the activity is destroyed.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();

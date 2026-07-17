@@ -3,6 +3,10 @@ package com.example.a3130_grp8_app.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Represents a product listing with all the details that are relevant to it.
+ */
 public class Product implements Serializable {
     private String name;
     private String description;
@@ -21,6 +25,21 @@ public class Product implements Serializable {
 
     }
 
+    /**
+     * Creates a product with the specified details.
+     *
+     * @param name the product name
+     * @param description the product description
+     * @param address the product location
+     * @param price the product price
+     * @param categories the categories associated with the product
+     * @param available whether the product is available
+     * @param imageUrl the URL of the product image
+     * @param providerUid the UID of the product owner
+     * @param timeUploaded the time the product was uploaded
+     * @param dateAvailable the date the product becomes available
+     * @param preferredItems the items the owner is willing to exchange for
+     */
     public Product(String name, String description, String address, float price, List<String> categories, boolean available,
                    String imageUrl, String providerUid, String timeUploaded, String dateAvailable, List<String> preferredItems) {
         this.name = name;
@@ -36,6 +55,7 @@ public class Product implements Serializable {
         this.preferredItems = preferredItems != null ? preferredItems : new ArrayList<>();
     }
 
+    // Getters and Setters
     public String getName() {
         return name;
     }
