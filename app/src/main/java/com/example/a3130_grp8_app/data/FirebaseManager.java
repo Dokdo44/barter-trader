@@ -1,5 +1,11 @@
 package com.example.a3130_grp8_app.data;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -7,6 +13,7 @@ import com.example.a3130_grp8_app.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
@@ -17,8 +24,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Centralizes Firebase Auth and Realtime Database calls so Activities do not hold business logic.
@@ -205,11 +217,40 @@ public class FirebaseManager {
         public abstract void onGetProduct(Product product);
     }
 
+    public static abstract class ProductValueEventListener implements ValueEventListener {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            ArrayList<Product> products = new ArrayList<>();
+            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                Product product = snapshot.getValue(Product.class);
+                products.add(product);
+            }
+            onGetProducts(products);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {}
+
+        public abstract void onGetProducts(List<Product> products);
+    }
+
     public void addProductChildEventListener(String orderBy,
                                              ProductChildEventListener productChildEventListener) {
         getDb().getReference(PRODUCTS_PATH)
                 .orderByChild(orderBy)
                 .addChildEventListener(productChildEventListener);
+    }
+
+    public void getProducts(ProductValueEventListener productValueEventListener,
+                            int limitToFirst) {
+        getProductReference()
+                .orderByChild("timeUploaded")
+                .limitToLast(limitToFirst)
+                .addListenerForSingleValueEvent(productValueEventListener);
+    }
+
+    public DatabaseReference getProductReference() {
+        return getDb().getReference(PRODUCTS_PATH);
     }
 
     /**

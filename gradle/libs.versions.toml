@@ -8,11 +8,11 @@ appcompat = "1.7.1"
 material = "1.14.0"
 activityKtx = "1.13.0"
 constraintlayout = "2.2.1"
-googleGmsGoogleServices = "4.4.4"
+googleGmsGoogleServices = "4.5.0"
 firebaseDatabase = "22.0.1"
-firebaseAuth = "22.3.1"
+firebaseAuth = "24.2.0"
 coordinatorlayout = "1.3.0"
-espressoIntents = "3.5.1"
+espressoIntents = "3.7.0"
 monitor = "1.8.0"
 uiautomator = "2.4.0"
 mockito-android = "5.23.0"
@@ -21,6 +21,7 @@ playServicesLocation = "21.2.0"
 secretsGradlePlugin = "2.0.1"
 playServicesLocationVersion = "21.4.0"
 jackson-databind = "2.22.1"
+recyclerview = "1.4.0"
 
 [libraries]
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsValidator" }
@@ -43,6 +44,7 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 secrets-gradle-plugin = { group = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", name = "secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocationVersion" }
 jackson-databind = {group = "com.fasterxml.jackson.core", name="jackson-databind", version.ref="jackson-databind"}
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

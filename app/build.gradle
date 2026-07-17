@@ -60,6 +60,7 @@ dependencies {
     implementation libs.play.services.location
     implementation libs.material
     implementation libs.commons.validator
+    implementation libs.recyclerview
     implementation libs.uiautomator
     androidTestImplementation libs.uiautomator
     implementation libs.play.services.maps
