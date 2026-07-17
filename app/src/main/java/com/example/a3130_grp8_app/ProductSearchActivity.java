@@ -138,7 +138,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
 
         productRecyclerView = findViewById(R.id.productRecyclerView);
         productRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        productSearchResultAdapter = new ProductSearchResultAdapter(new ArrayList<>());
+        productSearchResultAdapter = new ProductSearchResultAdapter(this, new ArrayList<>());
         productRecyclerView.setAdapter(productSearchResultAdapter);
 
         initGms();
