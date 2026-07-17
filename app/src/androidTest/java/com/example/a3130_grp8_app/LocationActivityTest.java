@@ -6,6 +6,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 
@@ -14,6 +15,7 @@ import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
@@ -42,7 +44,11 @@ public class LocationActivityTest {
 
     private ArrayList<Product> products;
 
-    public ActivityScenario<ProductListActivity> activity;
+    public ActivityScenario<ProductSearchActivity> activity;
+
+    @Rule
+    public GrantPermissionRule permissionRule =
+            GrantPermissionRule.grant(Manifest.permission.ACCESS_FINE_LOCATION);
 
     private class TestFirebaseManager extends FirebaseManager {
         private Comparator<Product> getProductComparator(String orderBy) {
@@ -88,7 +94,7 @@ public class LocationActivityTest {
         products = parseJsonToProducts();
 
         FirebaseManager.install(new TestFirebaseManager());
-        activity = ActivityScenario.launch(ProductListActivity.class);
+        activity = ActivityScenario.launch(ProductSearchActivity.class);
     }
 
 
