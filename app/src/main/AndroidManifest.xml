@@ -98,5 +98,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MyProductsActivity" android:exported="false"/>
     </application>
 </manifest>

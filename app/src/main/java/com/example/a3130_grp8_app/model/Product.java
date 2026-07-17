@@ -17,6 +17,8 @@ public class Product implements Serializable {
     private String dateAvailable;
     private List<String> preferredItems;
 
+    private String id;
+
     public Product() {
 
     }
@@ -118,5 +120,12 @@ public class Product implements Serializable {
         this.preferredItems = preferredItems;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
 

@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,6 +46,12 @@ public class ViewRequestsActivity extends AppCompatActivity {
         requestListView.setAdapter(adapter);
 
         String productId = getIntent().getStringExtra("productId");
+        if(getIntent().hasExtra("PRODUCT")) {
+            Product product = getIntent().getSerializableExtra("PRODUCT", Product.class);
+            assert product != null;
+            assert product.getId() != null;
+            productId = product.getId();
+        }
         if (productId == null) productId = "dummy_product_001";
         loadRequests(productId);
 

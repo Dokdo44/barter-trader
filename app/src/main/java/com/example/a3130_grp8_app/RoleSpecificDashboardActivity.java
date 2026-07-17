@@ -39,10 +39,15 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardRole = findViewById(R.id.dashboardRole);
         Button logoutButton = findViewById(R.id.logoutButton);
         Button productButton = findViewById(R.id.productButton);
+        Button myProductsButton = findViewById(R.id.viewMyProductsButton);
 
         // Add product button will start AddProduct activity. Only visible if user role is seller.
         productButton.setVisibility(View.INVISIBLE);
         productButton.setOnClickListener(v -> onAddProductButtonClick());
+
+        // Add product button will start MyProducts activity. Only visible if user role is seller.
+        myProductsButton.setVisibility(View.INVISIBLE);
+        myProductsButton.setOnClickListener(v -> onMyProductsButtonClick());
 
         // Logout clears the Auth session and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
@@ -85,6 +90,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardEmail.setText(user.getEmail());
         dashboardRole.setText(user.getRole() + " dashboard");
         addProductButtonSetup();
+        myProductsButtonSetup();
     }
 
     private void onGetProfileFailure(Exception error) {
@@ -102,5 +108,17 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     private void onAddProductButtonClick() {
         startActivity(new Intent(this, AddProductActivity.class));
         finish();
+    }
+
+    private void myProductsButtonSetup() {
+        Button myProductsButton = findViewById(R.id.viewMyProductsButton);
+        if (dashboardRole.getText().equals("Seller dashboard")) {
+            myProductsButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void onMyProductsButtonClick() {
+       startActivity(new Intent(this, MyProductsActivity.class));
+       finish();
     }
 }

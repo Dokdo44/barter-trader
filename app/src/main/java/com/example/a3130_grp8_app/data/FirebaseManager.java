@@ -223,6 +223,8 @@ public class FirebaseManager {
             ArrayList<Product> products = new ArrayList<>();
             for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 Product product = snapshot.getValue(Product.class);
+                assert product != null;
+                product.setId(snapshot.getKey());
                 products.add(product);
             }
             onGetProducts(products);
@@ -246,6 +248,14 @@ public class FirebaseManager {
         getProductReference()
                 .orderByChild("timeUploaded")
                 .limitToLast(limitToFirst)
+                .addListenerForSingleValueEvent(productValueEventListener);
+    }
+
+    public void getProductsByUserId(String userId,
+                                    ProductValueEventListener productValueEventListener) {
+        getProductReference()
+                .orderByChild("providerUid")
+                .equalTo(userId)
                 .addListenerForSingleValueEvent(productValueEventListener);
     }
 
