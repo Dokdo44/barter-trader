@@ -3,6 +3,7 @@ package com.example.a3130_grp8_app;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +55,9 @@ public class ViewRequestsActivity extends AppCompatActivity {
         }
         if (productId == null) productId = "dummy_product_001";
         loadRequests(productId);
+
+        Button backButton = findViewById(R.id.backButtonViewRequests);
+        backButton.setOnClickListener(v -> finish());
 
         // show requester details when clicked
         requestListView.setOnItemClickListener((parent, view, position, id) -> {

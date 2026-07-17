@@ -1,6 +1,8 @@
 package com.example.a3130_grp8_app;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +42,9 @@ public class MyProductsActivity extends AppCompatActivity {
         productsRecyclerView = findViewById(R.id.productsRecyclerView);
         productsRecyclerView.setAdapter(myProductsAdapter);
         productsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        Button backButton = findViewById(R.id.backButtonMyProducts);
+        backButton.setOnClickListener(v -> finish());
 
         FirebaseAuth auth = FirebaseManager.getInstance().getAuth();
         FirebaseManager.getInstance().getProductsByUserId(auth.getUid(),

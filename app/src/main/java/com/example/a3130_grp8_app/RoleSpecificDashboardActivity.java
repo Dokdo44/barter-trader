@@ -107,7 +107,6 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void onAddProductButtonClick() {
         startActivity(new Intent(this, AddProductActivity.class));
-        finish();
     }
 
     private void myProductsButtonSetup() {
@@ -119,6 +118,5 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void onMyProductsButtonClick() {
        startActivity(new Intent(this, MyProductsActivity.class));
-       finish();
     }
 }
