@@ -227,6 +227,7 @@ public class FirebaseManager {
         }
 
         String receiverUid = firebaseUser.getUid();
+        String receiverEmail = firebaseUser.getEmail();
         DatabaseReference requestsRef = getInstance().getDb().getReference(REQUESTS_PATH);
         DatabaseReference productRef = getInstance().getDb()
                 .getReference(PRODUCTS_PATH).child(productId);
@@ -245,6 +246,8 @@ public class FirebaseManager {
 
         }).continueWithTask(existingRequestsTask -> {
             if (!existingRequestsTask.isSuccessful()) {
+                Exception e = existingRequestsTask.getException();
+                if (e != null) throw e;
                 throw new Exception("Could not check existing requests");
             }
 
@@ -261,8 +264,8 @@ public class FirebaseManager {
             }
 
             return requestsRef.child(requestId).setValue(
-                    new Request(productId, receiverUid, requesterName,
-                            requesterLocation, offeredItems));
+                    new Request(requestId, productId, receiverEmail, receiverUid,
+                            requesterName, requesterLocation, offeredItems));
         });
     }
 
