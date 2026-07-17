@@ -32,6 +32,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Activity responsible for searching and displaying product listings.
+ *
+ * Loads products from Firebase and allows users to filter listings
+ * based on search text and selected categories.
+ */
 public class ProductSearchActivity extends AppCompatActivity {
 
     FirebaseDatabase db;
@@ -44,6 +50,12 @@ public class ProductSearchActivity extends AppCompatActivity {
     LinearLayout productContainer;
 
     FirebaseManager manager = FirebaseManager.getInstance();
+
+    /**
+     * Initializes the activity, sets up UI components, listeners, and form validation.
+     *
+     * @param savedInstanceState the previously saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

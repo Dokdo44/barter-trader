@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Shows all requests submitted for a provider's product
+ * Activity responsible for displaying requests submitted for a provider's product.
+ *
+ * Loads requests from Firebase and allows providers to view requester details.
  */
 public class ViewRequestsActivity extends AppCompatActivity {
 
@@ -30,6 +32,11 @@ public class ViewRequestsActivity extends AppCompatActivity {
     private List<Request> requests;
     private ArrayAdapter<String> adapter;
 
+    /**
+     * Initializes the activity, sets up UI components, listeners, and form validation.
+     *
+     * @param savedInstanceState the previously saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

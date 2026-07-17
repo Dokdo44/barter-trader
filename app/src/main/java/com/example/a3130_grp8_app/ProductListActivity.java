@@ -37,6 +37,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Activity responsible for displaying product listings on a map.
+ *
+ * Handles Google Maps initialization, location permissions, and
+ * displaying product markers based on their addresses.
+ */
 public class ProductListActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -48,8 +54,11 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
 
     private Button mapViewButton;
 
-
-
+    /**
+     * Initializes the activity, sets up UI components, listeners, and form validation.
+     *
+     * @param savedInstanceState the previously saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,6 +159,11 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
         startActivity(intent);
     }
 
+    /**
+     * Called when the Google Map has finished loading.
+     *
+     * @param map the initialized Google Map instance
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
