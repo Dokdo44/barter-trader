@@ -65,9 +65,6 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
 
     private List<Marker> markers = new ArrayList<>();
 
-    FirebaseDatabase db;
-    DatabaseReference productReference;
-
     EditText searchField;
 
     RecyclerView productRecyclerView;
@@ -87,7 +84,16 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
                 if(productRecyclerView == null || productSearchResultAdapter == null) {
                     return;
                 }
-                List<Product> filteredProducts = filterSearchResults(query, products).reversed();
+
+                ChipGroup categoryChipGroup = findViewById(R.id.categoryChipGroup);
+                List<String> selectedCategories = getSelectedChipTexts(categoryChipGroup);
+
+                List<Product> filteredProducts = filterSearchResults(
+                        query,
+                        products,
+                        selectedCategories,
+                        proximitySpinner.getSelectedItem().toString()
+                ).reversed();
                 productSearchResultAdapter.resetData(filteredProducts);
 
                 // Adjust map markers to new products
@@ -336,9 +342,10 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         manager.getProducts(productValueEventListener, 100);
     }
 
-    private List<Product> filterSearchResults(String query, List<Product> products) {
-        ChipGroup categoryChipGroup = findViewById(R.id.categoryChipGroup);
-        List<String> selectedCategories = getSelectedChipTexts(categoryChipGroup);
+    private List<Product> filterSearchResults(String query,
+                                              List<Product> products,
+                                              List<String> selectedCategories,
+                                              String proximitySpinnerValue) {
 
         List<Product> ret = new ArrayList<>();
         for (Product product : products)
@@ -347,7 +354,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
             boolean categoriesMatch =
                     matchesAtLeastOne(product.getCategories(), new ArrayList<>(selectedCategories));
             boolean proximitySpinnerHasValue =
-                    !proximitySpinner.getSelectedItem().toString().equals("Select Proximity");
+                    !proximitySpinnerValue.equals("Select Proximity");
             if(proximitySpinnerHasValue &&
                     !isAddressWithinProximitySpinnerRange(product.getAddress())){
                 continue;
@@ -398,7 +405,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         return selectedTexts;
     }
 
-    private boolean matchesAtLeastOne(List<String> itemCategories, List<String> selectedCategories) {
+    private static boolean matchesAtLeastOne(List<String> itemCategories, List<String> selectedCategories) {
         if (selectedCategories.isEmpty()) return true;
         for (String category : itemCategories) {
             if (selectedCategories.contains(category))

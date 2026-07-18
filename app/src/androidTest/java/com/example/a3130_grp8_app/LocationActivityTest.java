@@ -2,15 +2,21 @@ package com.example.a3130_grp8_app;
 
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.Until;
 
 import com.example.a3130_grp8_app.activities.ProductSearchActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
@@ -39,6 +45,10 @@ public class LocationActivityTest {
     private ArrayList<Product> products;
 
     public ActivityScenario<ProductSearchActivity> activity;
+
+    private UiDevice device;
+    private Context applicationContext;
+    final String launcherPackage = "com.example.a3130_grp8_app";
 
     @Rule
     public GrantPermissionRule permissionRule =
@@ -84,11 +94,22 @@ public class LocationActivityTest {
 
     @Before
     public void setUp() throws Exception {
-        assetContext = InstrumentationRegistry.getInstrumentation().getContext();
-        products = parseJsonToProducts();
 
         FirebaseManager.install(new TestFirebaseManager());
-        activity = ActivityScenario.launch(ProductSearchActivity.class);
+
+        assetContext = getInstrumentation().getContext();
+        applicationContext = ApplicationProvider.getApplicationContext();
+
+        device = UiDevice.getInstance(getInstrumentation());
+
+        final Intent launchIntent = new Intent(applicationContext, ProductSearchActivity.class);
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        applicationContext.startActivity(launchIntent);
+
+        products = parseJsonToProducts();
+
+        device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), 5000);
     }
 
 
