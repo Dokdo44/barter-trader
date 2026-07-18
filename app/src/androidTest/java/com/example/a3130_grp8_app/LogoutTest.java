@@ -10,6 +10,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.a3130_grp8_app.activities.RoleSpecificDashboardActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.google.android.gms.tasks.Tasks;
 

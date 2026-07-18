@@ -1,0 +1,406 @@
+package com.example.a3130_grp8_app.activities;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+
+import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+
+import com.example.a3130_grp8_app.adapters.ProductSearchResultAdapter;
+import com.example.a3130_grp8_app.R;
+import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.util.CategoryMatcher;
+import com.example.a3130_grp8_app.util.GeoLocator;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.example.a3130_grp8_app.data.FirebaseManager;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProductSearchActivity extends AppCompatActivity implements OnMapReadyCallback {
+    private FusedLocationProviderClient fusedLocationClient;
+    private SupportMapFragment mapFragment;
+    private FragmentManager fragmentManager;
+    private GoogleMap googleMap;
+
+    private Button searchButton;
+
+    private List<Marker> markers = new ArrayList<>();
+
+    EditText searchField;
+
+    RecyclerView productRecyclerView;
+    ProductSearchResultAdapter productSearchResultAdapter;
+
+    FirebaseManager manager = FirebaseManager.getInstance();
+
+    private LatLng currPosition;
+
+    Spinner proximitySpinner;
+    private String[] proximitySpinnerOptions = new String[] {"Select Proximity", "5km", "10km", "25km"};
+
+    private FirebaseManager.ProductValueEventListener getProductValueEventListener(String query) {
+        return new FirebaseManager.ProductValueEventListener() {
+            @Override
+            public void onGetProducts(List<Product> products) {
+                if(productRecyclerView == null || productSearchResultAdapter == null) {
+                    return;
+                }
+
+                ChipGroup categoryChipGroup = findViewById(R.id.categoryChipGroup);
+                List<String> selectedCategories = getSelectedChipTexts(categoryChipGroup);
+
+                List<Product> filteredProducts = filterSearchResults(
+                        query,
+                        products,
+                        selectedCategories,
+                        proximitySpinner.getSelectedItem().toString()
+                ).reversed();
+                productSearchResultAdapter.resetData(filteredProducts);
+
+                // Adjust map markers to new products
+                for(Marker marker : markers) {
+                    marker.remove();
+                }
+                markers.clear();
+                for(Product product : filteredProducts) {
+                    addMapMarkerForProduct(product);
+                }
+            }
+        };
+    }
+
+    private final View.OnTouchListener onProximityCheckedStateChangeListener =
+    new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if(haveLocationPermissions()) {
+                setCurrPosition();
+                return false;
+            } else {
+                requestPermissionsOnSpinnerClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                return true;
+            }
+        }
+    };
+
+    /**
+     * Initializes the activity, sets up UI components, listeners, and form validation.
+     *
+     * @param savedInstanceState the previously saved state of the activity
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+
+        setContentView(R.layout.activity_product_search);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.productSearchConstraintLayout),
+                (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+
+        });
+
+        searchButton = findViewById(R.id.searchButton);
+        searchButton.setEnabled(false);
+        searchButton.setOnClickListener(v -> onSearch());
+        searchField = findViewById(R.id.searchEditText);
+
+        createProximitySpinner();
+        proximitySpinner.setOnTouchListener(onProximityCheckedStateChangeListener);
+
+        productRecyclerView = findViewById(R.id.productRecyclerView);
+        productRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        productSearchResultAdapter = new ProductSearchResultAdapter(this, new ArrayList<>());
+        productRecyclerView.setAdapter(productSearchResultAdapter);
+
+        Button backButton = findViewById(R.id.backButtonSearch);
+        backButton.setOnClickListener(v -> finish());
+
+        initGms();
+        initMapViewButton();
+
+
+    }
+
+    private void createProximitySpinner() {
+        proximitySpinner = findViewById(R.id.proximitySpinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                proximitySpinnerOptions
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        proximitySpinner.setAdapter(adapter);
+    }
+
+    private void initGms() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        fragmentManager = getSupportFragmentManager();
+        mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.mapFragment);
+        fragmentManager.beginTransaction().hide(mapFragment).commit();
+        mapFragment.getMapAsync(this);
+    }
+
+    private void initMapViewButton() {
+        Button mapViewButton = findViewById(R.id.mapViewButton);
+        mapViewButton.setOnClickListener(onMapViewButtonClick);
+    }
+
+    private final View.OnClickListener onMapViewButtonClick = view -> {
+        if(mapFragment.isHidden()) {
+            showMapOrGetPermissions();
+        } else {
+            hideMap();
+        }
+    };
+
+    private void showMap() {
+        fragmentManager.beginTransaction().show(mapFragment).commit();
+        updateCameraLocation();
+    }
+
+    private void hideMap() {
+        fragmentManager.beginTransaction().hide(mapFragment).commit();
+    }
+
+
+
+    private void addMapMarkerForProduct(Product product) {
+        try {
+            GeoLocator geoLocator = new GeoLocator(this);
+            LatLng position = geoLocator.getLatLngForAddressString(product.getAddress());
+            Marker marker = googleMap.addMarker(
+                    new MarkerOptions()
+                            .position(position)
+                            .title(product.getName())
+                            .snippet(product.createProductSnippet())
+            );
+            if(marker != null) {
+                marker.setTag(product);
+                markers.add(marker);
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            Log.e("error", e.getMessage());
+        }
+    }
+
+    private void onMarkerInfoWindowClick(Marker marker) {
+        Product product = (Product) marker.getTag();
+        if(product == null) return;
+
+        Intent intent = new Intent(this, ProductDetailsActivity.class);
+        intent.putExtra("PRODUCT", product);
+        startActivity(intent);
+    }
+
+    /**
+     * Called when the Google Map has finished loading.
+     *
+     * @param map the initialized Google Map instance
+     */
+    @Override
+    public void onMapReady(@NonNull GoogleMap map) {
+        googleMap = map;
+        updateCameraLocation();
+
+        googleMap.setOnInfoWindowClickListener(this::onMarkerInfoWindowClick);
+        beforeSearchPage();
+        searchButton.setEnabled(true);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void enableMyLocationIfPermitted() {
+        googleMap.setMyLocationEnabled(true);
+    }
+
+    private boolean haveLocationPermissions() {
+        int fineLocationPermissions = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+        int coarseLocationPermissions = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        );
+
+        return fineLocationPermissions == PackageManager.PERMISSION_GRANTED
+                || coarseLocationPermissions == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void handlePermissionsResultOnViewMapButtonClick(boolean isGranted) {
+        if (isGranted) {
+            enableMyLocationIfPermitted();
+            showMap();
+        } else {
+            Log.d("debug", "User rejected permissions");
+        }
+    }
+
+    private final ActivityResultLauncher<String> requestPermissionsOnViewMapButtonClick =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    this::handlePermissionsResultOnViewMapButtonClick);
+
+    private void showMapOrGetPermissions() {
+        if(haveLocationPermissions()) {
+            if(!googleMap.isMyLocationEnabled()) {
+                enableMyLocationIfPermitted();
+            }
+            showMap();
+            return;
+        }
+
+        requestPermissionsOnViewMapButtonClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+    private final ActivityResultLauncher<String> requestPermissionsOnSpinnerClick =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    this::handlePermissionResultOnSpinnerClick);
+
+    private void handlePermissionResultOnSpinnerClick(boolean isGranted) {
+        if(isGranted) {
+            setCurrPosition();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void setCurrPosition() {
+        fusedLocationClient
+                .getLastLocation()
+                .addOnSuccessListener(this, this::setCurrPositionByLocation);
+    }
+
+    private void setCurrPositionByLocation(Location location) {
+        currPosition = new LatLng(location.getLatitude(), location.getLongitude());
+    }
+
+    private void updateCameraByLocation(Location location) {
+        assert location != null;
+        LatLng targetLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(targetLatLng, 10.0f);
+        googleMap.animateCamera(cameraUpdate);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void updateCameraLocation() {
+        fusedLocationClient
+                .getLastLocation()
+                .addOnSuccessListener(this, this::updateCameraByLocation);
+    }
+
+    private void beforeSearchPage()
+    {
+        FirebaseManager.ProductValueEventListener productValueEventListener =
+                getProductValueEventListener("");
+        manager.getProducts(productValueEventListener, 100);
+    }
+
+    private void onSearch()
+    {
+        String query = searchField.getText().toString();
+        FirebaseManager.ProductValueEventListener productValueEventListener =
+                getProductValueEventListener(query);
+        manager.getProducts(productValueEventListener, 100);
+    }
+
+    private List<Product> filterSearchResults(String query,
+                                              List<Product> products,
+                                              List<String> selectedCategories,
+                                              String proximitySpinnerValue) {
+
+        List<Product> ret = new ArrayList<>();
+        for (Product product : products)
+        {
+            boolean nameContainsQuery = product.getName().contains(query);
+            boolean categoriesMatch =
+                    CategoryMatcher.matchesAtLeastOne(product.getCategories(), new ArrayList<>(selectedCategories));
+            boolean proximitySpinnerHasValue =
+                    !proximitySpinnerValue.equals("Select Proximity");
+            if(proximitySpinnerHasValue &&
+                    !isAddressWithinProximitySpinnerRange(product.getAddress())){
+                continue;
+            }
+            if (nameContainsQuery && categoriesMatch) {
+                ret.add(product);
+            }
+        }
+        return ret;
+    }
+
+    private boolean isAddressWithinProximitySpinnerRange(String address) {
+        assert currPosition != null;
+        int range = switch(proximitySpinner.getSelectedItem().toString()) {
+            case "5km" -> 5000;
+            case "10km" -> 10000;
+            case "25km" -> 25000;
+            default -> 100000;
+        };
+        try {
+            GeoLocator geoLocator = new GeoLocator(this);
+            LatLng addressLatLng = geoLocator.getLatLngForAddressString(address);
+
+            float[] results = new float[1];
+            Location.distanceBetween(
+                    currPosition.latitude, currPosition.longitude,
+                    addressLatLng.latitude, addressLatLng.longitude,
+                    results);
+            return results[0] <= range;
+        } catch (IOException | IllegalArgumentException e) {
+            Log.e("error", "Could not find address");
+            return false;
+        }
+
+    }
+
+    private List<String> getSelectedChipTexts(ChipGroup chipGroup) {
+        List<String> selectedTexts = new ArrayList<>();
+
+        for (Integer id : chipGroup.getCheckedChipIds()) {
+            Chip chip = chipGroup.findViewById(id);
+
+            if (chip != null) {
+                selectedTexts.add(chip.getText().toString());
+            }
+        }
+
+        return selectedTexts;
+    }
+}

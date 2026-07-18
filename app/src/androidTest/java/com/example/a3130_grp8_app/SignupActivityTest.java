@@ -23,9 +23,9 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.activities.LoginActivity;
+import com.example.a3130_grp8_app.activities.SignupActivity;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

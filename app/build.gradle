@@ -25,7 +25,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.a3130_grp8_app"
-        minSdk 30
+        minSdk 36
         targetSdk 36
         versionCode 1
         versionName "1.0"
@@ -60,6 +60,7 @@ dependencies {
     implementation libs.play.services.location
     implementation libs.material
     implementation libs.commons.validator
+    implementation libs.recyclerview
     implementation libs.uiautomator
     androidTestImplementation libs.uiautomator
     implementation libs.play.services.maps

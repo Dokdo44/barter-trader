@@ -6,6 +6,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasType;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
@@ -16,6 +17,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.arrayContaining;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -26,6 +28,8 @@ import androidx.test.espresso.Espresso;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.example.a3130_grp8_app.activities.AddProductActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -104,9 +108,17 @@ public class AddProductActivityTest {
         intending(allOf(hasAction(Intent.ACTION_OPEN_DOCUMENT), hasType("image/*")))
                 .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null));
 
+        intending(allOf(
+                hasAction(Intent.ACTION_OPEN_DOCUMENT),
+                hasExtra(is(Intent.EXTRA_MIME_TYPES), arrayContaining("image/*"))
+        )).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null));
+
         Espresso.onView(withId(R.id.addPhotoPlaceholder)).perform(click());
 
-        intended(allOf(hasAction(Intent.ACTION_OPEN_DOCUMENT), hasType("image/*")));
+        intended(allOf(
+                hasAction(Intent.ACTION_OPEN_DOCUMENT),
+                hasExtra(is(Intent.EXTRA_MIME_TYPES), arrayContaining("image/*"))
+        ));
     }
 
     @Test

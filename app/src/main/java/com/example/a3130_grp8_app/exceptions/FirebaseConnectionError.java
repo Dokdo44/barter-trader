@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.exceptions;
 
 public class FirebaseConnectionError extends Exception {
     /**

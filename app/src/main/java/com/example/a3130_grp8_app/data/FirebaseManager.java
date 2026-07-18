@@ -3,10 +3,11 @@ package com.example.a3130_grp8_app.data;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.a3130_grp8_app.FirebaseConnectionError;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
@@ -17,7 +18,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -193,7 +197,7 @@ public class FirebaseManager {
      * @param productId Id of the product to load
      * @return task that resolves to the product
      */
-    public static Task<Product> getProduct(String productId) {
+    public Task<Product> getProduct(String productId) {
         return getProductsReference().child(productId).get()
                 .continueWith(task -> task.getResult().getValue(Product.class));
     }
@@ -275,6 +279,25 @@ public class FirebaseManager {
         public abstract void onGetProduct(Product product);
     }
 
+    public abstract static class ProductValueEventListener implements ValueEventListener {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            ArrayList<Product> products = new ArrayList<>();
+            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                Product product = snapshot.getValue(Product.class);
+                assert product != null;
+                product.setId(snapshot.getKey());
+                products.add(product);
+            }
+            onGetProducts(products);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {}
+
+        public abstract void onGetProducts(List<Product> products);
+    }
+
     /**
      * Registers a listener for product changes ordered by the specified field.
      *
@@ -288,6 +311,26 @@ public class FirebaseManager {
                 .addChildEventListener(productChildEventListener);
     }
 
+    public void getProducts(ProductValueEventListener productValueEventListener,
+                            int limitToFirst) {
+        getProductReference()
+                .orderByChild("timeUploaded")
+                .limitToLast(limitToFirst)
+                .addListenerForSingleValueEvent(productValueEventListener);
+    }
+
+    public void getProductsByUserId(String userId,
+                                    ProductValueEventListener productValueEventListener) {
+        getProductReference()
+                .orderByChild("providerUid")
+                .equalTo(userId)
+                .addListenerForSingleValueEvent(productValueEventListener);
+    }
+
+    public DatabaseReference getProductReference() {
+        return getDb().getReference(PRODUCTS_PATH);
+    }
+
     /**
      * Submits a request for a product if the product is available and not already requested.
      *
@@ -295,7 +338,7 @@ public class FirebaseManager {
      * @return a Task that resolves on success
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public static Task<Void> submitRequest(String productId, String requesterName,
+    public Task<Void> submitRequest(String productId, String requesterName,
                                            String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
@@ -308,23 +351,37 @@ public class FirebaseManager {
         DatabaseReference productRef = getInstance().getDb()
                 .getReference(PRODUCTS_PATH).child(productId);
 
-        return productRef.get().continueWithTask(productTask -> {
+        return productRef.get()
+                .continueWithTask(checkAvailabilityAndFetchExisting(productId, requestsRef))
+                .continueWithTask(checkDuplicateAndSubmit(productId, receiverUid, requesterName,
+                        requesterLocation, offeredItems, requestsRef, receiverEmail));
+    }
+
+    private Continuation<DataSnapshot, Task<DataSnapshot>> checkAvailabilityAndFetchExisting(
+            String productId, DatabaseReference requestsRef) {
+        return productTask -> {
             if (!productTask.isSuccessful() || productTask.getResult() == null) {
-                throw new Exception("Could not retrieve product");
+                throw new IOException("Could not retrieve product");
             }
 
             Boolean available = productTask.getResult().child("available").getValue(Boolean.class);
             if (available == null || !available) {
-                throw new Exception("Product is no longer available");
+                throw new IOException("Product is no longer available");
             }
 
             return requestsRef.orderByChild("productId").equalTo(productId).get();
+        };
+    }
 
-        }).continueWithTask(existingRequestsTask -> {
+    private Continuation<DataSnapshot, Task<Void>> checkDuplicateAndSubmit(
+            String productId, String receiverUid, String requesterName,
+            String requesterLocation, List<String> offeredItems, DatabaseReference requestsRef,
+            String receiverEmail) {
+        return existingRequestsTask -> {
             if (!existingRequestsTask.isSuccessful()) {
                 Exception e = existingRequestsTask.getException();
                 if (e != null) throw e;
-                throw new Exception("Could not check existing requests");
+                throw new IOException("Could not check existing requests");
             }
 
             for (DataSnapshot snap : existingRequestsTask.getResult().getChildren()) {
@@ -342,7 +399,7 @@ public class FirebaseManager {
             return requestsRef.child(requestId).setValue(
                     new Request(requestId, productId, receiverEmail, receiverUid,
                             requesterName, requesterLocation, offeredItems));
-        });
+        };
     }
 
     /**
@@ -352,10 +409,38 @@ public class FirebaseManager {
      * @param status the new status to set
      * @return a Task that resolves on success
      */
-    public static Task<Void> updateRequestStatus(String requestId, String status) {
+    public Task<Void> updateRequestStatus(String requestId, String status) {
         return getInstance().getDb().getReference(REQUESTS_PATH)
                 .child(requestId)
                 .child("status")
                 .setValue(status);
+    }
+
+    public abstract static class RequestValueEventListener implements ValueEventListener {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            ArrayList<Request> requests = new ArrayList<>();
+            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                Request request = snapshot.getValue(Request.class);
+                assert request != null;
+                request.setRequestId(snapshot.getKey());
+                requests.add(request);
+            }
+            onGetRequests(requests);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) { }
+
+        public abstract void onGetRequests(List<Request> requests);
+    }
+
+    public void getRequests(String productId,
+                            RequestValueEventListener requestValueEventListener) {
+        getDb()
+                .getReference(REQUESTS_PATH)
+                .orderByChild("productId")
+                .equalTo(productId)
+                .addListenerForSingleValueEvent(requestValueEventListener);
     }
 }

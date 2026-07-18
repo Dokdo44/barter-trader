@@ -18,6 +18,8 @@ public class SupabaseStorageManager {
     private static final String BUCKET = "product-photos";
     private static final int JPEG_QUALITY = 85;
 
+    private SupabaseStorageManager() {}
+
     /**
      * Uploads a product listing photo to Supabase Storage and returns its public URL.
      *

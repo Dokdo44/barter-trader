@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,10 +21,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.a3130_grp8_app.FirebaseConnectionError;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.util.FormValidator;
+import com.example.a3130_grp8_app.util.Parser;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 import com.example.a3130_grp8_app.data.SupabaseStorageManager;
 
@@ -157,7 +159,8 @@ public class AddProductActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
+                // Nothing being selected is not supported
+                throw new UnsupportedOperationException();
             }
         };
     }
@@ -166,7 +169,7 @@ public class AddProductActivity extends AppCompatActivity {
         photoPickerLauncher.launch(new String[]{"image/*"});
     }
 
-    void handleSelectedPhoto(Uri photoUri) {
+    public void handleSelectedPhoto(Uri photoUri) {
         if (photoUri == null) {
             return;
         }
@@ -244,10 +247,12 @@ public class AddProductActivity extends AppCompatActivity {
         String description = descriptionInput.getText().toString().trim();
         String address = locationInput.getText().toString().trim();
         String dateAvailable = dateInput.getText().toString().trim();
-        float price = parsePrice(marketValueInput.getText().toString().trim());
-        List<String> preferredItems = Arrays.asList(
-                preferredItemsInput.getText().toString().split("\\s*,\\s*")
-        );
+        float price = Parser.parsePrice(marketValueInput.getText().toString().trim());
+        String[] parts = preferredItemsInput.getText().toString().split(",");
+        for(int i = 0; i < parts.length; i++) {
+            parts[i] = parts[i].trim();
+        }
+        List<String> preferredItems = Arrays.asList(parts);
         List<String> categories = new ArrayList<>(
                 Collections.singletonList((String) categorySpinner.getSelectedItem())
         );
@@ -265,19 +270,8 @@ public class AddProductActivity extends AppCompatActivity {
         product.setPreferredItems(preferredItems);
 
         return product;
-
-
-
-
     }
 
-    private float parsePrice(String rawValue) {
-        try {
-            return Float.parseFloat(rawValue);
-        } catch (NumberFormatException e) {
-            return 0f;
-        }
-    }
     private Bitmap decodeAndScaleSelectedPhoto() throws IOException {
         try (InputStream photoStream = getContentResolver().openInputStream(selectedPhotoUri)) {
             if (photoStream == null) {

@@ -1,0 +1,43 @@
+{
+  "products": [
+    {
+      "providerUid": "user2",
+      "name": "Toyota Something",
+      "description": "It's a real good car",
+      "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
+      "categories": ["Car", "Vehicle"],
+      "address": "1030 South Park St., Halifax, NS B3W2X3, Canada",
+      "available": true,
+      "dateAvailable": "2026-07-16",
+      "timeUploaded": "2026-07-04 12:55:00",
+      "preferredItems": ["Anything"],
+      "price": 100.20
+    },
+    {
+      "providerUid": "user3",
+      "name": "Ford Something",
+      "description": "It's a real good truck",
+      "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
+      "categories": ["Truck", "Vehicle"],
+      "address": "405 E 45th St, New York, NY 10017, United States",
+      "available": true,
+      "dateAvailable": "2026-07-16",
+      "preferredItems": ["Anything"],
+      "timeUploaded": "2026-07-04 11:55:00",
+      "price": 200.30
+    },
+    {
+      "providerUid": "user4",
+      "name": "Honda Something",
+      "description": "It's a real good car (this time a Honda)",
+      "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
+      "categories": ["Car", "Vehicle"],
+      "address": "15 Market Square, Saint John, NB E2L4L1, Canada",
+      "available": false,
+      "dateAvailable": "2026-07-16",
+      "preferredItems": ["Anything"],
+      "timeUploaded": "2026-07-03 11:55:00",
+      "price": 1000.00
+    }
+  ]
+}

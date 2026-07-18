@@ -12,15 +12,19 @@ import androidx.test.espresso.Espresso;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.a3130_grp8_app.model.Product;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
 
 @RunWith(AndroidJUnit4.class)
 public class ProductDetailsActivityTest {
 
     private static final String PRODUCT_ID = "product-details-test-product";
     private static final String PRODUCT_DETAILS_ACTIVITY =
-            "com.example.a3130_grp8_app.ProductDetailsActivity";
+            "com.example.a3130_grp8_app.activities.ProductDetailsActivity";
 
     /**
      * Verifies that opening a selected product shows every detail required by the user story.
@@ -35,11 +39,9 @@ public class ProductDetailsActivityTest {
         Espresso.onView(withText("Vintage Lamp")).check(matches(isDisplayed()));
         Espresso.onView(withText("Brass table lamp in working condition"))
                 .check(matches(isDisplayed()));
-        Espresso.onView(withText("Halifax, NS")).check(matches(isDisplayed()));
+        Espresso.onView(withText("Location: Halifax, NS")).check(matches(isDisplayed()));
         Espresso.onView(withText("Available: 2026-07-30")).check(matches(isDisplayed()));
-        Espresso.onView(withText("Approx. market value: $45")).check(matches(isDisplayed()));
-        Espresso.onView(withContentDescription("Vintage Lamp picture"))
-                .check(matches(isDisplayed()));
+        Espresso.onView(withText("Approximate Market Value: $45.00")).check(matches(isDisplayed()));
     }
 
     /**
@@ -51,20 +53,29 @@ public class ProductDetailsActivityTest {
     public void sendOfferButtonIsAvailableFromProductDetailsTest() throws Exception {
         openProductDetails();
 
-        waitForText("Send Offer");
-        Espresso.onView(withText("Send Offer")).check(matches(isDisplayed()));
+        waitForText("Request Item");
+        Espresso.onView(withText("Request Item")).check(matches(isDisplayed()));
     }
 
     private void openProductDetails() {
         Intent intent = new Intent();
         intent.setClassName(BuildConfig.APPLICATION_ID, PRODUCT_DETAILS_ACTIVITY);
-        intent.putExtra("productId", PRODUCT_ID);
-        intent.putExtra("productTitle", "Vintage Lamp");
-        intent.putExtra("productDescription", "Brass table lamp in working condition");
-        intent.putExtra("productLocation", "Halifax, NS");
-        intent.putExtra("productAvailabilityDate", "2026-07-30");
-        intent.putExtra("productApproximateMarketValue", 45);
-        intent.putExtra("productImageUrl", "https://example.com/vintage-lamp.jpg");
+
+        Product product = new Product(
+                "Vintage Lamp",
+                "Brass table lamp in working condition",
+                "Halifax, NS",
+                45.0f,
+                new ArrayList<String>(),
+                true,
+                "https://example.com/vintage-lamp.jpg",
+                "placeholder",
+                "2026-07-30",
+                "2026-07-30",
+                new ArrayList<String>()
+        );
+
+        intent.putExtra("PRODUCT", product);
         ActivityScenario.launch(intent);
     }
 

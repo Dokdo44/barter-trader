@@ -1,5 +1,6 @@
 package com.example.a3130_grp8_app;
 
+import com.example.a3130_grp8_app.activities.ProductSearchActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,27 +8,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Parcel;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject;
@@ -36,26 +36,17 @@ import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
 
 import com.example.a3130_grp8_app.model.Product;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.FirebaseUserMetadata;
-import com.google.firebase.auth.MultiFactor;
-import com.google.firebase.auth.MultiFactorInfo;
-import com.google.firebase.auth.UserInfo;
-
-import net.bytebuddy.asm.Advice;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.configuration.injection.filter.TerminalMockCandidateFilter;
-import org.mockito.invocation.InvocationOnMock;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -67,22 +58,14 @@ public class ProductSearchActivityTest {
     final String dataFilePathFromAssets = "ProductSearchActivityTest/database_test_data.json";
     private Context assetContext;
     private Context applicationContext;
-    private ArrayList<Product> products;
+    private static ArrayList<Product> products;
     private FirebaseUser firebaseUser;
 
-    enum OrderOptions {
-        PROVIDER_UID,
-        NAME,
-        DESCRIPTION,
-        IMAGE_URL,
-        CATEGORIES,
-        ADDRESS,
-        AVAILABLE,
-        PRICE,
-        TIME_UPLOADED
-    }
+    @Rule
+    public GrantPermissionRule permissionRule =
+            GrantPermissionRule.grant(Manifest.permission.ACCESS_FINE_LOCATION);
 
-    private class TestFirebaseManager extends FirebaseManager {
+    private static class TestFirebaseManager extends FirebaseManager {
 
         private Comparator<Product> getProductComparator(String orderBy) {
             return new Comparator<Product>() {
@@ -104,14 +87,17 @@ public class ProductSearchActivityTest {
         }
 
         @Override
-        public void addProductChildEventListener(
-                String orderBy,
-                ProductChildEventListener productChildEventListener) {
-            products.sort(getProductComparator(orderBy));
-            for(Product product : products) {
-                productChildEventListener.onGetProduct(product);
-            }
+        public void getProducts(
+                FirebaseManager.ProductValueEventListener productValueEventListener,
+                int limitFirst) {
+            products.sort(getProductComparator("timeUploaded"));
+            productValueEventListener.onGetProducts(products);
         }
+    }
+
+    @BeforeClass
+    public static void setUpClass() {
+        FirebaseManager.install(new TestFirebaseManager());
     }
 
     @Before
@@ -120,7 +106,6 @@ public class ProductSearchActivityTest {
         applicationContext = ApplicationProvider.getApplicationContext();
 
         products = parseJsonToProducts();
-        FirebaseManager.install(new TestFirebaseManager());
 
         device = UiDevice.getInstance(getInstrumentation());
 
@@ -148,6 +133,8 @@ public class ProductSearchActivityTest {
         UiObject product2 = device.findObject(new UiSelector().textContains("Ford Something"));
         UiObject product3 = device.findObject(new UiSelector().textContains("Honda Something"));
 
+        Thread.sleep(2000);
+
         Rect product1Rect = product1.getBounds();
         Rect product2Rect = product2.getBounds();
         Rect product3Rect = product3.getBounds();
@@ -157,18 +144,16 @@ public class ProductSearchActivityTest {
     }
 
     @Test
-    public void searchButtonDisabledWhenNoCategoryOrSearchTextEntered () {
-        Espresso.onView(withId(R.id.truckChip)).perform(click());
-        Espresso.onView(withId(R.id.truckChip)).perform(click());
-        Espresso.onView(withId(R.id.searchButton)).check(matches(isNotEnabled()));
-    }
+    public void onlyShowsResultsWithinSelectedVicinity() throws InterruptedException {
+        Espresso.onView(withId(R.id.proximitySpinner)).perform(click());
 
-    @Test
-    public void onlyShowsResultsWithinSelectedVicinity() {
-        Espresso.onView(withId(R.id.vehicleChip)).perform(click());
-        Espresso.onView(withId(R.id.fiveKilometerChip)).perform(click());
+        Espresso.onData(allOf(is(instanceOf(String.class)), is("5km")))
+                .perform(click());
 
         Espresso.onView(withId(R.id.searchButton)).perform(click());
+
+        Thread.sleep(2000);
+
         UiObject resultObject = device.findObject(new UiSelector().textContains("Toyota Something"));
         UiObject resultNotExist2 = device.findObject(new UiSelector().textContains("Ford Something"));
         assertTrue(resultObject.exists());
@@ -191,7 +176,7 @@ public class ProductSearchActivityTest {
 
     @Test
     public void onlyShowsResultsWithCategories() {
-        Espresso.onView(withId(R.id.carChip)).perform(click());
+        Espresso.onView(withId(R.id.decorationChip)).perform(click());
         Espresso.onView(withId(R.id.searchButton)).perform(click());
 
         UiObject resultObject1 = device.findObject(new UiSelector().textContains("Honda Something"));

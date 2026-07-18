@@ -1,19 +1,19 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +51,18 @@ public class ViewRequestsActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, requestList);
         requestListView.setAdapter(adapter);
 
-        String productId = getIntent().getStringExtra("productId");
+        String productId = getIntent().getStringExtra("PRODUCT_ID");
+        if(getIntent().hasExtra("PRODUCT")) {
+            Product product = getIntent().getSerializableExtra("PRODUCT", Product.class);
+            assert product != null;
+            assert product.getId() != null;
+            productId = product.getId();
+        }
         if (productId == null) productId = "dummy_product_001";
-        loadRequests(productId);
+        FirebaseManager.getInstance().getRequests(productId, requestValueEventListener);
+
+        Button backButton = findViewById(R.id.backButtonViewRequests);
+        backButton.setOnClickListener(v -> finish());
 
         // show requester details when clicked
         requestListView.setOnItemClickListener((parent, view, position, id) -> {
@@ -76,7 +85,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
     }
 
     private void updateRequestStatus(String requestKey, String status) {
-        FirebaseManager.updateRequestStatus(requestKey, status)
+        FirebaseManager.getInstance().updateRequestStatus(requestKey, status)
                 .addOnSuccessListener(unused ->
                         Toast.makeText(this, "Request " + status, Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
@@ -85,40 +94,27 @@ public class ViewRequestsActivity extends AppCompatActivity {
     }
 
     // loads requests from firebase for the product
-    private void loadRequests(String productId) {
-        FirebaseManager.getInstance().getDb().getReference("requests")
-                .orderByChild("productId")
-                .equalTo(productId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        requestList.clear();
-                        requestKeys.clear();
-                        requests.clear();
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            Request request = child.getValue(Request.class);
-                            if (request != null) {
-                                requestList.add(request.getReceiverEmail() + " - " + request.getStatus());
-                                requestKeys.add(child.getKey());
-                                requests.add(request);
-                            }
-                        }
+    private FirebaseManager.RequestValueEventListener requestValueEventListener =
+    new FirebaseManager.RequestValueEventListener() {
+        @Override
+        public void onGetRequests(List<Request> requests) {
+            requestList.clear();
+            requestKeys.clear();
+            ViewRequestsActivity.this.requests.clear();
+            for(Request request : requests) {
+                requestList.add(request.getRequesterName() + " - " + request.getStatus());
+                requestKeys.add(request.getRequestId());
+                ViewRequestsActivity.this.requests.add(request);
+            }
 
-                        if (requestList.isEmpty()) {
-                            noRequestsText.setText("No offers have been submitted");
-                            noRequestsText.setVisibility(View.VISIBLE);
-                        } else {
-                            noRequestsText.setVisibility(View.GONE);
-                        }
+            if (requestList.isEmpty()) {
+                noRequestsText.setText("No offers have been submitted");
+                noRequestsText.setVisibility(View.VISIBLE);
+            } else {
+                noRequestsText.setVisibility(View.GONE);
+            }
 
-                        adapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        noRequestsText.setText("No offers have been submitted");
-                        noRequestsText.setVisibility(View.VISIBLE);
-                    }
-                });
-    }
+            adapter.notifyDataSetChanged();
+        }
+    };
 }

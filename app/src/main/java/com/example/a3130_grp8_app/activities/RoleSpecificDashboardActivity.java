@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +12,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.User;
 
@@ -39,10 +41,20 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardRole = findViewById(R.id.dashboardRole);
         Button logoutButton = findViewById(R.id.logoutButton);
         Button productButton = findViewById(R.id.productButton);
+        Button myProductsButton = findViewById(R.id.viewMyProductsButton);
+        Button searchForProductsButton = findViewById(R.id.searchForProductsButton);
 
         // Add product button will start AddProduct activity. Only visible if user role is seller.
         productButton.setVisibility(View.INVISIBLE);
         productButton.setOnClickListener(v -> onAddProductButtonClick());
+
+        // Add product button will start MyProducts activity. Only visible if user role is seller.
+        myProductsButton.setVisibility(View.INVISIBLE);
+        myProductsButton.setOnClickListener(v -> onMyProductsButtonClick());
+
+        // Add product button will start ProductSearch activity. Only visible if user role is buyer.
+        searchForProductsButton.setVisibility(View.INVISIBLE);
+        searchForProductsButton.setOnClickListener(v -> onSearchForProductsButtonClick());
 
         // Logout clears the Auth session and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
@@ -85,6 +97,8 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         dashboardEmail.setText(user.getEmail());
         dashboardRole.setText(user.getRole() + " dashboard");
         addProductButtonSetup();
+        myProductsButtonSetup();
+        searchForProductsButtonSetup();
     }
 
     private void onGetProfileFailure(Exception error) {
@@ -101,6 +115,27 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void onAddProductButtonClick() {
         startActivity(new Intent(this, AddProductActivity.class));
-        finish();
+    }
+
+    private void myProductsButtonSetup() {
+        Button myProductsButton = findViewById(R.id.viewMyProductsButton);
+        if (dashboardRole.getText().equals("Seller dashboard")) {
+            myProductsButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void onMyProductsButtonClick() {
+       startActivity(new Intent(this, MyProductsActivity.class));
+    }
+
+    private void searchForProductsButtonSetup() {
+        Button searchForProductsButton = findViewById(R.id.searchForProductsButton);
+        if (dashboardRole.getText().equals("Buyer dashboard")) {
+            searchForProductsButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void onSearchForProductsButtonClick() {
+        startActivity(new Intent(this, ProductSearchActivity.class));
     }
 }

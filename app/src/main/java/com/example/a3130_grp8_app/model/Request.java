@@ -189,4 +189,5 @@ public class Request {
      * @param offeredItems the offered items
      */
     public void setOfferedItems(List<String> offeredItems) { this.offeredItems = offeredItems; }
+
 }

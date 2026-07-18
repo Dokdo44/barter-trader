@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +15,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.Product;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -63,6 +66,12 @@ public class RequestProductActivity extends AppCompatActivity {
         snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);
 
         productId = getIntent().getStringExtra("PRODUCT_ID");
+        if(getIntent().hasExtra("PRODUCT")) {
+            Product product = getIntent().getSerializableExtra("PRODUCT", Product.class);
+            assert product != null;
+            assert product.getId() != null;
+            productId = product.getId();
+        }
 
         loadProductPreferredItems(productId);
 
@@ -78,7 +87,7 @@ public class RequestProductActivity extends AppCompatActivity {
      */
     private void loadProductPreferredItems(String productId) {
         if (productId == null) return;
-        FirebaseManager.getProduct(productId).addOnSuccessListener(product -> {
+        FirebaseManager.getInstance().getProduct(productId).addOnSuccessListener(product -> {
             if (product != null && product.getPreferredItems() != null) {
                 populateCheckboxes(product.getPreferredItems());
             }
@@ -126,7 +135,7 @@ public class RequestProductActivity extends AppCompatActivity {
         List<String> selectedItems = getSelectedItems();
 
         try {
-            FirebaseManager.submitRequest(productId, name, location, selectedItems)
+            FirebaseManager.getInstance().submitRequest(productId, name, location, selectedItems)
                     .addOnSuccessListener(unused -> {
                         requestButton.setVisibility(View.GONE);
                         requestSuccess.setVisibility(View.VISIBLE);

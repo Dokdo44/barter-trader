@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,9 +13,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 /**
@@ -27,8 +29,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private EditText emailInput;
     private EditText passwordInput;
-    private TextView resetPasswordLink;
-    private TextView signUpLink;
 
     /**
      * Initializes the login UI and wires auth-related click listeners.
@@ -50,10 +50,10 @@ public class LoginActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         loginButton = findViewById(R.id.loginButton);
-        resetPasswordLink = findViewById(R.id.resetPasswordLink);
-        signUpLink = findViewById(R.id.signUpLink);
+        TextView resetPasswordLink = findViewById(R.id.resetPasswordLink);
+        TextView signUpLink = findViewById(R.id.signUpLink);
         CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinatorLayout);
-        snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_LONG);
+        snackbar = Snackbar.make(coordinatorLayout, "", BaseTransientBottomBar.LENGTH_LONG);
 
         SimpleTextWatcher emptyFieldsWatcher = createEmptyFieldsWatcher();
         emailInput.addTextChangedListener(emptyFieldsWatcher);

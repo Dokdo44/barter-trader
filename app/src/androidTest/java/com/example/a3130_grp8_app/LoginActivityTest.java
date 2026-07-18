@@ -17,6 +17,8 @@ import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.a3130_grp8_app.activities.LoginActivity;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
