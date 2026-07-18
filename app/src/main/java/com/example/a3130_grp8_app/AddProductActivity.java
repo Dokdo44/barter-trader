@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Pattern;
 
 public class AddProductActivity extends AppCompatActivity {
 
@@ -141,7 +142,8 @@ public class AddProductActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
+                // Nothing being selected is not supported
+                throw new UnsupportedOperationException();
             }
         };
     }
@@ -229,9 +231,11 @@ public class AddProductActivity extends AppCompatActivity {
         String address = locationInput.getText().toString().trim();
         String dateAvailable = dateInput.getText().toString().trim();
         float price = parsePrice(marketValueInput.getText().toString().trim());
-        List<String> preferredItems = Arrays.asList(
-                preferredItemsInput.getText().toString().split("\\s*,\\s*")
-        );
+        String[] parts = preferredItemsInput.getText().toString().split(",");
+        for(int i = 0; i < parts.length; i++) {
+            parts[i] = parts[i].trim();
+        }
+        List<String> preferredItems = Arrays.asList(parts);
         List<String> categories = new ArrayList<>(
                 Collections.singletonList((String) categorySpinner.getSelectedItem())
         );
