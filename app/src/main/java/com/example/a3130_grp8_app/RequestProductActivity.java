@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.Product;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -58,6 +59,12 @@ public class RequestProductActivity extends AppCompatActivity {
         snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_INDEFINITE);
 
         productId = getIntent().getStringExtra("PRODUCT_ID");
+        if(getIntent().hasExtra("PRODUCT")) {
+            Product product = getIntent().getSerializableExtra("PRODUCT", Product.class);
+            assert product != null;
+            assert product.getId() != null;
+            productId = product.getId();
+        }
 
         loadProductPreferredItems(productId);
 

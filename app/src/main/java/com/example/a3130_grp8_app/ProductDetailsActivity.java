@@ -42,7 +42,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private View.OnClickListener requestItemButtonClickListener = v -> {
         Intent intent = new Intent(this, RequestProductActivity.class);
-        intent.putExtra("PRODUCT_ID", productId);
+        intent.putExtra("PRODUCT", product);
         startActivity(intent);
     };
 
