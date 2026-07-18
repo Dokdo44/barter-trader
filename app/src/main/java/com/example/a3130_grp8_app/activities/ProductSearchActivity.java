@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.a3130_grp8_app.adapters.ProductSearchResultAdapter;
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.util.GeoLocator;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -56,8 +57,6 @@ import java.util.Locale;
 
 public class ProductSearchActivity extends AppCompatActivity implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationClient;
-    private Geocoder geocoder;
-
     private SupportMapFragment mapFragment;
     private FragmentManager fragmentManager;
     private GoogleMap googleMap;
@@ -167,8 +166,6 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
     private void initGms() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        geocoder = new Geocoder(this, Locale.getDefault());
-
         fragmentManager = getSupportFragmentManager();
         mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.mapFragment);
         fragmentManager.beginTransaction().hide(mapFragment).commit();
@@ -197,21 +194,6 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         fragmentManager.beginTransaction().hide(mapFragment).commit();
     }
 
-    private LatLng getLatLngForAddressString(String addressString)
-            throws
-            IOException,
-            IllegalArgumentException{
-        List<Address> addressResults;
-        addressResults = geocoder.getFromLocationName(addressString, 1);
-        if(addressResults == null || addressResults.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Address had no geolocation results: " + addressString
-            );
-        }
-        Address address = addressResults.get(0);
-        return new LatLng(address.getLatitude(), address.getLongitude());
-    }
-
     private String createProductSnippet(Product product) {
         return String.format(
                 "Price: %s, Categories: %s, Address: %s%n",
@@ -223,7 +205,8 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
 
     private void addMapMarkerForProduct(Product product) {
         try {
-            LatLng position = getLatLngForAddressString(product.getAddress());
+            GeoLocator geoLocator = new GeoLocator(this);
+            LatLng position = geoLocator.getLatLngForAddressString(product.getAddress());
             Marker marker = googleMap.addMarker(
                     new MarkerOptions()
                             .position(position)
@@ -385,7 +368,8 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
             default -> 100000;
         };
         try {
-            LatLng addressLatLng = getLatLngForAddressString(address);
+            GeoLocator geoLocator = new GeoLocator(this);
+            LatLng addressLatLng = geoLocator.getLatLngForAddressString(address);
 
             float[] results = new float[1];
             Location.distanceBetween(
@@ -414,18 +398,14 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         return selectedTexts;
     }
 
-    private boolean matchesAtLeastOne(List<String> itemCategories, List<String> selectedCategories)
-    {
+    private boolean matchesAtLeastOne(List<String> itemCategories, List<String> selectedCategories) {
         if (selectedCategories.isEmpty()) return true;
-
-        for (String category : itemCategories)
-        {
+        for (String category : itemCategories) {
             if (selectedCategories.contains(category))
             {
                 return true;
             }
         }
-
         return false;
     }
 }

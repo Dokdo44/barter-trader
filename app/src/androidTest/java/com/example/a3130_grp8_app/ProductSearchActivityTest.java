@@ -39,6 +39,7 @@ import com.example.a3130_grp8_app.model.Product;
 import com.google.firebase.auth.FirebaseUser;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,14 +58,14 @@ public class ProductSearchActivityTest {
     final String dataFilePathFromAssets = "ProductSearchActivityTest/database_test_data.json";
     private Context assetContext;
     private Context applicationContext;
-    private ArrayList<Product> products;
+    private static ArrayList<Product> products;
     private FirebaseUser firebaseUser;
 
     @Rule
     public GrantPermissionRule permissionRule =
             GrantPermissionRule.grant(Manifest.permission.ACCESS_FINE_LOCATION);
 
-    private class TestFirebaseManager extends FirebaseManager {
+    private static class TestFirebaseManager extends FirebaseManager {
 
         private Comparator<Product> getProductComparator(String orderBy) {
             return new Comparator<Product>() {
@@ -94,13 +95,17 @@ public class ProductSearchActivityTest {
         }
     }
 
+    @BeforeClass
+    public static void setUpClass() {
+        FirebaseManager.install(new TestFirebaseManager());
+    }
+
     @Before
     public void setUp() throws IOException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         assetContext = getInstrumentation().getContext();
         applicationContext = ApplicationProvider.getApplicationContext();
 
         products = parseJsonToProducts();
-        FirebaseManager.install(new TestFirebaseManager());
 
         device = UiDevice.getInstance(getInstrumentation());
 
