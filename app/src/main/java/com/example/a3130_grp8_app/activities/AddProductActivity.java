@@ -253,13 +253,9 @@ public class AddProductActivity extends AppCompatActivity {
         product.setPreferredItems(preferredItems);
 
         return product;
-
-
-
-
     }
 
-    private float parsePrice(String rawValue) {
+    public static float parsePrice(String rawValue) {
         try {
             return Float.parseFloat(rawValue);
         } catch (NumberFormatException e) {
