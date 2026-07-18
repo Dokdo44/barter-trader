@@ -63,14 +63,12 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
     private FragmentManager fragmentManager;
     private GoogleMap googleMap;
 
-    private Button mapViewButton;
     private Button searchButton;
 
     private List<Marker> markers = new ArrayList<>();
 
     FirebaseDatabase db;
     DatabaseReference productReference;
-    private List<Product> products;
 
     EditText searchField;
 
@@ -106,11 +104,17 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         };
     }
 
-    private View.OnTouchListener onProximityCheckedStateChangeListener =
+    private final View.OnTouchListener onProximityCheckedStateChangeListener =
     new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            return getCurrPositionOnProximityChipClickOrGetPermissions();
+            if(haveLocationPermissions()) {
+                setCurrPosition();
+                return false;
+            } else {
+                requestPermissionsOnProximityChipClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                return true;
+            }
         }
     };
 
@@ -173,7 +177,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void initMapViewButton() {
-        mapViewButton = findViewById(R.id.mapViewButton);
+        Button mapViewButton = findViewById(R.id.mapViewButton);
         mapViewButton.setOnClickListener(onMapViewButtonClick);
     }
 
@@ -211,7 +215,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
 
     private String createProductSnippet(Product product) {
         return String.format(
-                "Price: %s, Categories: %s, Address: %s\n",
+                "Price: %s, Categories: %s, Address: %s%n",
                 product.getPrice(),
                 String.join(", ", product.getCategories()),
                 product.getAddress()
@@ -310,16 +314,6 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    private boolean getCurrPositionOnProximityChipClickOrGetPermissions() {
-        if(haveLocationPermissions()) {
-            setCurrPosition();
-            return false;
-        } else {
-            requestPermissionsOnProximityChipClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
-            return true;
-        }
-    }
-
     @SuppressLint("MissingPermission")
     private void setCurrPosition() {
         fusedLocationClient
@@ -332,13 +326,10 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void updateCameraByLocation(Location location) {
-        if(location != null) {
-            LatLng targetLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(targetLatLng, 10.0f);
-            googleMap.animateCamera(cameraUpdate);
-            return;
-        }
-        throw new RuntimeException("Could not get location");
+        assert location != null;
+        LatLng targetLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(targetLatLng, 10.0f);
+        googleMap.animateCamera(cameraUpdate);
     }
 
     @SuppressLint("MissingPermission")
@@ -363,8 +354,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         manager.getProducts(productValueEventListener, 100);
     }
 
-    private List<Product> filterSearchResults(String query, List<Product> products)
-    {
+    private List<Product> filterSearchResults(String query, List<Product> products) {
         ChipGroup categoryChipGroup = findViewById(R.id.categoryChipGroup);
         List<String> selectedCategories = getSelectedChipTexts(categoryChipGroup);
 
@@ -372,14 +362,15 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         for (Product product : products)
         {
             boolean nameContainsQuery = product.getName().contains(query);
-            boolean categoriesMatch = matchesAtLeastOne(product.getCategories(), new ArrayList<>(selectedCategories));
-            if(!proximitySpinner.getSelectedItem().toString().equals("Select Proximity")) {
-                if(!isAddressWithinProximitySpinnerRange(product.getAddress())) {
-                    continue;
-                }
+            boolean categoriesMatch =
+                    matchesAtLeastOne(product.getCategories(), new ArrayList<>(selectedCategories));
+            boolean proximitySpinnerHasValue =
+                    !proximitySpinner.getSelectedItem().toString().equals("Select Proximity");
+            if(proximitySpinnerHasValue &&
+                    !isAddressWithinProximitySpinnerRange(product.getAddress())){
+                continue;
             }
-            if (nameContainsQuery && categoriesMatch)
-            {
+            if (nameContainsQuery && categoriesMatch) {
                 ret.add(product);
             }
         }
@@ -410,15 +401,6 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
 
     }
 
-    private void  sortProductsByDate()
-    {
-        products.sort((p1, p2) -> {
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-            return p2.getTimeUploaded().compareTo(p1.getTimeUploaded());
-        });
-    }
-
     private List<String> getSelectedChipTexts(ChipGroup chipGroup) {
         List<String> selectedTexts = new ArrayList<>();
 
@@ -446,24 +428,5 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         }
 
         return false;
-    }
-
-    private void loadProductsWithListener()
-    {
-        products.clear();
-        manager.addProductChildEventListener("timeUploaded", new FirebaseManager.ProductChildEventListener()
-        {
-            @Override
-            public void onGetProduct (Product product)
-            {
-                if (product == null) return;
-                products.add(product);
-                sortProductsByDate();
-
-
-            }
-
-
-        });
     }
 }

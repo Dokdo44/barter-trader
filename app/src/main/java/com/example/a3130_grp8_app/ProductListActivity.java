@@ -116,28 +116,24 @@ public class ProductListActivity extends AppCompatActivity implements OnMapReady
         );
     }
 
-    private void addMapMarkerForProduct(Product product) {
-        try {
-            LatLng position = getLatLngForAddressString(product.getAddress());
-            Marker marker = googleMap.addMarker(
-                    new MarkerOptions()
-                    .position(position)
-                    .title(product.getName())
-                    .snippet(createProductSnippet(product))
-            );
-            if(marker != null) {
-                marker.setTag(product);
-            }
-        } catch (IOException | IllegalArgumentException e) {
-            Log.e("error", e.getMessage());
-        }
-    }
-
     FirebaseManager.ProductChildEventListener productChildEventListener =
             new FirebaseManager.ProductChildEventListener() {
         @Override
         public void onGetProduct(Product product) {
-            addMapMarkerForProduct(product);
+            try {
+                LatLng position = getLatLngForAddressString(product.getAddress());
+                Marker marker = googleMap.addMarker(
+                        new MarkerOptions()
+                        .position(position)
+                        .title(product.getName())
+                        .snippet(createProductSnippet(product))
+                );
+                if(marker != null) {
+                    marker.setTag(product);
+                }
+            } catch (IOException | IllegalArgumentException e) {
+                Log.e("error", e.getMessage());
+            }
         }
     };
 

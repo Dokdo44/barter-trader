@@ -17,11 +17,14 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 
 public class ProductDetailsActivity extends AppCompatActivity {
+    private static final String PRODUCT_EXTRA_TAG = "PRODUCT";
+
     private Product product;
 
     private ImageView productImage;
@@ -38,11 +41,10 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private Button requestItemButton;
 
     private View productDetailsView;
-    private String productId;
 
     private View.OnClickListener requestItemButtonClickListener = v -> {
         Intent intent = new Intent(this, RequestProductActivity.class);
-        intent.putExtra("PRODUCT", product);
+        intent.putExtra(PRODUCT_EXTRA_TAG, product);
         startActivity(intent);
     };
 
@@ -67,8 +69,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
         addClickListeners();
 
         // Product ID passed from the search results or homepage.
-        if(getIntent().hasExtra("PRODUCT")) {
-            product = getIntent().getSerializableExtra("PRODUCT", Product.class);
+        if(getIntent().hasExtra(PRODUCT_EXTRA_TAG)) {
+            product = getIntent().getSerializableExtra(PRODUCT_EXTRA_TAG, Product.class);
             setViewsToProductDetails();
         } else if(getIntent().hasExtra("PRODUCT_ID")) {
             loadProductById(getIntent().getStringExtra("PRODUCT_ID"));
@@ -102,21 +104,21 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         Snackbar.make(
                                 productDetailsView,
                                 "Unable to load product details",
-                                Snackbar.LENGTH_SHORT
+                                BaseTransientBottomBar.LENGTH_SHORT
                         ).show()
                 );
     }
 
-    private final OnSuccessListener<Product> onFindProductByIdSuccess = product -> {
-        if(product == null) {
+    private final OnSuccessListener<Product> onFindProductByIdSuccess = p -> {
+        if(p == null) {
             Snackbar.make(
                     productDetailsView,
                     "Could not get product",
-                    Snackbar.LENGTH_SHORT
+                    BaseTransientBottomBar.LENGTH_SHORT
             ).show();
         }
 
-        this.product = product;
+        this.product = p;
 
         setViewsToProductDetails();
     };

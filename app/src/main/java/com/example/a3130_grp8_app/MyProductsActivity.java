@@ -21,9 +21,8 @@ import kotlin.collections.ArrayDeque;
 public class MyProductsActivity extends AppCompatActivity {
 
     private MyProductsAdapter myProductsAdapter;
-    private RecyclerView productsRecyclerView;
 
-    private FirebaseManager.ProductValueEventListener productValueEventListener =
+    private final FirebaseManager.ProductValueEventListener productValueEventListener =
     new FirebaseManager.ProductValueEventListener() {
         @Override
         public void onGetProducts(List<Product> products) {
@@ -39,7 +38,7 @@ public class MyProductsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_products);
 
         myProductsAdapter = new MyProductsAdapter(this, new ArrayList<>());
-        productsRecyclerView = findViewById(R.id.productsRecyclerView);
+        RecyclerView productsRecyclerView = findViewById(R.id.productsRecyclerView);
         productsRecyclerView.setAdapter(myProductsAdapter);
         productsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 

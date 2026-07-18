@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 /**
@@ -59,12 +60,12 @@ public class PasswordResetActivity extends AppCompatActivity {
 
     private void onResetRequestSuccess() {
         Snackbar.make(resetButton, "Reset email sent, Check your spam",
-                Snackbar.LENGTH_LONG).show();
+                BaseTransientBottomBar.LENGTH_LONG).show();
     }
 
     private void onResetFailure(Exception e) {
         Snackbar.make(resetButton, "Failed: " + e.getMessage(),
-                Snackbar.LENGTH_LONG).show();
+                BaseTransientBottomBar.LENGTH_LONG).show();
     }
 
     private void checkResetButtonState() {
