@@ -70,4 +70,5 @@ public class Request {
 
     public List<String> getOfferedItems() { return offeredItems; }
     public void setOfferedItems(List<String> offeredItems) { this.offeredItems = offeredItems; }
+
 }

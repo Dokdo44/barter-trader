@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -329,5 +330,33 @@ public class FirebaseManager {
                 .child(requestId)
                 .child("status")
                 .setValue(status);
+    }
+
+    public static abstract class RequestValueEventListener implements ValueEventListener {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            ArrayList<Request> requests = new ArrayList<>();
+            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                Request request = snapshot.getValue(Request.class);
+                assert request != null;
+                request.setRequestId(snapshot.getKey());
+                requests.add(request);
+            }
+            onGetRequests(requests);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) { }
+
+        public abstract void onGetRequests(List<Request> requests);
+    }
+
+    public void getRequests(String productId,
+                            RequestValueEventListener requestValueEventListener) {
+        getDb()
+                .getReference("requests")
+                .orderByChild("productId")
+                .equalTo(productId)
+                .addListenerForSingleValueEvent(requestValueEventListener);
     }
 }
