@@ -14,6 +14,8 @@ public class SupabaseStorageManager {
     private static final String BUCKET = "product-photos";
     private static final int JPEG_QUALITY = 85;
 
+    private SupabaseStorageManager() {}
+
     public static String uploadListingPhoto(Bitmap photo, String listingId) throws IOException {
         ByteArrayOutputStream imageBytesStream = new ByteArrayOutputStream();
         photo.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, imageBytesStream);
