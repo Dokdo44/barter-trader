@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+/**
+ * Handles uploading product photos to Supabase Storage.
+ */
 public class SupabaseStorageManager {
 
     private static final String SUPABASE_URL = "https://gojfwmzbhhobeqqdgbrt.supabase.co";
@@ -16,6 +20,14 @@ public class SupabaseStorageManager {
 
     private SupabaseStorageManager() {}
 
+    /**
+     * Uploads a product listing photo to Supabase Storage and returns its public URL.
+     *
+     * @param photo the bitmap image to upload
+     * @param listingId the unique ID of the product listing
+     * @return the public URL of the uploaded image
+     * @throws IOException if the image upload fails or the server returns an error
+     */
     public static String uploadListingPhoto(Bitmap photo, String listingId) throws IOException {
         ByteArrayOutputStream imageBytesStream = new ByteArrayOutputStream();
         photo.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, imageBytesStream);

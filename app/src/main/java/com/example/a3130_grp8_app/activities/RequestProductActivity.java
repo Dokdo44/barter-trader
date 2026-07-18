@@ -38,6 +38,11 @@ public class RequestProductActivity extends AppCompatActivity {
     private LinearLayout checkboxContainer;
     private Snackbar snackbar;
 
+    /**
+     * Initializes the activity, sets up UI components, listeners, and form validation.
+     *
+     * @param savedInstanceState the previously saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

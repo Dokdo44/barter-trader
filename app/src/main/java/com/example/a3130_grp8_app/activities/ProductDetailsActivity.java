@@ -21,6 +21,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * Activity responsible for displaying detailed information about a product listing.
+ *
+ * Loads product information from Firebase and displays it which then allows users to request the product.
+ */
 public class ProductDetailsActivity extends AppCompatActivity {
     private static final String PRODUCT_EXTRA_TAG = "PRODUCT";
 

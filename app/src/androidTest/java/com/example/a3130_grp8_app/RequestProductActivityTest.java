@@ -104,7 +104,9 @@ public class RequestProductActivityTest {
     }
 
     /**
-     * Verifies that a request is submitted successfully when the request button is clicked.
+     * Given I am viewing an available product
+     * When I click the request button
+     * Then the request is submitted successfully
      */
     @Test
     public void requestSubmittedSuccessfullyTest() {
@@ -119,7 +121,9 @@ public class RequestProductActivityTest {
     }
 
     /**
-     * Verifies that a duplicate request is prevented.
+     * Given I have already requested a product
+     * When I attempt to request it again
+     * Then the system prevents the duplicate request and displays an error message
      */
     @Test
     public void duplicateRequestPreventedTest() {
@@ -136,7 +140,9 @@ public class RequestProductActivityTest {
     }
 
     /**
-     * Verifies that requesting an unavailable product shows an error.
+     * Given a product is no longer available
+     * When I try to request it
+     * Then the request is rejected and an error message is displayed
      */
     @Test
     public void unavailableProductRequestRejectedTest() {
