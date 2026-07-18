@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.a3130_grp8_app.R;
+import com.example.a3130_grp8_app.activities.ProductDetailsActivity;
 import com.example.a3130_grp8_app.model.Product;
 
 import java.util.List;

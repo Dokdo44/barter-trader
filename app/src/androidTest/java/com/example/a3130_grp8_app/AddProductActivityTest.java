@@ -29,6 +29,8 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.a3130_grp8_app.activities.AddProductActivity;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -14,9 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -32,6 +30,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.a3130_grp8_app.adapters.ProductSearchResultAdapter;
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.model.Product;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -50,7 +50,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -89,7 +88,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
                 if(productRecyclerView == null || productSearchResultAdapter == null) {
                     return;
                 }
-                List<Product> filteredProducts = filterSearchResults(query, products);
+                List<Product> filteredProducts = filterSearchResults(query, products).reversed();
                 productSearchResultAdapter.resetData(filteredProducts);
 
                 // Adjust map markers to new products

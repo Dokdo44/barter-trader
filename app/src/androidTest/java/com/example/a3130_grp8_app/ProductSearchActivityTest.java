@@ -1,5 +1,6 @@
 package com.example.a3130_grp8_app;
 
+import com.example.a3130_grp8_app.activities.ProductSearchActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,8 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
@@ -79,7 +78,7 @@ public class ProductSearchActivityTest {
                         case "address" ->  CharSequence.compare(productA.getAddress(), productB.getAddress());
                         case "available" -> Boolean.compare(productA.isAvailable(), productB.isAvailable());
                         case "price" -> Double.compare(productA.getPrice(), productB.getPrice());
-                        case "timeUploaded" -> productB.getTimeUploaded().compareTo(productA.getTimeUploaded());
+                        case "timeUploaded" -> productA.getTimeUploaded().compareTo(productB.getTimeUploaded());
                         default -> throw new IllegalStateException("invalid orderBy string: " + orderBy);
                     };
                 }

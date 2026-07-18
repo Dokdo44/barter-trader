@@ -3,7 +3,7 @@ package com.example.a3130_grp8_app.data;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.a3130_grp8_app.FirebaseConnectionError;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;

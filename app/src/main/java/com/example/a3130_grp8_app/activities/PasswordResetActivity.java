@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.util.FormValidator;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;

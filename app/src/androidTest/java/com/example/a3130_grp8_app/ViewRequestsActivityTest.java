@@ -1,13 +1,8 @@
 package com.example.a3130_grp8_app;
 
-import static androidx.core.content.ContextCompat.startActivity;
-import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
-import static androidx.test.espresso.matcher.ViewMatchers.isNotEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -15,23 +10,19 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
 
 import android.content.Intent;
-import android.view.View;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.a3130_grp8_app.activities.ViewRequestsActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -84,6 +75,13 @@ public class ViewRequestsActivityTest {
         doAnswer(invocation -> {
             FirebaseManager.RequestValueEventListener requestValueEventListener =
                     invocation.getArgument(1);
+            requestValueEventListener.onGetRequests(new ArrayList<>(List.of(request1)));
+            return null;
+        }).when(mockManager).getRequests(eq("2"), any());
+
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener requestValueEventListener =
+                    invocation.getArgument(1);
             requestValueEventListener.onGetRequests(new ArrayList<>());
             return null;
         }).when(mockManager).getRequests(eq("0"), any());
@@ -99,9 +97,9 @@ public class ViewRequestsActivityTest {
         intent.putExtra("PRODUCT_ID", "1");
         ActivityScenario.launch(intent);
         // All submitted requests should be displayed
-        Espresso.onView(withText(containsString("interestedbuyer1@gmail.com")))
+        Espresso.onView(withText(containsString("Alice Johnson")))
                 .check(matches(isDisplayed()));
-        Espresso.onView(withText(containsString("interestedbuyer2@gmail.com")))
+        Espresso.onView(withText(containsString("Marcus Lee")))
                 .check(matches(isDisplayed()));
     }
 
@@ -110,13 +108,13 @@ public class ViewRequestsActivityTest {
      */
     @Test
     public void requesterNameAndDetailsDisplayedTest() {
-        intent.putExtra("PRODUCT_ID", "1");
+        intent.putExtra("PRODUCT_ID", "2");
         ActivityScenario.launch(intent);
         // The requester's email and request status should be displayed
-        Espresso.onView(withText(containsString("intrestedbuyer1@gmail.com")))
+        Espresso.onView(withText(containsString("Alice Johnson")))
                 .check(matches(isDisplayed()));
 
-        Espresso.onView(withText(containsString("Pending")))
+        Espresso.onView(withText(containsString("pending")))
                 .check(matches(isDisplayed()));
     }
 
@@ -140,7 +138,7 @@ public class ViewRequestsActivityTest {
         intent.putExtra("PRODUCT_ID", "1");
         ActivityScenario.launch(intent);
         // Given requests are displayed and we click an offer
-        Espresso.onView(withText(containsString("interestedbuyer1@gmail.com")))
+        Espresso.onView(withText(containsString("Alice Johnson")))
                 .perform(click());
         // Then the requester details screen should be shown
         Espresso.onView(withText(containsString("interestedbuyer1@gmail.com")))

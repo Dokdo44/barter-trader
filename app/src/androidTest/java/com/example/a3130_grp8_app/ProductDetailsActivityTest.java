@@ -24,7 +24,7 @@ public class ProductDetailsActivityTest {
 
     private static final String PRODUCT_ID = "product-details-test-product";
     private static final String PRODUCT_DETAILS_ACTIVITY =
-            "com.example.a3130_grp8_app.ProductDetailsActivity";
+            "com.example.a3130_grp8_app.activities.ProductDetailsActivity";
 
     /**
      * Verifies that opening a selected product shows every detail required by the user story.

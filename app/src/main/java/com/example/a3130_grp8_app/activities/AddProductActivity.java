@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,7 +21,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.a3130_grp8_app.FirebaseConnectionError;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.util.FormValidator;
@@ -40,7 +41,6 @@ import java.util.concurrent.Executors;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.regex.Pattern;
 
 public class AddProductActivity extends AppCompatActivity {
 
@@ -152,7 +152,7 @@ public class AddProductActivity extends AppCompatActivity {
         photoPickerLauncher.launch(new String[]{"image/*"});
     }
 
-    void handleSelectedPhoto(Uri photoUri) {
+    public void handleSelectedPhoto(Uri photoUri) {
         if (photoUri == null) {
             return;
         }

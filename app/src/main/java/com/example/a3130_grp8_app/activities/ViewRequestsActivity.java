@@ -1,4 +1,4 @@
-package com.example.a3130_grp8_app;
+package com.example.a3130_grp8_app.activities;
 
 import android.os.Bundle;
 import android.view.View;
@@ -10,12 +10,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +95,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
             requestKeys.clear();
             ViewRequestsActivity.this.requests.clear();
             for(Request request : requests) {
-                requestList.add(request.getReceiverEmail() + " - " + request.getStatus());
+                requestList.add(request.getRequesterName() + " - " + request.getStatus());
                 requestKeys.add(request.getRequestId());
                 ViewRequestsActivity.this.requests.add(request);
             }
