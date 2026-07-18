@@ -262,5 +262,18 @@ public class Product implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
+
+    /**
+     * Creates a snippet for a map marker from the product
+     * @return the String to be used as a map marker snippet
+     */
+    public String createProductSnippet() {
+        return String.format(
+                "Price: %s, Categories: %s, Address: %s%n",
+                getPrice(),
+                String.join(", ", getCategories()),
+                getAddress()
+        );
+    }
 }
 

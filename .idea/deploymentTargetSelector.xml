@@ -10,27 +10,7 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="allRequestsDisplayedTest()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="noRequestsMessageDisplayedTest()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="clickingRequestOpensRequesterDetailsTest()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="login">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="LoginActivity">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="requesterNameAndDetailsDisplayedTest()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

@@ -4,8 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.a3130_grp8_app.adapters.ProductSearchResultAdapter;
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.util.CategoryMatcher;
 import com.example.a3130_grp8_app.util.GeoLocator;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -46,14 +45,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class ProductSearchActivity extends AppCompatActivity implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationClient;
@@ -116,12 +112,17 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
                 setCurrPosition();
                 return false;
             } else {
-                requestPermissionsOnProximityChipClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+                requestPermissionsOnSpinnerClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
                 return true;
             }
         }
     };
 
+    /**
+     * Initializes the activity, sets up UI components, listeners, and form validation.
+     *
+     * @param savedInstanceState the previously saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -200,14 +201,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         fragmentManager.beginTransaction().hide(mapFragment).commit();
     }
 
-    private String createProductSnippet(Product product) {
-        return String.format(
-                "Price: %s, Categories: %s, Address: %s%n",
-                product.getPrice(),
-                String.join(", ", product.getCategories()),
-                product.getAddress()
-        );
-    }
+
 
     private void addMapMarkerForProduct(Product product) {
         try {
@@ -217,7 +211,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
                     new MarkerOptions()
                             .position(position)
                             .title(product.getName())
-                            .snippet(createProductSnippet(product))
+                            .snippet(product.createProductSnippet())
             );
             if(marker != null) {
                 marker.setTag(product);
@@ -237,6 +231,11 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         startActivity(intent);
     }
 
+    /**
+     * Called when the Google Map has finished loading.
+     *
+     * @param map the initialized Google Map instance
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
@@ -291,12 +290,12 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         requestPermissionsOnViewMapButtonClick.launch(Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
-    private final ActivityResultLauncher<String> requestPermissionsOnProximityChipClick =
+    private final ActivityResultLauncher<String> requestPermissionsOnSpinnerClick =
             registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(),
-                    this::handlePermissionResultOnProximityChipClick);
+                    this::handlePermissionResultOnSpinnerClick);
 
-    private void handlePermissionResultOnProximityChipClick(boolean isGranted) {
+    private void handlePermissionResultOnSpinnerClick(boolean isGranted) {
         if(isGranted) {
             setCurrPosition();
         }
@@ -352,7 +351,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         {
             boolean nameContainsQuery = product.getName().contains(query);
             boolean categoriesMatch =
-                    matchesAtLeastOne(product.getCategories(), new ArrayList<>(selectedCategories));
+                    CategoryMatcher.matchesAtLeastOne(product.getCategories(), new ArrayList<>(selectedCategories));
             boolean proximitySpinnerHasValue =
                     !proximitySpinnerValue.equals("Select Proximity");
             if(proximitySpinnerHasValue &&
@@ -403,16 +402,5 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         }
 
         return selectedTexts;
-    }
-
-    private static boolean matchesAtLeastOne(List<String> itemCategories, List<String> selectedCategories) {
-        if (selectedCategories.isEmpty()) return true;
-        for (String category : itemCategories) {
-            if (selectedCategories.contains(category))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

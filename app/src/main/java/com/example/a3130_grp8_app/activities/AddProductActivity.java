@@ -26,6 +26,7 @@ import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.util.FormValidator;
+import com.example.a3130_grp8_app.util.Parser;
 import com.example.a3130_grp8_app.util.SimpleTextWatcher;
 import com.example.a3130_grp8_app.data.SupabaseStorageManager;
 
@@ -246,7 +247,7 @@ public class AddProductActivity extends AppCompatActivity {
         String description = descriptionInput.getText().toString().trim();
         String address = locationInput.getText().toString().trim();
         String dateAvailable = dateInput.getText().toString().trim();
-        float price = parsePrice(marketValueInput.getText().toString().trim());
+        float price = Parser.parsePrice(marketValueInput.getText().toString().trim());
         String[] parts = preferredItemsInput.getText().toString().split(",");
         for(int i = 0; i < parts.length; i++) {
             parts[i] = parts[i].trim();
@@ -271,13 +272,6 @@ public class AddProductActivity extends AppCompatActivity {
         return product;
     }
 
-    public static float parsePrice(String rawValue) {
-        try {
-            return Float.parseFloat(rawValue);
-        } catch (NumberFormatException e) {
-            return 0f;
-        }
-    }
     private Bitmap decodeAndScaleSelectedPhoto() throws IOException {
         try (InputStream photoStream = getContentResolver().openInputStream(selectedPhotoUri)) {
             if (photoStream == null) {

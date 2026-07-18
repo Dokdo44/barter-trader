@@ -23,6 +23,7 @@ import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Request;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -35,10 +36,8 @@ public class ViewRequestsActivityTest {
 
     Intent intent;
 
-    @Before
-    public void setUp() {
-        intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
-
+    @BeforeClass
+    public static void setUpClass() {
         FirebaseManager mockManager = Mockito.mock(FirebaseManager.class);
 
         List<String> offeredItems1 = List.of("Book: Clean Code", "Gift Card $10");
@@ -87,6 +86,12 @@ public class ViewRequestsActivityTest {
         }).when(mockManager).getRequests(eq("0"), any());
 
         FirebaseManager.install(mockManager);
+    }
+
+    @Before
+    public void setUp() {
+        intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
+
     }
 
     /**

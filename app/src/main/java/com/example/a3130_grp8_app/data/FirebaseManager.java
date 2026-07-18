@@ -3,7 +3,7 @@ package com.example.a3130_grp8_app.data;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.a3130_grp8_app.FirebaseConnectionError;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
@@ -197,7 +197,7 @@ public class FirebaseManager {
      * @param productId Id of the product to load
      * @return task that resolves to the product
      */
-    public static Task<Product> getProduct(String productId) {
+    public Task<Product> getProduct(String productId) {
         return getProductsReference().child(productId).get()
                 .continueWith(task -> task.getResult().getValue(Product.class));
     }
@@ -338,7 +338,7 @@ public class FirebaseManager {
      * @return a Task that resolves on success
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public static Task<Void> submitRequest(String productId, String requesterName,
+    public Task<Void> submitRequest(String productId, String requesterName,
                                            String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
@@ -354,7 +354,7 @@ public class FirebaseManager {
         return productRef.get()
                 .continueWithTask(checkAvailabilityAndFetchExisting(productId, requestsRef))
                 .continueWithTask(checkDuplicateAndSubmit(productId, receiverUid, requesterName,
-                        requesterLocation, offeredItems, requestsRef));
+                        requesterLocation, offeredItems, requestsRef, receiverEmail));
     }
 
     private Continuation<DataSnapshot, Task<DataSnapshot>> checkAvailabilityAndFetchExisting(
@@ -375,7 +375,8 @@ public class FirebaseManager {
 
     private Continuation<DataSnapshot, Task<Void>> checkDuplicateAndSubmit(
             String productId, String receiverUid, String requesterName,
-            String requesterLocation, List<String> offeredItems, DatabaseReference requestsRef) {
+            String requesterLocation, List<String> offeredItems, DatabaseReference requestsRef,
+            String receiverEmail) {
         return existingRequestsTask -> {
             if (!existingRequestsTask.isSuccessful()) {
                 Exception e = existingRequestsTask.getException();

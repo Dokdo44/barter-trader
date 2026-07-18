@@ -26,6 +26,7 @@ import com.example.a3130_grp8_app.model.Product;
 import com.google.android.gms.tasks.Tasks;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,10 +38,8 @@ public class RequestProductActivityTest {
 
     Intent intent;
 
-    @Before
-    public void setUp() throws FirebaseConnectionError {
-        TestAuthHelper.signOut();
-
+    @BeforeClass
+    public static void setUpClass() throws FirebaseConnectionError {
         FirebaseManager mockFirebaseManager = mock(FirebaseManager.class);
 
         Product validProduct = new Product(
@@ -90,15 +89,20 @@ public class RequestProductActivityTest {
                 eq("user1"),
                 eq("Fake Street"),
                 any())).thenReturn(Tasks.forException(
-                        new Exception("You have already requested this product")));
+                new Exception("You have already requested this product")));
 
         when(mockFirebaseManager.submitRequest(eq("3"),
                 eq("user1"),
                 eq("Fake Street"),
                 any())).thenReturn(Tasks.forException(
-                        new Exception("Product is no longer available")));
+                new Exception("Product is no longer available")));
 
         FirebaseManager.install(mockFirebaseManager);
+    }
+
+    @Before
+    public void setUp() {
+        TestAuthHelper.signOut();
 
         intent = new Intent(ApplicationProvider.getApplicationContext(), RequestProductActivity.class);
     }
