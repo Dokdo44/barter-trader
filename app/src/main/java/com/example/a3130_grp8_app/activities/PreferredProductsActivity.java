@@ -67,6 +67,7 @@ public class PreferredProductsActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.preferredProductsMain),
                 this::onApplyWindowResets);
 
+        preferredProducts = new ArrayList<>();
         preferredProductTeasersAdapter = new PreferredProductTeasersAdapter(this, preferredProducts);
         RecyclerView preferredProductsRecyclerView = findViewById(R.id.preferredProductsRecyclerView);
         preferredProductsRecyclerView.setAdapter(preferredProductTeasersAdapter);
