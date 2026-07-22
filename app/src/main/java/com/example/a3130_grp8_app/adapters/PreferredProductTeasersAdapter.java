@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.a3130_grp8_app.R;
@@ -22,23 +21,17 @@ public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<Preferr
     private Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView queryTextView;
-        private final Button editButton;
+        private final TextView productNameTextView;
         private final Button deleteButton;
 
         public ViewHolder(View view) {
             super(view);
-            queryTextView = (TextView)view.findViewById(R.id.queryTextView);
-            editButton = (Button)view.findViewById(R.id.preferredProductTeaserEditButton);
+            productNameTextView = (TextView)view.findViewById(R.id.productNameTextView);
             deleteButton = (Button)view.findViewById(R.id.preferredProductTeaserDeleteButton);
         }
 
-        public TextView getQueryTextView() {
-            return queryTextView;
-        }
-
-        public Button getEditButton() {
-            return editButton;
+        public TextView getProductNameTextView() {
+            return productNameTextView;
         }
 
         public Button getDeleteButton() {

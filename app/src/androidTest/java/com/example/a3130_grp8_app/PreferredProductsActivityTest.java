@@ -29,59 +29,71 @@ import android.content.Intent;
 import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.ViewAssertion;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.UiObject;
-import androidx.test.uiautomator.UiSelector;
 import androidx.test.uiautomator.Until;
 
-import com.example.a3130_grp8_app.activities.AddPreferredProductActivity;
-import com.example.a3130_grp8_app.activities.EditPreferredProductActivity;
 import com.example.a3130_grp8_app.activities.PreferredProductsActivity;
-import com.example.a3130_grp8_app.activities.ProductSearchActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.PreferredProduct;
+import com.example.a3130_grp8_app.model.Product;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class PreferredProductsActivityTest {
 
-    private Context assetContext;
     private Context applicationContext;
     private UiDevice device;
     final String launcherPackage = "com.example.a3130_grp8_app";
+    final static String dataFilePathFromAssets = "PreferredProductsActivityTest/database_test_data.json";
+
+    private static ArrayList<Product> parseJsonToProducts() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        JsonNode rootNode = mapper.readTree(getInstrumentation().getContext().getAssets().open(dataFilePathFromAssets));
+        JsonNode productsNode = rootNode.get("products");
+
+        return mapper.readerFor(new TypeReference<List<Product>>() {}).readValue(productsNode);
+    }
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void setUpClass() throws IOException {
         FirebaseManager mockManager = mock(FirebaseManager.class);
 
+        List<Product> products = parseJsonToProducts();
+
+        when(mockManager.getProduct("product1")).thenReturn(Tasks.forResult(products.get(0)));
+        when(mockManager.getProduct("product2")).thenReturn(Tasks.forResult(products.get(1)));
+        when(mockManager.getProduct("product3")).thenReturn(Tasks.forResult(products.get(2)));
+
         PreferredProduct preferredProduct1 = new PreferredProduct(
-                "1", "", List.of("Technology", "Decoration"));
+                "1", "product1");
         PreferredProduct preferredProduct2 = new PreferredProduct(
-                "1", "Plant", List.of());
+                "1", "product2");
         PreferredProduct preferredProduct3 = new PreferredProduct(
-                "1", "IPad", List.of("Technology"));
+                "1", "product3");
 
         DataSnapshot mockSnapshot1 = mock(DataSnapshot.class);
         when(mockSnapshot1.getValue(PreferredProduct.class)).thenReturn(preferredProduct1);
@@ -116,7 +128,6 @@ public class PreferredProductsActivityTest {
 
     @Before
     public void setUp() {
-        assetContext = getInstrumentation().getContext();
         applicationContext = ApplicationProvider.getApplicationContext();
 
         device = UiDevice.getInstance(getInstrumentation());
@@ -140,32 +151,29 @@ public class PreferredProductsActivityTest {
         onView(withId(R.id.preferredProductsRecyclerView))
                 .perform(RecyclerViewActions.scrollTo(
                         hasDescendant(
-                                withText("Query: Any")
+                                withText("Toyota Something")
                         )
                 ));
 
-        onView(withText("Query: Any")).check(matches(isDisplayed()));
-        onView(withText("Categories: Technology, Decoration")).check(matches(isDisplayed()));
+        onView(withText("Toyota Something")).check(matches(isDisplayed()));
 
         onView(withId(R.id.preferredProductsRecyclerView))
                 .perform(RecyclerViewActions.scrollTo(
                         hasDescendant(
-                                withText("Query: Plant")
+                                withText("Ford Something")
                         )
                 ));
 
-        onView(withText("Query: Plant")).check(matches(isDisplayed()));
-        onView(withText("Categories: Any")).check(matches(isDisplayed()));
+        onView(withText("Ford Something")).check(matches(isDisplayed()));
 
         onView(withId(R.id.preferredProductsRecyclerView))
                 .perform(RecyclerViewActions.scrollTo(
                         hasDescendant(
-                                withText("Query: IPad")
+                                withText("Honda Something")
                         )
                 ));
 
-        onView(withText("Query: IPad")).check(matches(isDisplayed()));
-        onView(withText("Categories: Technology")).check(matches(isDisplayed()));
+        onView(withText("Honda Something")).check(matches(isDisplayed()));
     }
 
     public static ViewAction clickChildViewWithId(final int id) {
@@ -216,28 +224,5 @@ public class PreferredProductsActivityTest {
         // Snackbar shows that delete failed
         onView(withText("Could not delete product: Mock exception"))
                 .check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void editButtonCreatesCorrectIntent() {
-        onView(withId(R.id.preferredProductsRecyclerView))
-                .perform(actionOnItem(
-                        hasDescendant(withText(contains("Technology, Decoration"))),
-                        clickChildViewWithId(R.id.preferredProductTeaserEditButton)
-                ));
-
-        PreferredProduct preferredProductToBeExtra = new PreferredProduct("1", "", List.of("Technology", "Decoration"));
-        intended(allOf(
-                hasComponent(EditPreferredProductActivity.class.getName()),
-                hasExtra("PREFERRED_PRODUCT", equalTo(preferredProductToBeExtra))
-        ));
-    }
-
-    @Test
-    public void addProductButtonCreatesIntent() {
-        onView(withId(R.id.addPreferredProductsButton))
-                .perform(click());
-
-        intended(hasComponent(AddPreferredProductActivity.class.getName()));
     }
 }

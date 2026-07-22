@@ -6,16 +6,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.Serializable;
 import java.util.List;
 
-public class PreferredProduct implements Serializable {
+public class PreferredProduct {
+
     private String id;
     private String userId;
-    private String query;
-    private List<String> categories;
+    private String productId;
 
-    public PreferredProduct(String userId, String query, List<String> categories) {
+    public PreferredProduct(String userId, String productId) {
         this.userId = userId;
-        this.query = query;
-        this.categories = categories;
+        this.productId = productId;
     }
 
     public PreferredProduct() {}
@@ -27,23 +26,13 @@ public class PreferredProduct implements Serializable {
     }
 
     public static void save(String userId,
-                            String query,
-                            List<String> categories,
+                            String productId,
                             OnSuccessListener<Void> successListener,
                             OnFailureListener failureListener) {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
-    public static void edit(String id,
-                            String userId,
-                            String query,
-                            List<String> categories,
-                            OnSuccessListener<Void> successListener,
-                            OnFailureListener failureListener) {
-        throw new UnsupportedOperationException("This function needs to be implemented");
-    }
-
-    public static void delete(String preferredProductId,
+    public static void delete(String id,
                               OnSuccessListener<Void> successListener,
                               OnFailureListener failureListener) {
         throw new UnsupportedOperationException("This function needs to be implemented");
@@ -61,11 +50,11 @@ public class PreferredProduct implements Serializable {
         return userId;
     }
 
-    public String getQuery() {
-        return query;
+    public String getProductId() {
+        return productId;
     }
 
-    public List<String> getCategories() {
-        return categories;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 }
