@@ -4,12 +4,12 @@ import java.util.List;
 
 public class PreferredProduct {
     private String id;
-    private User user;
+    private String userId;
     private String query;
     private List<String> categories;
 
-    public PreferredProduct(User user, String query, List<String> categories) {
-        this.user = user;
+    public PreferredProduct(String userId, String query, List<String> categories) {
+        this.userId = userId;
         this.query = query;
         this.categories = categories;
     }
@@ -20,11 +20,13 @@ public class PreferredProduct {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
-    public static void save(User user, String query, List<String> categories) {
+    public static List<PreferredProduct> getAllForUser(User user, )
+
+    public static void save(String userId, String query, List<String> categories) {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
-    public static void edit(String id, User user, String query, List<String> categories) {
+    public static void edit(String id, String userId, String query, List<String> categories) {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
@@ -40,8 +42,8 @@ public class PreferredProduct {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public String getUserId() {
+        return userId;
     }
 
     public String getQuery() {
