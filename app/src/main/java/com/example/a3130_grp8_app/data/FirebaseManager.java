@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.model.PreferredProduct;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
@@ -35,6 +36,7 @@ public class FirebaseManager {
     private static final String USERS_PATH = "users";
     private static final String PRODUCTS_PATH = "product";
     private static final String REQUESTS_PATH = "requests";
+    private static final String PREFERRED_PRODUCTS_PATH = "preferredProducts";
     static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private FirebaseAuth auth;
@@ -329,6 +331,53 @@ public class FirebaseManager {
 
     public DatabaseReference getProductReference() {
         return getDb().getReference(PRODUCTS_PATH);
+    }
+
+    /**
+     * Basic implementation to get a preferred product by id
+     * @param id the id of the preferred product
+     * @return a task that completes to a DataSnapshot of the preferred product
+     */
+    public Task<DataSnapshot> getPreferredProduct(String id) {
+        DatabaseReference preferredProductsRef =
+                        getDb()
+                        .getReference(PREFERRED_PRODUCTS_PATH)
+                        .child(id);
+
+        return preferredProductsRef.get();
+    }
+
+    /**
+     * Basic implementation to get a preferred product by id
+     * @param id the id of the preferred product
+     * @return a task that completes to a DataSnapshot of the preferred product
+     */
+    public Task<Void> editPreferredProduct(String id,
+                                           String userId,
+                                           String query,
+                                           List<String> categories) {
+        DatabaseReference preferredProductsRef =
+                getDb()
+                        .getReference(PREFERRED_PRODUCTS_PATH)
+                        .child(id);
+        PreferredProduct preferredProduct = new PreferredProduct(userId, query, categories);
+
+        return preferredProductsRef.setValue(preferredProduct);
+    }
+
+    /**
+     * Add a child event listener for when a new preferred product is added under a user id
+     * @param userId the userId of the user to add the listener for
+     * @param preferredProductChildEventListener the listener to add for the user
+     */
+    public void addPreferredProductChildEventListenerByUserId(String userId,
+                                          ChildEventListener preferredProductChildEventListener) {
+        DatabaseReference preferredProductsRef = getDb().getReference(PREFERRED_PRODUCTS_PATH);
+
+        preferredProductsRef
+                        .orderByChild("userId")
+                        .equalTo(userId)
+                        .addChildEventListener(preferredProductChildEventListener);
     }
 
     /**
