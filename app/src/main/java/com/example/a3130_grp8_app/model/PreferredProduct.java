@@ -1,5 +1,8 @@
 package com.example.a3130_grp8_app.model;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import java.util.List;
 
 public class PreferredProduct {
@@ -16,19 +19,32 @@ public class PreferredProduct {
 
     public PreferredProduct() {}
 
-    public static PreferredProduct get(String id) {
+    public static void get(String id,
+                           OnSuccessListener<PreferredProduct> successListener,
+                           OnFailureListener failureListener) {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
-    public static void save(String userId, String query, List<String> categories) {
+    public static void save(String userId,
+                            String query,
+                            List<String> categories,
+                            OnSuccessListener<Void> successListener,
+                            OnFailureListener failureListener) {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
-    public static void edit(String id, String userId, String query, List<String> categories) {
+    public static void edit(String id,
+                            String userId,
+                            String query,
+                            List<String> categories,
+                            OnSuccessListener<Void> successListener,
+                            OnFailureListener failureListener) {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
-    public static void delete(String preferredProductId) {
+    public static void delete(String preferredProductId,
+                              OnSuccessListener<Void> successListener,
+                              OnFailureListener failureListener) {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
