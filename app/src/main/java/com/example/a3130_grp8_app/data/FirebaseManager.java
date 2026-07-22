@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.model.PreferredCategory;
 import com.example.a3130_grp8_app.model.PreferredProduct;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
@@ -37,6 +38,7 @@ public class FirebaseManager {
     private static final String PRODUCTS_PATH = "product";
     private static final String REQUESTS_PATH = "requests";
     private static final String PREFERRED_PRODUCTS_PATH = "preferredProducts";
+    private static final String PREFERRED_CATEGORIES_PATH = "preferredCategories";
     static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private FirebaseAuth auth;
@@ -391,6 +393,35 @@ public class FirebaseManager {
                         .orderByChild("userId")
                         .equalTo(userId)
                         .addChildEventListener(preferredProductChildEventListener);
+    }
+
+    public Task<Void> addPreferredCategory(String userId,
+                                     String categoryName) {
+        DatabaseReference preferredCategoriesRef = getDb().getReference(PREFERRED_CATEGORIES_PATH);
+
+        preferredCategoriesRef
+                .push();
+        PreferredCategory preferredCategory = new PreferredCategory(userId, categoryName);
+        return preferredCategoriesRef.setValue(preferredCategory);
+    }
+
+    public Task<Void> deletePreferredCategory(String id) {
+        DatabaseReference preferredCategoriesRef =
+                getDb()
+                        .getReference(PREFERRED_CATEGORIES_PATH)
+                        .child(id);
+
+        return preferredCategoriesRef.removeValue();
+    }
+
+    public void addPreferredCategoryValueEventListenerByUserId(String userId,
+                                                              ValueEventListener preferredProductValueEventListener) {
+        DatabaseReference preferredProductsRef = getDb().getReference(PREFERRED_CATEGORIES_PATH);
+
+        preferredProductsRef
+                .orderByChild("userId")
+                .equalTo(userId)
+                .addValueEventListener(preferredProductValueEventListener);
     }
 
     /**
