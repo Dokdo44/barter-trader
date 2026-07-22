@@ -348,6 +348,39 @@ public class FirebaseManager {
     }
 
     /**
+     * Basic implementation to add a preferred product
+     * @param userId the userId of the user who has this preferred product
+     * @param query the query for the preferred product
+     * @param categories the categories of the preferred product
+     * @return a task that completes to a DataSnapshot of the preferred product
+     */
+    public Task<Void> addPreferredProduct(String userId,
+                                          String query,
+                                          List<String> categories) {
+        DatabaseReference preferredProductsRef =
+                getDb()
+                        .getReference(PREFERRED_PRODUCTS_PATH)
+                        .push();
+        PreferredProduct preferredProduct = new PreferredProduct(userId, query, categories);
+
+        return preferredProductsRef.setValue(preferredProduct);
+    }
+
+    /**
+     * Basic implementation to delete a preferred product by id
+     * @param id the id of the preferred product
+     * @return the delete task
+     */
+    public Task<Void> deletePreferredProduct(String id) {
+        DatabaseReference preferredProductsRef =
+                getDb()
+                        .getReference(PREFERRED_PRODUCTS_PATH)
+                        .child(id);
+
+        return preferredProductsRef.removeValue();
+    }
+
+    /**
      * Basic implementation to get a preferred product by id
      * @param id the id of the preferred product
      * @return a task that completes to a DataSnapshot of the preferred product
