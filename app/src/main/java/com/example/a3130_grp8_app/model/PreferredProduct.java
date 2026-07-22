@@ -20,7 +20,9 @@ public class PreferredProduct {
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 
-    public static List<PreferredProduct> getAllForUser(User user, )
+    public static List<PreferredProduct> getAllForUser(String userId) {
+        throw new UnsupportedOperationException("This function needs to be implemented");
+    }
 
     public static void save(String userId, String query, List<String> categories) {
         throw new UnsupportedOperationException("This function needs to be implemented");
