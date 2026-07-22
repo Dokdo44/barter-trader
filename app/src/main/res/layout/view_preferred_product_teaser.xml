@@ -1,28 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300dp"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preferredProductTeaserLayout"
+    android:layout_width="400dp"
+    android:layout_height="wrap_content"
     android:background="@android:color/darker_gray">
 
-    <TextView
-        android:id="@+id/queryTextView"
+    <LinearLayout
+        android:id="@+id/preferredProductTeaserTextLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="(Query Text)"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/preferredProductTeaserEditButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/queryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(Query Text)"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/preferredProductTeaserCategories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(Categories)"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/preferredProductTeaserEditButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/preferredProductTeaserTextLayout"
+        app:layout_constraintEnd_toStartOf="@id/preferredProductTeaserDeleteButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Edit" />
+
+    <Button
+        android:id="@+id/preferredProductTeaserDeleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/preferredProductTeaserEditButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/preferredProductTeaserCategories"/>
+        android:text="Delete" />
 
-    <TextView
-        android:id="@+id/preferredProductTeaserCategories"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="(Categories)"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/queryTextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
 </androidx.constraintlayout.widget.ConstraintLayout>

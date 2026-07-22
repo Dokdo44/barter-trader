@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,19 +23,27 @@ public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<Preferr
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView queryTextView;
-        private final ConstraintLayout preferredProductsLayout;
+        private final Button editButton;
+        private final Button deleteButton;
 
         public ViewHolder(View view) {
             super(view);
             queryTextView = (TextView)view.findViewById(R.id.queryTextView);
-            preferredProductsLayout =
-                    (ConstraintLayout) view.findViewById(R.id.preferredProductsMain);
+            editButton = (Button)view.findViewById(R.id.preferredProductTeaserEditButton);
+            deleteButton = (Button)view.findViewById(R.id.preferredProductTeaserDeleteButton);
         }
 
         public TextView getQueryTextView() {
             return queryTextView;
         }
-        public ConstraintLayout getPreferredProductsLayout() { return preferredProductsLayout; }
+
+        public Button getEditButton() {
+            return editButton;
+        }
+
+        public Button getDeleteButton() {
+            return deleteButton;
+        }
     }
 
     public PreferredProductTeasersAdapter(Context context, List<PreferredProduct> preferredProducts) {
