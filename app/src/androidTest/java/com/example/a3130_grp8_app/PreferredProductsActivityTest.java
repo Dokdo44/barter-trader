@@ -2,6 +2,7 @@ package com.example.a3130_grp8_app;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItem;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
@@ -15,6 +16,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -197,6 +199,10 @@ public class PreferredProductsActivityTest {
         // Snackbar shows that delete was successful
         onView(withText("Preferred product deleted successfully"))
                 .check(matches(isDisplayed()));
+
+        // Preferred product that was deleted is no longer displayed
+        onView(withText("Technology, Decoration"))
+                .check(doesNotExist());
     }
 
     @Test
