@@ -102,22 +102,4 @@ public class EditPreferredProductActivityTest {
         Espresso.onView(withText("Failed to edit product: Mock exception"))
                 .check(matches(isDisplayed()));
     }
-
-    @Test
-    public void deleteSuccess() {
-        PreferredProduct preferredProduct = new PreferredProduct("1", "IPad", List.of("Technology"));
-        intent.putExtra("PREFERRED_PRODUCT", preferredProduct);
-        ActivityScenario.launch(intent);
-
-        Espresso.onView(withId(R.id.editPreferredProductQueryEditText))
-                .perform(replaceText("Plant"));
-        Espresso.onView(withId(R.id.editPreferredProductCategoriesEditText))
-                .perform(replaceText("Decoration"));
-        Espresso.onView(withId(R.id.editPreferredProductButton))
-                .perform(click());
-
-        // Snackbar shows that the preferred product was edited
-        Espresso.onView(withText("Failed to edit product: Mock exception"))
-                .check(matches(isDisplayed()));
-    }
 }
