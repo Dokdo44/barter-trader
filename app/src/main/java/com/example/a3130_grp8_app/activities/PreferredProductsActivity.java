@@ -8,10 +8,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.a3130_grp8_app.R;
+import com.example.a3130_grp8_app.adapters.PreferredProductTeasersAdapter;
+
+import java.util.ArrayList;
 
 public class PreferredProductsActivity extends AppCompatActivity {
+
+    private PreferredProductTeasersAdapter preferredProductTeasersAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -22,6 +29,11 @@ public class PreferredProductsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_preferred_products);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.preferredProductsMain),
                 this::onApplyWindowResets);
+
+        preferredProductTeasersAdapter = new PreferredProductTeasersAdapter(this, new ArrayList<>());
+        RecyclerView preferredProductsRecyclerView = findViewById(R.id.preferredProductsRecyclerView);
+        preferredProductsRecyclerView.setAdapter(preferredProductTeasersAdapter);
+        preferredProductsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private WindowInsetsCompat onApplyWindowResets(View v, WindowInsetsCompat insets) {
