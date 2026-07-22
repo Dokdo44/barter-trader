@@ -30,13 +30,15 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class AddPreferredProductActivityTest {
 
+    private static FirebaseManager mockManager;
+
     @Rule
-    ActivityScenarioRule<AddPreferredProductActivity> activityTestRule =
+    public ActivityScenarioRule<AddPreferredProductActivity> activityTestRule =
             new ActivityScenarioRule<>(AddPreferredProductActivity.class);
 
     @BeforeClass
     public static void setUpClass() {
-        FirebaseManager mockManager = mock(FirebaseManager.class);
+        mockManager = mock(FirebaseManager.class);
         when(mockManager.addPreferredProduct("1", "IPad", List.of("Technology")))
                 .thenReturn(Tasks.forResult(null));
 
@@ -47,16 +49,19 @@ public class AddPreferredProductActivityTest {
         when(mockUser.getUid()).thenReturn("1");
 
         when(mockManager.getCurrentUser()).thenReturn(mockUser);
+    }
 
+    @Before
+    public void setUp() {
         FirebaseManager.install(mockManager);
     }
 
     @Test
     public void addPreferredProductSuccess() {
-        Espresso.onView(withId(R.id.queryTextView)).perform(typeText("IPad"));
+        Espresso.onView(withId(R.id.addPreferredProductQueryEditText)).perform(typeText("IPad"));
         Espresso.onView(withId(R.id.addPreferredProductCategoriesEditText))
                 .perform(typeText("Technology"));
-        Espresso.onView(withId(R.id.addPreferredProductsButton)).perform(click());
+        Espresso.onView(withId(R.id.addPreferredProductButton)).perform(click());
 
         // Displays Snackbar with text
         Espresso.onView(withText("Successfully added preferred product")).check(matches(isDisplayed()));
@@ -64,10 +69,10 @@ public class AddPreferredProductActivityTest {
 
     @Test
     public void addPreferredProductFailure() {
-        Espresso.onView(withId(R.id.queryTextView)).perform(typeText("Plant"));
+        Espresso.onView(withId(R.id.addPreferredProductQueryEditText)).perform(typeText("Plant"));
         Espresso.onView(withId(R.id.addPreferredProductCategoriesEditText))
                 .perform(typeText("Decoration"));
-        Espresso.onView(withId(R.id.addPreferredProductsButton)).perform(click());
+        Espresso.onView(withId(R.id.addPreferredProductButton)).perform(click());
 
         // Displays error Snackbar with text
         Espresso.onView(withText("Could not add preferred product to Firebase: Mock exception"))

@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/editPreferredProductQueryEditText"
+        android:id="@+id/addPreferredProductQueryEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -16,20 +16,20 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editPreferredProductCategoriesEditText"
+        android:id="@+id/addPreferredProductCategoriesEditText"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:ems="10"
         android:hint="Categories"
         android:inputType="text"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editPreferredProductQueryEditText" />
+        app:layout_constraintTop_toBottomOf="@id/addPreferredProductQueryEditText" />
 
     <Button
-        android:id="@+id/editPreferredProductButton"
+        android:id="@+id/addPreferredProductButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editPreferredProductCategoriesEditText" />
+        app:layout_constraintTop_toBottomOf="@id/addPreferredProductCategoriesEditText" />
 </androidx.constraintlayout.widget.ConstraintLayout>
