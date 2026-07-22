@@ -3,9 +3,10 @@ package com.example.a3130_grp8_app.model;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PreferredProduct {
+public class PreferredProduct implements Serializable {
     private String id;
     private String userId;
     private String query;
