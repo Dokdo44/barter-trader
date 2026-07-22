@@ -11,13 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.a3130_grp8_app.R;
-import com.example.a3130_grp8_app.model.PreferredProduct;
+import com.example.a3130_grp8_app.model.Product;
 
 import java.util.List;
 
 public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<PreferredProductTeasersAdapter.ViewHolder> {
 
-    private List<PreferredProduct> preferredProducts;
+    private List<Product> preferredProducts;
     private Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -39,7 +39,7 @@ public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<Preferr
         }
     }
 
-    public PreferredProductTeasersAdapter(Context context, List<PreferredProduct> preferredProducts) {
+    public PreferredProductTeasersAdapter(Context context, List<Product> preferredProducts) {
         this.preferredProducts = preferredProducts;
         this.context = context;
     }
@@ -56,7 +56,7 @@ public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<Preferr
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        PreferredProduct preferredProduct = preferredProducts.get(position);
+        Product preferredProduct = preferredProducts.get(position);
         throw new UnsupportedOperationException("This function needs to be implemented");
     }
 

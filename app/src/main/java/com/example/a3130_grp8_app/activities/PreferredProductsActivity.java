@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.adapters.PreferredProductTeasersAdapter;
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.model.PreferredProduct;
+import com.example.a3130_grp8_app.model.Product;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -28,12 +28,11 @@ import java.util.List;
 public class PreferredProductsActivity extends AppCompatActivity {
 
     private PreferredProductTeasersAdapter preferredProductTeasersAdapter;
-    private List<PreferredProduct> preferredProducts;
+    private List<Product> preferredProducts;
 
     private ChildEventListener preferredProductsChildEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
         }
 
         @Override
@@ -74,7 +73,7 @@ public class PreferredProductsActivity extends AppCompatActivity {
         preferredProductsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         FirebaseUser currUser = FirebaseManager.getInstance().getCurrentUser();
-        FirebaseManager.getInstance().addPreferredProductChildEventListenerByUserId(
+        FirebaseManager.getInstance().addChildEventListenerForUserPreferredProductIds(
                 currUser.getUid(),
                 preferredProductsChildEventListener
         );

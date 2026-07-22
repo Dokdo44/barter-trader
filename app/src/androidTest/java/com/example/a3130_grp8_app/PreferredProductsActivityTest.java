@@ -8,6 +8,7 @@ import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -15,17 +16,17 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -40,7 +41,6 @@ import androidx.test.uiautomator.Until;
 
 import com.example.a3130_grp8_app.activities.PreferredProductsActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.model.PreferredProduct;
 import com.example.a3130_grp8_app.model.Product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -64,6 +64,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class PreferredProductsActivityTest {
 
+    private static FirebaseManager mockManager;
     private Context applicationContext;
     private UiDevice device;
     final String launcherPackage = "com.example.a3130_grp8_app";
@@ -80,31 +81,26 @@ public class PreferredProductsActivityTest {
 
     @BeforeClass
     public static void setUpClass() throws IOException {
-        FirebaseManager mockManager = mock(FirebaseManager.class);
+        mockManager = mock(FirebaseManager.class);
 
+        // Set up product mocks
         List<Product> products = parseJsonToProducts();
 
-        when(mockManager.getProduct("product1")).thenReturn(Tasks.forResult(products.get(0)));
-        when(mockManager.getProduct("product2")).thenReturn(Tasks.forResult(products.get(1)));
-        when(mockManager.getProduct("product3")).thenReturn(Tasks.forResult(products.get(2)));
+        when(mockManager.getProduct("1")).thenReturn(Tasks.forResult(products.get(0)));
+        when(mockManager.getProduct("2")).thenReturn(Tasks.forResult(products.get(1)));
+        when(mockManager.getProduct("3")).thenReturn(Tasks.forResult(products.get(2)));
 
-        PreferredProduct preferredProduct1 = new PreferredProduct(
-                "1", "product1");
-        PreferredProduct preferredProduct2 = new PreferredProduct(
-                "1", "product2");
-        PreferredProduct preferredProduct3 = new PreferredProduct(
-                "1", "product3");
-
+        // Set up preferred product mocks
         DataSnapshot mockSnapshot1 = mock(DataSnapshot.class);
-        when(mockSnapshot1.getValue(PreferredProduct.class)).thenReturn(preferredProduct1);
+        when(mockSnapshot1.getValue(String.class)).thenReturn("1");
         when(mockSnapshot1.getKey()).thenReturn("preferredProduct1");
 
         DataSnapshot mockSnapshot2 = mock(DataSnapshot.class);
-        when(mockSnapshot2.getValue(PreferredProduct.class)).thenReturn(preferredProduct2);
+        when(mockSnapshot2.getValue(String.class)).thenReturn("2");
         when(mockSnapshot2.getKey()).thenReturn("preferredProduct2");
 
         DataSnapshot mockSnapshot3 = mock(DataSnapshot.class);
-        when(mockSnapshot3.getValue(PreferredProduct.class)).thenReturn(preferredProduct3);
+        when(mockSnapshot3.getValue(String.class)).thenReturn("3");
         when(mockSnapshot3.getKey()).thenReturn("preferredProduct3");
 
         doAnswer(invocation -> {
@@ -113,21 +109,35 @@ public class PreferredProductsActivityTest {
             childEventListener.onChildAdded(mockSnapshot2, mockSnapshot1.getKey());
             childEventListener.onChildAdded(mockSnapshot3, mockSnapshot2.getKey());
             return null;
-        }).when(mockManager).addPreferredProductChildEventListenerByUserId(eq("1"), any());
+        }).when(mockManager).addChildEventListenerForUserPreferredProductIds(eq("1"), any());
 
-        when(mockManager.deletePreferredProduct("preferredProduct1")).thenReturn(Tasks.forResult(null));
-        when(mockManager.deletePreferredProduct("preferredProduct2"))
+        // Set up preferred category mocks
+
+        DataSnapshot mockCategorySnapshot1 = mock(DataSnapshot.class);
+        when(mockCategorySnapshot1.getValue(String.class)).thenReturn("Technology");
+        when(mockCategorySnapshot1.getKey()).thenReturn("preferredCategory1");
+
+        doAnswer(invocation -> {
+            ChildEventListener childEventListener = invocation.getArgument(1);
+            childEventListener.onChildAdded(mockCategorySnapshot1, null);
+            return null;
+        }).when(mockManager).addChildEventListenerForUserPreferredCategoryNames(eq("1"), any());
+
+        // Set up deletion mocks
+
+        when(mockManager.deletePreferredProductForUser("1", "preferredProduct1")).thenReturn(Tasks.forResult(null));
+        when(mockManager.deletePreferredProductForUser("1", "preferredProduct2"))
                 .thenReturn(Tasks.forException(new Exception("Mock exception")));
 
         FirebaseUser mockUser = mock(FirebaseUser.class);
         when(mockUser.getUid()).thenReturn("1");
         when(mockManager.getCurrentUser()).thenReturn(mockUser);
-
-        FirebaseManager.install(mockManager);
     }
 
     @Before
     public void setUp() {
+        FirebaseManager.install(mockManager);
+
         applicationContext = ApplicationProvider.getApplicationContext();
 
         device = UiDevice.getInstance(getInstrumentation());
@@ -224,5 +234,26 @@ public class PreferredProductsActivityTest {
         // Snackbar shows that delete failed
         onView(withText("Could not delete product: Mock exception"))
                 .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void categoriesSelectedOnEntry() {
+        onView(withId(R.id.technologyChip)).check(matches(isChecked()));
+    }
+
+    @Test
+    public void togglingChipCallsRemoveMethodCorrectly() {
+        onView(withId(R.id.technologyChip)).perform(click());
+
+        // Delete method should be called
+        verify(mockManager).deletePreferredCategoriesForUser("1", "Technology");
+    }
+
+    @Test
+    public void togglingChipCallsAddMethodCorrectly() {
+        onView(withId(R.id.decorationChip)).perform(click());
+
+        // Add method should be called
+        verify(mockManager).addPreferredCategoryForUser("1", "Decoration");
     }
 }
