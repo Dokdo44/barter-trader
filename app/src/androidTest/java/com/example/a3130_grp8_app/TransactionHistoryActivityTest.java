@@ -77,19 +77,21 @@ public class TransactionHistoryActivityTest {
         doReturn(Tasks.forResult(testProduct2))
                 .when(mockManager).getProduct(eq("prod-456"));
 
-        Request acceptedRequest = new Request(
+        // User is the buyer for this request
+        Request buyerRequest = new Request(
                 "req-001",
                 "prod-123",
-                "buyer1@gmail.com",
-                "uid-buyer1",
+                "uid-with-history@gmail.com",
+                "uid-with-history",
                 "Alice Johnson",
                 "Halifax, NS",
                 Arrays.asList("Skateboard", "Cash"),
                 "uid-seller"
         );
-        acceptedRequest.setStatus("accepted");
+        buyerRequest.setStatus("accepted");
 
-        Request acceptedRequest2 = new Request(
+        // User is the seller for this request
+        Request sellerRequest = new Request(
                 "req-002",
                 "prod-456",
                 "buyer2@gmail.com",
@@ -97,38 +99,69 @@ public class TransactionHistoryActivityTest {
                 "Marcus Lee",
                 "Halifax, NS",
                 Arrays.asList("Book", "Gift Card"),
-                "uid-seller"
+                "uid-with-history"
         );
-        acceptedRequest2.setStatus("accepted");
+        sellerRequest.setStatus("accepted");
 
+        // Pending request — should NOT appear
         Request pendingRequest = new Request(
                 "req-003",
-                "prod-789",
-                "buyer3@gmail.com",
-                "uid-buyer3",
+                "prod-123",
+                "uid-with-history@gmail.com",
+                "uid-with-history",
                 "John Smith",
                 "Halifax, NS",
                 Arrays.asList("Vinyl Record"),
                 "uid-seller"
         );
 
-        ArrayList<Request> acceptedRequests = new ArrayList<>(
-                Arrays.asList(acceptedRequest, acceptedRequest2));
-        ArrayList<Request> emptyRequests = new ArrayList<>();
-
+        // As a buyer — getRequestsByReceiver returns their accepted request
         doAnswer(invocation -> {
             FirebaseManager.RequestValueEventListener listener =
                     invocation.getArgument(1);
-            listener.onGetRequests(acceptedRequests);
+            listener.onGetRequests(new ArrayList<>(Collections.singletonList(buyerRequest)));
             return null;
-        }).when(mockManager).getRequests(eq("uid-with-history"), any());
+        }).when(mockManager).getRequestsByReceiver(eq("uid-with-history"), any());
 
+        // As a seller — getRequestsByProvider returns accepted request
         doAnswer(invocation -> {
             FirebaseManager.RequestValueEventListener listener =
                     invocation.getArgument(1);
-            listener.onGetRequests(emptyRequests);
+            listener.onGetRequests(new ArrayList<>(Collections.singletonList(sellerRequest)));
             return null;
-        }).when(mockManager).getRequests(eq("uid-no-history"), any());
+        }).when(mockManager).getRequestsByProvider(eq("uid-with-history"), any());
+
+        // No transactions as buyer
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener listener =
+                    invocation.getArgument(1);
+            listener.onGetRequests(new ArrayList<>());
+            return null;
+        }).when(mockManager).getRequestsByReceiver(eq("uid-no-history"), any());
+
+        // No transactions as seller
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener listener =
+                    invocation.getArgument(1);
+            listener.onGetRequests(new ArrayList<>());
+            return null;
+        }).when(mockManager).getRequestsByProvider(eq("uid-no-history"), any());
+
+        // Only pending requests as buyer
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener listener =
+                    invocation.getArgument(1);
+            listener.onGetRequests(new ArrayList<>(Collections.singletonList(pendingRequest)));
+            return null;
+        }).when(mockManager).getRequestsByReceiver(eq("uid-pending-only"), any());
+
+        // No requests as a seller
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener listener =
+                    invocation.getArgument(1);
+            listener.onGetRequests(new ArrayList<>());
+            return null;
+        }).when(mockManager).getRequestsByProvider(eq("uid-pending-only"), any());
 
         FirebaseManager.install(mockManager);
     }
@@ -175,24 +208,7 @@ public class TransactionHistoryActivityTest {
     }
 
     /**
-     * Given a user has completed exchanges
-     * When they view their transaction history
-     * Then each transaction should display the exchange partner
-     */
-    @Test
-    public void transactionShowsExchangePartnerTest() {
-        intent.putExtra("USER_ID", "uid-with-history");
-        ActivityScenario.launch(intent);
-
-        Espresso.onView(withText(containsString("Alice Johnson")))
-                .perform(click());
-
-        Espresso.onView(withText(containsString("buyer1@gmail.com")))
-                .check(matches(isDisplayed()));
-    }
-
-    /**
-     * Given a user was a buyer in a completed transaction
+     * Given a user acted as a buyer in a completed exchange
      * When they view the transaction details
      * Then the seller's ID should be displayed as the exchange partner
      */
@@ -205,6 +221,23 @@ public class TransactionHistoryActivityTest {
                 .perform(click());
 
         Espresso.onView(withText(containsString("uid-seller")))
+                .check(matches(isDisplayed()));
+    }
+
+    /**
+     * Given a user acted as a seller in a completed exchange
+     * When they view the transaction details
+     * Then the buyer's email should be displayed as the exchange partner
+     */
+    @Test
+    public void sellerCanSeeExchangePartnerTest() {
+        intent.putExtra("USER_ID", "uid-with-history");
+        ActivityScenario.launch(intent);
+
+        Espresso.onView(withText(containsString("Marcus Lee")))
+                .perform(click());
+
+        Espresso.onView(withText(containsString("buyer2@gmail.com")))
                 .check(matches(isDisplayed()));
     }
 
@@ -242,23 +275,16 @@ public class TransactionHistoryActivityTest {
     }
 
     /**
-     * Given a user has both pending and accepted requests
+     * Given a user has only pending requests
      * When they view their transaction history
-     * Then only accepted requests should appear
+     * Then no transactions should be displayed
      */
     @Test
     public void onlyAcceptedRequestsShownTest() {
-        intent.putExtra("USER_ID", "uid-with-history");
+        intent.putExtra("USER_ID", "uid-pending-only");
         ActivityScenario.launch(intent);
 
-        Espresso.onView(withText(containsString("Alice Johnson")))
+        Espresso.onView(withText("No completed transactions"))
                 .check(matches(isDisplayed()));
-
-        try {
-            Espresso.onView(withText(containsString("John Smith")))
-                    .check(matches(isDisplayed()));
-            throw new AssertionError("Pending request should not be visible");
-        } catch (Exception e) {
-        }
     }
 }
