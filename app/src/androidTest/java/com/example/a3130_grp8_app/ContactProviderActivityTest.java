@@ -69,18 +69,34 @@ public class ContactProviderActivityTest {
         Espresso.onView(withId(R.id.messageSentText)).check(matches(isDisplayed()));
     }
     /**
-     * AC1: Receiver can send a message to the provider from the product page.
+     * AC1: Receiver cannot send an empty message.
      * Given I am viewing a product
-     * When I type a message and click send
-     * Then the message is sent successfully
+     * When I leave the message empty and click send
+     * Then the message is not sent and an error is displayed
      */
     @Test
-    public void messageSentSuccessfullyTest() {
+    public void emptyMessageNotSentTest() {
         intent.putExtra("PRODUCT_ID", "1");
         ActivityScenario.launch(intent);
 
-        Espresso.onView(withId(R.id.messageInput)).perform(typeText("Hi, is this still available?"));
         Espresso.onView(withId(R.id.sendButton)).perform(click());
-        Espresso.onView(withId(R.id.messageSentText)).check(matches(isDisplayed()));
+        Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
+                .check(matches(isDisplayed()));
+    }
+    /**
+     * AC1, AC3: Handle message send failure gracefully.
+     * Given I am viewing a product
+     * When I send a message but the Firebase call fails
+     * Then an error message is displayed
+     */
+    @Test
+    public void messageSendFailedTest() {
+        intent.putExtra("PRODUCT_ID", "2");
+        ActivityScenario.launch(intent);
+
+        Espresso.onView(withId(R.id.messageInput)).perform(typeText("Hello!"));
+        Espresso.onView(withId(R.id.sendButton)).perform(click());
+        Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
+                .check(matches(isDisplayed()));
     }
 }
