@@ -1,6 +1,10 @@
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.util.concurrent.TimeUnit
 
 plugins {
     alias(libs.plugins.android.application)
@@ -81,3 +85,83 @@ dependencies {
 
 // Script-level variable — shared across all task closures
 Process emulatorProcess = null
+
+// Installs the Firebase CLI locally so emulator test setup does not depend on a global installation.
+tasks.register('installFirebaseTools', Exec) {
+    onlyIf { !file(project.ext.firebaseBin).exists() }
+    commandLine 'npm', '--prefix', "${rootDir}/.gradle/firebase", 'install', 'firebase-tools@latest'
+}
+
+def emulatorPortOpen = { int port ->
+    try {
+        Socket socket = new Socket()
+        socket.connect(new InetSocketAddress('127.0.0.1', port), 250)
+        socket.close()
+        return true
+    } catch (IOException ignored) {
+        return false
+    }
+}
+
+// Starts only the emulators used by the instrumented request-flow tests.
+tasks.register('startEmulators') {
+    dependsOn tasks.named('installFirebaseTools')
+
+    doLast {
+        File logFile = layout.buildDirectory.file('firebase-emulator.log').get().asFile
+        logFile.parentFile.mkdirs()
+
+        ProcessBuilder emulatorBuilder = new ProcessBuilder(
+                project.ext.firebaseBin.toString(),
+                'emulators:start',
+                '--only',
+                'auth,database',
+                '--project',
+                project.ext.testProjectId.toString()
+        )
+        emulatorBuilder.directory(rootDir)
+        emulatorBuilder.redirectErrorStream(true)
+        emulatorBuilder.redirectOutput(logFile)
+        // Keep Firebase CLI state inside build output instead of the developer's global config.
+        emulatorBuilder.environment().put('XDG_CONFIG_HOME', new File(buildDir, 'firebase-cli-config').absolutePath)
+        // Firebase tools launches java from PATH, so prefer the JDK running this Gradle build.
+        String javaBin = new File(System.getProperty('java.home'), 'bin').absolutePath
+        String currentPath = emulatorBuilder.environment().get('PATH')
+        emulatorBuilder.environment().put('PATH', javaBin + File.pathSeparator + currentPath)
+        emulatorProcess = emulatorBuilder.start()
+
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(60)
+        while (System.nanoTime() < deadline) {
+            if (!emulatorProcess.isAlive()) {
+                throw new GradleException("Firebase emulators stopped unexpectedly. Check ${logFile}.")
+            }
+            if (emulatorPortOpen(project.ext.authPort) && emulatorPortOpen(project.ext.databasePort)) {
+                return
+            }
+            Thread.sleep(250)
+        }
+
+        emulatorProcess.destroyForcibly()
+        throw new GradleException("Firebase emulators did not start. Check ${logFile}.")
+    }
+}
+
+// Stops the process started for the current connected-test Gradle invocation.
+tasks.register('stopEmulators') {
+    doLast {
+        if (emulatorProcess != null && emulatorProcess.isAlive()) {
+            emulatorProcess.destroy()
+            emulatorProcess.waitFor(10, TimeUnit.SECONDS)
+            if (emulatorProcess.isAlive()) {
+                emulatorProcess.destroyForcibly()
+            }
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name == 'connectedDebugAndroidTest') {
+        dependsOn tasks.named('startEmulators')
+        finalizedBy tasks.named('stopEmulators')
+    }
+}
