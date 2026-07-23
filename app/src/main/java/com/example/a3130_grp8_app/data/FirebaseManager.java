@@ -7,6 +7,7 @@ import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
+import com.example.a3130_grp8_app.util.ProductListenerRegistration;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -19,6 +20,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import com.example.a3130_grp8_app.util.PreferredCategoriesListener;
+import com.example.a3130_grp8_app.util.ProductPostedListener; // NEW
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -443,4 +447,22 @@ public class FirebaseManager {
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
+
+    public void loadPreferredCategories(String userID, PreferredCategoriesListener listener)
+    {
+        //This for u Evan
+    }
+
+    public ProductListenerRegistration listenForNewProduct(ProductPostedListener listener)
+    {
+        return null; //This as well
+    }
+
+    @Nullable
+    public String getCurrentUserID()
+    {
+        //for Evan
+        return null;
+    }
+
 }
