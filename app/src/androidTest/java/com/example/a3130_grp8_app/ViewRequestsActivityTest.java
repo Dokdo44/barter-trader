@@ -3,9 +3,7 @@ package com.example.a3130_grp8_app;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,7 +46,8 @@ public class ViewRequestsActivityTest {
                 "uid-buyer1",
                 "Alice Johnson",
                 "Toronto, ON",
-                offeredItems1
+                offeredItems1,
+                "uid-seller"
         );
 
         List<String> offeredItems2 = List.of("Vintage Vinyl Record", "Handmade Candle");
@@ -59,7 +58,8 @@ public class ViewRequestsActivityTest {
                 "uid-buyer2",
                 "Marcus Lee",
                 "Vancouver, BC",
-                offeredItems2
+                offeredItems2,
+                "uid-seller"
         );
 
         ArrayList<Request> testRequests = new ArrayList<>(List.of(request1, request2));
@@ -91,7 +91,6 @@ public class ViewRequestsActivityTest {
     @Before
     public void setUp() {
         intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
-
     }
 
     /**
@@ -101,7 +100,6 @@ public class ViewRequestsActivityTest {
     public void allRequestsDisplayedTest() {
         intent.putExtra("PRODUCT_ID", "1");
         ActivityScenario.launch(intent);
-        // All submitted requests should be displayed
         Espresso.onView(withText(containsString("Alice Johnson")))
                 .check(matches(isDisplayed()));
         Espresso.onView(withText(containsString("Marcus Lee")))
@@ -115,10 +113,8 @@ public class ViewRequestsActivityTest {
     public void requesterNameAndDetailsDisplayedTest() {
         intent.putExtra("PRODUCT_ID", "2");
         ActivityScenario.launch(intent);
-        // The requester's email and request status should be displayed
         Espresso.onView(withText(containsString("Alice Johnson")))
                 .check(matches(isDisplayed()));
-
         Espresso.onView(withText(containsString("pending")))
                 .check(matches(isDisplayed()));
     }
@@ -130,7 +126,6 @@ public class ViewRequestsActivityTest {
     public void noRequestsMessageDisplayedTest() {
         intent.putExtra("PRODUCT_ID", "0");
         ActivityScenario.launch(intent);
-        // If no offers are present then "No offers have been submitted" should be displayed
         Espresso.onView(withText("No offers have been submitted"))
                 .check(matches(isDisplayed()));
     }
@@ -142,10 +137,8 @@ public class ViewRequestsActivityTest {
     public void clickingRequestOpensRequesterDetailsTest() {
         intent.putExtra("PRODUCT_ID", "1");
         ActivityScenario.launch(intent);
-        // Given requests are displayed and we click an offer
         Espresso.onView(withText(containsString("Alice Johnson")))
                 .perform(click());
-        // Then the requester details screen should be shown
         Espresso.onView(withText(containsString("interestedbuyer1@gmail.com")))
                 .check(matches(isDisplayed()));
         Espresso.onView(withText(containsString("pending")))

@@ -92,5 +92,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.MyProductsActivity" android:exported="false"/>
+        <activity android:name=".activities.TransactionHistoryActivity"/>
     </application>
 </manifest>

@@ -19,7 +19,8 @@ public class RequestModelTest {
                 "receiver_uid",
                 "John",
                 "Halifax, NS",
-                Arrays.asList("Skateboard", "Cash")
+                Arrays.asList("Skateboard", "Cash"),
+                "provider_uid"
         );
     }
 

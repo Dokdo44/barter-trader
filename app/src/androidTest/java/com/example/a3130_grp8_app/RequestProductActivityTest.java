@@ -77,21 +77,24 @@ public class RequestProductActivityTest {
                 Tasks.forResult(validProduct));
 
         when(mockFirebaseManager.getProduct("3")).thenReturn(
-                Tasks.forResult(unavailableProduct)
-        );
+                Tasks.forResult(unavailableProduct));
 
+        // submitRequest now takes (productId, providerUid, name, location, offeredItems)
         when(mockFirebaseManager.submitRequest(eq("1"),
+                any(),
                 eq("user1"),
                 eq("Fake Street"),
                 any())).thenReturn(Tasks.forResult(null));
 
         when(mockFirebaseManager.submitRequest(eq("2"),
+                any(),
                 eq("user1"),
                 eq("Fake Street"),
                 any())).thenReturn(Tasks.forException(
                 new Exception("You have already requested this product")));
 
         when(mockFirebaseManager.submitRequest(eq("3"),
+                any(),
                 eq("user1"),
                 eq("Fake Street"),
                 any())).thenReturn(Tasks.forException(
@@ -103,8 +106,8 @@ public class RequestProductActivityTest {
     @Before
     public void setUp() {
         TestAuthHelper.signOut();
-
-        intent = new Intent(ApplicationProvider.getApplicationContext(), RequestProductActivity.class);
+        intent = new Intent(ApplicationProvider.getApplicationContext(),
+                RequestProductActivity.class);
     }
 
     /**
@@ -116,6 +119,7 @@ public class RequestProductActivityTest {
     public void requestSubmittedSuccessfullyTest() {
         intent.putExtra("PRODUCT_ID", "1");
         ActivityScenario.launch(intent);
+
         Espresso.onView(withId(R.id.nameInput)).perform(typeText("user1"));
         Espresso.onView(withId(R.id.locationInput)).perform(typeText("Fake Street"));
         Espresso.onView(withText("test")).perform(click());
@@ -133,11 +137,11 @@ public class RequestProductActivityTest {
     public void duplicateRequestPreventedTest() {
         intent.putExtra("PRODUCT_ID", "2");
         ActivityScenario.launch(intent);
+
         Espresso.onView(withId(R.id.nameInput)).perform(typeText("user1"));
         Espresso.onView(withId(R.id.locationInput)).perform(typeText("Fake Street"));
         Espresso.onView(withText("test")).perform(click());
 
-        Espresso.onView(withId(R.id.requestButton)).perform(click());
         Espresso.onView(withId(R.id.requestButton)).perform(click());
         Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
                 .check(matches(withText(containsString("already requested"))));
@@ -152,6 +156,7 @@ public class RequestProductActivityTest {
     public void unavailableProductRequestRejectedTest() {
         intent.putExtra("PRODUCT_ID", "3");
         ActivityScenario.launch(intent);
+
         Espresso.onView(withId(R.id.nameInput)).perform(typeText("user1"));
         Espresso.onView(withId(R.id.locationInput)).perform(typeText("Fake Street"));
         Espresso.onView(withText("test")).perform(click());
@@ -159,5 +164,23 @@ public class RequestProductActivityTest {
         Espresso.onView(withId(R.id.requestButton)).perform(click());
         Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
                 .check(matches(withText(containsString("no longer available"))));
+    }
+
+    /**
+     * Given a request is successfully submitted
+     * When the database is checked
+     * Then the request record exists
+     */
+    @Test
+    public void requestRecordExistsInDatabaseTest() {
+        intent.putExtra("PRODUCT_ID", "1");
+        ActivityScenario.launch(intent);
+
+        Espresso.onView(withId(R.id.nameInput)).perform(typeText("user1"));
+        Espresso.onView(withId(R.id.locationInput)).perform(typeText("Fake Street"));
+        Espresso.onView(withText("test")).perform(click());
+
+        Espresso.onView(withId(R.id.requestButton)).perform(click());
+        Espresso.onView(withId(R.id.requestSuccess)).check(matches(isDisplayed()));
     }
 }

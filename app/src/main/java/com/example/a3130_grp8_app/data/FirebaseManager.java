@@ -338,8 +338,8 @@ public class FirebaseManager {
      * @return a Task that resolves on success
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public Task<Void> submitRequest(String productId, String requesterName,
-                                           String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
+    public Task<Void> submitRequest(String productId, String providerUid, String requesterName,
+                                    String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
             throw new FirebaseConnectionError();
@@ -353,8 +353,8 @@ public class FirebaseManager {
 
         return productRef.get()
                 .continueWithTask(checkAvailabilityAndFetchExisting(productId, requestsRef))
-                .continueWithTask(checkDuplicateAndSubmit(productId, receiverUid, requesterName,
-                        requesterLocation, offeredItems, requestsRef, receiverEmail));
+                .continueWithTask(checkDuplicateAndSubmit(productId, providerUid, receiverUid,
+                        requesterName, requesterLocation, offeredItems, requestsRef, receiverEmail));
     }
 
     private Continuation<DataSnapshot, Task<DataSnapshot>> checkAvailabilityAndFetchExisting(
@@ -374,7 +374,7 @@ public class FirebaseManager {
     }
 
     private Continuation<DataSnapshot, Task<Void>> checkDuplicateAndSubmit(
-            String productId, String receiverUid, String requesterName,
+            String productId, String providerUid, String receiverUid, String requesterName,
             String requesterLocation, List<String> offeredItems, DatabaseReference requestsRef,
             String receiverEmail) {
         return existingRequestsTask -> {
@@ -398,7 +398,7 @@ public class FirebaseManager {
 
             return requestsRef.child(requestId).setValue(
                     new Request(requestId, productId, receiverEmail, receiverUid,
-                            requesterName, requesterLocation, offeredItems));
+                            requesterName, requesterLocation, offeredItems, providerUid));
         };
     }
 
@@ -441,6 +441,36 @@ public class FirebaseManager {
                 .getReference(REQUESTS_PATH)
                 .orderByChild("productId")
                 .equalTo(productId)
+                .addListenerForSingleValueEvent(requestValueEventListener);
+    }
+
+    /**
+     * Retrieves all requests made by a specific receiver.
+     *
+     * @param receiverUid the UID of the receiver
+     * @param requestValueEventListener the listener that receives requests
+     */
+    public void getRequestsByReceiver(String receiverUid,
+                                      RequestValueEventListener requestValueEventListener) {
+        getDb()
+                .getReference(REQUESTS_PATH)
+                .orderByChild("receiverUid")
+                .equalTo(receiverUid)
+                .addListenerForSingleValueEvent(requestValueEventListener);
+    }
+
+    /**
+     * Retrieves all requests for products provided by a specific provider.
+     *
+     * @param providerUid the UID of the provider
+     * @param requestValueEventListener the listener that receives requests
+     */
+    public void getRequestsByProvider(String providerUid,
+                                      RequestValueEventListener requestValueEventListener) {
+        getDb()
+                .getReference(REQUESTS_PATH)
+                .orderByChild("providerUid")
+                .equalTo(providerUid)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
 }
