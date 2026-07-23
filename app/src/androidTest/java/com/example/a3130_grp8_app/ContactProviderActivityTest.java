@@ -53,4 +53,19 @@ public class ContactProviderActivityTest {
         TestAuthHelper.signOut();
         intent = new Intent(ApplicationProvider.getApplicationContext(), ContactProviderActivity.class);
     }
+    /**
+     * AC1: Receiver can send a message to the provider from the product page.
+     * Given I am viewing a product
+     * When I type a message and click send
+     * Then the message is sent successfully
+     */
+    @Test
+    public void messageSentSuccessfullyTest() {
+        intent.putExtra("PRODUCT_ID", "1");
+        ActivityScenario.launch(intent);
+
+        Espresso.onView(withId(R.id.messageInput)).perform(typeText("Hi, is this still available?"));
+        Espresso.onView(withId(R.id.sendButton)).perform(click());
+        Espresso.onView(withId(R.id.messageSentText)).check(matches(isDisplayed()));
+    }
 }
