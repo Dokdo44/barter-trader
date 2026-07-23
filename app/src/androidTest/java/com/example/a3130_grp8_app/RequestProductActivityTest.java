@@ -1,16 +1,15 @@
 package com.example.a3130_grp8_app;
 
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 
@@ -20,144 +19,126 @@ import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.a3130_grp8_app.activities.RequestProductActivity;
-import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
-import com.example.a3130_grp8_app.model.Product;
-import com.google.android.gms.tasks.Tasks;
+import com.example.a3130_grp8_app.model.Request;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
+/**
+ * Firebase Emulator acceptance tests for a receiver's US12 exchange proposal flow.
+ */
 @RunWith(AndroidJUnit4.class)
 public class RequestProductActivityTest {
 
-    Intent intent;
+    private ExchangeOfferEmulatorFixture fixture;
 
+    /**
+     * Connects Firebase SDK instances before any request activity is launched.
+     */
     @BeforeClass
-    public static void setUpClass() throws FirebaseConnectionError {
-        FirebaseManager mockFirebaseManager = mock(FirebaseManager.class);
-
-        Product validProduct = new Product(
-                "testProduct",
-                "testProduct",
-                "test",
-                10.0f,
-                new ArrayList<String>(List.of("test")),
-                true,
-                "test",
-                "test",
-                "test",
-                "test",
-                new ArrayList<String>(List.of("test"))
-        );
-
-        Product unavailableProduct = new Product(
-                "testProduct",
-                "testProduct",
-                "test",
-                10.0f,
-                new ArrayList<String>(List.of("test")),
-                false,
-                "test",
-                "test",
-                "test",
-                "test",
-                new ArrayList<String>(List.of("test"))
-        );
-
-        when(mockFirebaseManager.getProduct("1")).thenReturn(
-                Tasks.forResult(validProduct));
-
-        when(mockFirebaseManager.getProduct("2")).thenReturn(
-                Tasks.forResult(validProduct));
-
-        when(mockFirebaseManager.getProduct("3")).thenReturn(
-                Tasks.forResult(unavailableProduct)
-        );
-
-        when(mockFirebaseManager.submitRequest(eq("1"),
-                eq("user1"),
-                eq("Fake Street"),
-                any())).thenReturn(Tasks.forResult(null));
-
-        when(mockFirebaseManager.submitRequest(eq("2"),
-                eq("user1"),
-                eq("Fake Street"),
-                any())).thenReturn(Tasks.forException(
-                new Exception("You have already requested this product")));
-
-        when(mockFirebaseManager.submitRequest(eq("3"),
-                eq("user1"),
-                eq("Fake Street"),
-                any())).thenReturn(Tasks.forException(
-                new Exception("Product is no longer available")));
-
-        FirebaseManager.install(mockFirebaseManager);
+    public static void connectToEmulators() {
+        ExchangeOfferEmulatorFixture.connectToEmulators();
     }
 
+    /**
+     * Seeds an isolated available product and receiver for each test.
+     *
+     * @throws Exception when emulator setup fails
+     */
     @Before
-    public void setUp() {
-        TestAuthHelper.signOut();
-
-        intent = new Intent(ApplicationProvider.getApplicationContext(), RequestProductActivity.class);
+    public void setUp() throws Exception {
+        fixture = new ExchangeOfferEmulatorFixture();
+        fixture.setUp();
+        fixture.signInReceiver();
     }
 
     /**
-     * Given I am viewing an available product
-     * When I click the request button
-     * Then the request is submitted successfully
+     * Removes the test-only Firebase records created for the current scenario.
+     *
+     * @throws Exception when emulator cleanup fails
      */
-    @Test
-    public void requestSubmittedSuccessfullyTest() {
-        intent.putExtra("PRODUCT_ID", "1");
-        ActivityScenario.launch(intent);
-        Espresso.onView(withId(R.id.nameInput)).perform(typeText("user1"));
-        Espresso.onView(withId(R.id.locationInput)).perform(typeText("Fake Street"));
-        Espresso.onView(withText("test")).perform(click());
-
-        Espresso.onView(withId(R.id.requestButton)).perform(click());
-        Espresso.onView(withId(R.id.requestSuccess)).check(matches(isDisplayed()));
+    @After
+    public void tearDown() throws Exception {
+        fixture.tearDown();
     }
 
     /**
-     * Given I have already requested a product
-     * When I attempt to request it again
-     * Then the system prevents the duplicate request and displays an error message
+     * Given I am viewing an available product, when I select a provider-preferred item and send
+     * a request, then a pending exchange proposal is stored.
      */
     @Test
-    public void duplicateRequestPreventedTest() {
-        intent.putExtra("PRODUCT_ID", "2");
-        ActivityScenario.launch(intent);
-        Espresso.onView(withId(R.id.nameInput)).perform(typeText("user1"));
-        Espresso.onView(withId(R.id.locationInput)).perform(typeText("Fake Street"));
-        Espresso.onView(withText("test")).perform(click());
+    public void selectedOfferIsSubmittedAndStoredAsPendingTest() throws Exception {
+        try (ActivityScenario<RequestProductActivity> scenario = launchRequestForm()) {
+            completeProposalForm();
+            Espresso.onView(withId(R.id.requestButton)).perform(click());
+            ExchangeOfferEmulatorFixture.waitForDisplayedView(R.id.requestSuccess);
+        }
 
-        Espresso.onView(withId(R.id.requestButton)).perform(click());
-        Espresso.onView(withId(R.id.requestButton)).perform(click());
-        Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
-                .check(matches(withText(containsString("already requested"))));
+        Request storedRequest = fixture.getOnlyRequest();
+        assertEquals(fixture.getProductId(), storedRequest.getProductId());
+        assertEquals(fixture.getReceiverUid(), storedRequest.getReceiverUid());
+        assertEquals(Collections.singletonList("Skateboard"), storedRequest.getOfferedItems());
+        assertEquals("pending", storedRequest.getStatus());
     }
 
     /**
-     * Given a product is no longer available
-     * When I try to request it
-     * Then the request is rejected and an error message is displayed
+     * Given I leave every offer unselected, when I send the request, then I see an error and no
+     * exchange proposal is stored.
      */
     @Test
-    public void unavailableProductRequestRejectedTest() {
-        intent.putExtra("PRODUCT_ID", "3");
-        ActivityScenario.launch(intent);
-        Espresso.onView(withId(R.id.nameInput)).perform(typeText("user1"));
-        Espresso.onView(withId(R.id.locationInput)).perform(typeText("Fake Street"));
-        Espresso.onView(withText("test")).perform(click());
+    public void emptyOfferIsRejectedWithoutSavingProposalTest() throws Exception {
+        try (ActivityScenario<RequestProductActivity> scenario = launchRequestForm()) {
+            ExchangeOfferEmulatorFixture.waitForDisplayedText("Skateboard");
+            Espresso.onView(withId(R.id.nameInput)).perform(typeText("Receiver One"), closeSoftKeyboard());
+            Espresso.onView(withId(R.id.locationInput)).perform(typeText("Dartmouth, NS"), closeSoftKeyboard());
+            Espresso.onView(withId(R.id.requestButton)).perform(click());
 
-        Espresso.onView(withId(R.id.requestButton)).perform(click());
-        Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
-                .check(matches(withText(containsString("no longer available"))));
+            Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
+                    .check(matches(withText(containsString("Select at least one item"))));
+        }
+
+        assertEquals(0, fixture.getRequestCount());
+    }
+
+    /**
+     * Given I already submitted a proposal for a product, when I submit a second proposal, then
+     * the application reports a duplicate and keeps only the original proposal.
+     */
+    @Test
+    public void duplicateProposalIsRejectedWithoutCreatingAnotherRequestTest() throws Exception {
+        try (ActivityScenario<RequestProductActivity> firstScenario = launchRequestForm()) {
+            completeProposalForm();
+            Espresso.onView(withId(R.id.requestButton)).perform(click());
+            ExchangeOfferEmulatorFixture.waitForDisplayedView(R.id.requestSuccess);
+        }
+
+        try (ActivityScenario<RequestProductActivity> secondScenario = launchRequestForm()) {
+            completeProposalForm();
+            Espresso.onView(withId(R.id.requestButton)).perform(click());
+
+            Espresso.onView(withId(com.google.android.material.R.id.snackbar_text))
+                    .check(matches(withText(containsString("already requested"))));
+        }
+
+        assertEquals(1, fixture.getRequestCount());
+    }
+
+    private ActivityScenario<RequestProductActivity> launchRequestForm() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), RequestProductActivity.class);
+        intent.putExtra("PRODUCT_ID", fixture.getProductId());
+        return ActivityScenario.launch(intent);
+    }
+
+    private void completeProposalForm() throws InterruptedException {
+        ExchangeOfferEmulatorFixture.waitForDisplayedText("Skateboard");
+        Espresso.onView(withId(R.id.nameInput)).perform(typeText("Receiver One"), closeSoftKeyboard());
+        Espresso.onView(withId(R.id.locationInput)).perform(typeText("Dartmouth, NS"), closeSoftKeyboard());
+        Espresso.onView(withText("Skateboard")).perform(click());
+        Espresso.onView(withText("Skateboard")).check(matches(isDisplayed()));
     }
 }
