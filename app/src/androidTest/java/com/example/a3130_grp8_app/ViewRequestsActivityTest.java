@@ -4,6 +4,15 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.content.Intent;
 
@@ -13,106 +22,124 @@ import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.a3130_grp8_app.activities.ViewRequestsActivity;
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.Request;
+import com.google.android.gms.tasks.Tasks;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
 
 /**
- * Firebase Emulator acceptance tests for a provider's US12 exchange-offer decisions.
+ * Mocked-Firebase acceptance tests for a provider's US12 exchange-offer decisions.
  */
 @RunWith(AndroidJUnit4.class)
 public class ViewRequestsActivityTest {
 
-    private ExchangeOfferEmulatorFixture fixture;
-    private String requestId;
+    private static final String PRODUCT_ID = "offer-product";
+    private static final String REQUEST_ID = "offer-request";
+    private static FirebaseManager mockFirebaseManager;
 
     /**
-     * Connects Firebase SDK instances before any provider request screen is launched.
+     * Installs a mocked Firebase manager with one pending proposal for the provider screen.
      */
     @BeforeClass
-    public static void connectToEmulators() {
-        ExchangeOfferEmulatorFixture.connectToEmulators();
+    public static void setUpClass() {
+        mockFirebaseManager = mock(FirebaseManager.class);
+
+        Request request = new Request(
+                REQUEST_ID,
+                PRODUCT_ID,
+                "receiver@example.test",
+                "receiver-uid",
+                "Receiver One",
+                "Dartmouth, NS",
+                Collections.singletonList("Skateboard")
+        );
+
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener listener = invocation.getArgument(1);
+            listener.onGetRequests(Collections.singletonList(request));
+            return null;
+        }).when(mockFirebaseManager).getRequests(eq(PRODUCT_ID), any());
+        when(mockFirebaseManager.updateRequestStatus(anyString(), anyString()))
+                .thenReturn(Tasks.forResult(null));
+
+        FirebaseManagerTestInstaller.install(mockFirebaseManager);
     }
 
     /**
-     * Seeds one pending proposal for an available provider product.
-     *
-     * @throws Exception when emulator setup fails
+     * Clears the mocked singleton so it does not affect later Android test classes.
+     */
+    @AfterClass
+    public static void tearDownClass() {
+        FirebaseManagerTestInstaller.reset();
+    }
+
+    /**
+     * Clears mock interactions before each provider decision scenario.
      */
     @Before
-    public void setUp() throws Exception {
-        fixture = new ExchangeOfferEmulatorFixture();
-        fixture.setUp();
-        requestId = fixture.submitProposal(Collections.singletonList("Skateboard"));
-        fixture.signInProvider();
+    public void setUp() {
+        clearInvocations(mockFirebaseManager);
     }
 
     /**
-     * Removes the test-only Firebase records created for the current scenario.
-     *
-     * @throws Exception when emulator cleanup fails
-     */
-    @After
-    public void tearDown() throws Exception {
-        fixture.tearDown();
-    }
-
-    /**
-     * Given I am the provider for a product with a proposal, when I open the proposal, then I
-     * can view the receiver details, current status, and offered item.
+     * Given I open a pending proposal, when I view its details, then I can see the receiver,
+     * status, and offered item.
      */
     @Test
-    public void providerCanViewProposedItemAndReceiverDetailsTest() throws Exception {
+    public void providerCanViewProposedItemAndReceiverDetailsTest() {
         try (ActivityScenario<ViewRequestsActivity> scenario = launchProviderRequests()) {
-            ExchangeOfferEmulatorFixture.waitForDisplayedText("Receiver One - pending");
             Espresso.onView(withText("Receiver One - pending")).perform(click());
 
             Espresso.onView(withText("Requester Details")).check(matches(isDisplayed()));
-            Espresso.onView(withText(org.hamcrest.CoreMatchers.containsString("pending")))
-                    .check(matches(isDisplayed()));
-            Espresso.onView(withText(org.hamcrest.CoreMatchers.containsString("Skateboard")))
-                    .check(matches(isDisplayed()));
+            Espresso.onView(withText(containsString("receiver@example.test"))).check(matches(isDisplayed()));
+            Espresso.onView(withText(containsString("pending"))).check(matches(isDisplayed()));
+            Espresso.onView(withText(containsString("Skateboard"))).check(matches(isDisplayed()));
         }
     }
 
     /**
-     * Given I am viewing a pending proposal, when I accept it, then the stored status becomes
+     * Given I accept a pending proposal, when I select Accept, then its stored status changes to
      * accepted.
      */
     @Test
-    public void providerCanAcceptProposalTest() throws Exception {
+    public void providerCanAcceptProposalTest() {
         try (ActivityScenario<ViewRequestsActivity> scenario = launchProviderRequests()) {
-            ExchangeOfferEmulatorFixture.waitForDisplayedText("Receiver One - pending");
             Espresso.onView(withText("Receiver One - pending")).perform(click());
             Espresso.onView(withText("Accept")).perform(click());
         }
 
-        fixture.waitForRequestStatus(requestId, "accepted");
+        verify(mockFirebaseManager).updateRequestStatus(REQUEST_ID, "accepted");
     }
 
     /**
-     * Given I am viewing a pending proposal, when I decline it, then the stored status becomes
+     * Given I reject a pending proposal, when I select Decline, then its stored status changes to
      * declined.
      */
     @Test
-    public void providerCanDeclineProposalTest() throws Exception {
+    public void providerCanDeclineProposalTest() {
         try (ActivityScenario<ViewRequestsActivity> scenario = launchProviderRequests()) {
-            ExchangeOfferEmulatorFixture.waitForDisplayedText("Receiver One - pending");
             Espresso.onView(withText("Receiver One - pending")).perform(click());
             Espresso.onView(withText("Decline")).perform(click());
         }
 
-        fixture.waitForRequestStatus(requestId, "declined");
+        verify(mockFirebaseManager).updateRequestStatus(REQUEST_ID, "declined");
     }
 
+    /**
+     * Opens the provider's request list for the product with the pending proposal.
+     *
+     * @return the launched provider request-list scenario
+     */
     private ActivityScenario<ViewRequestsActivity> launchProviderRequests() {
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
-        intent.putExtra("PRODUCT_ID", fixture.getProductId());
+        intent.putExtra("PRODUCT_ID", PRODUCT_ID);
         return ActivityScenario.launch(intent);
     }
 }
