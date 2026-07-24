@@ -443,4 +443,15 @@ public class FirebaseManager {
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
+
+    /**
+     * Sends a message from a receiver to a provider about a product.
+     *
+     * @param productId the ID of the product
+     * @param message the message text to send
+     * @return a Task that completes when the message is sent
+     */
+    public Task<Void> sendMessage(String productId, String message) {
+        throw new UnsupportedOperationException();
+    }
 }
