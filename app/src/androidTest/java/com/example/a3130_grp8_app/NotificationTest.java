@@ -6,6 +6,7 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
@@ -17,12 +18,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 
+import android.content.Context;
+import android.os.Build;
+
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObject2;
+import androidx.test.uiautomator.Until;
 
 
 import com.example.a3130_grp8_app.data.FirebaseManager;
 
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.util.AndroidNotificationSender;
 import com.example.a3130_grp8_app.util.NotificationSender;
 import com.example.a3130_grp8_app.util.PreferredCategoriesListener;
 import com.example.a3130_grp8_app.util.PreferredCategoryMatcher;
@@ -54,15 +65,42 @@ public class NotificationTest {
 
     private List<String> preferredCategories;
 
+    private Context appContext;
+    private UiDevice device;
+
+    private AndroidNotificationSender realSender;
+
+    private String expectedProductName;
+    private String expectedProviderInformation;
+
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
+        appContext = ApplicationProvider.getApplicationContext();
+        device = UiDevice.getInstance(getInstrumentation());
+
+        device.executeShellCommand("cmd notification cancel-all"); //<-false pass otherwise if theres another noticiation sitting around from  something else
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            device.executeShellCommand(
+                    "pm grant "
+                            + appContext.getPackageName()
+                            + " android.permission.POST_NOTIFICATIONS"
+            );
+        }
+
+        realSender = new AndroidNotificationSender();
+
+        expectedProductName = "Dinosaur Statue";
+        expectedProviderInformation = "seller-1";
+
+
         mockFirebaseManager = mock(FirebaseManager.class);
         mockSender = mock(NotificationSender.class);
         mockMatcher = mock(PreferredCategoryMatcher.class);
         mockRegistration = mock(ProductListenerRegistration.class);
 
         preferredCategories = Arrays.asList("Decoration", "Sports", "Personal Care");
+
         doAnswer(invocation -> {
             PreferredCategoriesListener listener = invocation.getArgument(1);
 
@@ -84,6 +122,11 @@ public class NotificationTest {
 
         matchingProduct = mock(Product.class);
         notMatchingProduct = mock(Product.class);
+        when(matchingProduct.getName()).thenReturn(expectedProductName);
+        when(matchingProduct.getProviderUid()).thenReturn(expectedProviderInformation);
+
+        when(notMatchingProduct.getName()).thenReturn("2001 Honda Civic - best car in the market rn");
+        when(notMatchingProduct.getProviderUid()).thenReturn("seller-2");
 
         when(mockMatcher.matches(preferredCategories, matchingProduct)).thenReturn(true);
         when(mockMatcher.matches(preferredCategories, notMatchingProduct)).thenReturn(false);
@@ -151,6 +194,22 @@ public class NotificationTest {
         simulateProductPosted(matchingProduct);
 
         verify(mockSender).sendPreferredProductNotification(matchingProduct);
+
+
+    }
+
+    @Test
+    public void notificationHasCorrectProductInfo()
+    {
+        realSender.sendPreferredProductNotification(matchingProduct);
+
+        device.openNotification();
+
+        UiObject2 productNameObject = device.wait(Until.findObject(By.text(expectedProductName)),  5_000);
+        UiObject2 sellerNameObject = device.wait(Until.findObject(By.text(expectedProviderInformation)),  5_000);
+
+        assertNotNull("Notification did not have the product name", productNameObject);
+        assertNotNull("Notification did not have the seller name", sellerNameObject);
 
 
     }
