@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 
@@ -33,6 +34,7 @@ import com.example.a3130_grp8_app.util.ProductPostedListener;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
@@ -139,6 +141,18 @@ public class NotificationTest {
     private void setCategoryMatchResult(Product product, boolean matches)
     {
         when(mockMatcher.matches(preferredCategories, product)).thenReturn(matches);
+    }
+
+
+    @Test
+    public  void matchingProductPostingSendsNotification()
+    {
+        manager.start();
+        simulateProductPosted(matchingProduct);
+
+        verify(mockSender).sendPreferredProductNotification(matchingProduct);
+
+
     }
 
 }
