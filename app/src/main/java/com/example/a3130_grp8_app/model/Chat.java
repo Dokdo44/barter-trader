@@ -2,6 +2,7 @@ package com.example.a3130_grp8_app.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 public class Chat implements Serializable {
     private String id;
@@ -38,5 +39,18 @@ public class Chat implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Chat chat = (Chat) o;
+        return this.id.equals(chat.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -22,6 +22,8 @@ secretsGradlePlugin = "2.0.1"
 playServicesLocationVersion = "21.4.0"
 jackson-databind = "2.22.1"
 recyclerview = "1.4.0"
+mockto-core = "5.23.0"
+mockito-junit-jupiter = "5.23.0"
 
 [libraries]
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsValidator" }
@@ -45,6 +47,8 @@ secrets-gradle-plugin = { group = "com.google.android.libraries.mapsplatform.sec
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocationVersion" }
 jackson-databind = {group = "com.fasterxml.jackson.core", name="jackson-databind", version.ref="jackson-databind"}
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+moockito-core = {group = "org.mockito", name = "mockito-core", version.ref = "mockto-core"}
+mockito-junit-jupiter = {group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito-junit-jupiter"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -45,11 +45,11 @@ public class ProductChatActivityTest {
 
         chat = mock(Chat.class);
         message1 = new Message(new User("fake@email.com", "buyer", "1"),
-                "2026-07-25 18:15:30", "Hi, is this still available?");
+                "2026-07-25 18:15:30", "Hi, is this still available?", "1");
         message2 = new Message(new User("fake@email.com", "buyer", "1"),
-                "2026-07-25 18:15:30", "");
+                "2026-07-25 18:15:30", "", "2");
         message3 = new Message(new User("fake@email.com", "buyer", "1"),
-                "2026-07-25 18:15:30", "will fail!");
+                "2026-07-25 18:15:30", "will fail!", "3");
 
         when(mockFirebaseManager.addMessageToChat(chat, message1))
                 .thenReturn(Tasks.forResult(null));
