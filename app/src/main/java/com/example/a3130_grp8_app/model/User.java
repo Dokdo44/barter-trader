@@ -1,11 +1,14 @@
 package com.example.a3130_grp8_app.model;
 
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.Serializable;
 
 /**
  * Business object for the app-specific user profile stored in Realtime Database.
  */
 public class User implements Serializable {
+    private String id;
     private String email;
     private String role;
 
@@ -22,7 +25,8 @@ public class User implements Serializable {
      * @param email profile email address
      * @param role selected app role
      */
-    public User(String email, String role) {
+    public User(String email, String role, String id) {
+        this.id = id;
         this.email = email;
         this.role = role;
     }
@@ -61,5 +65,13 @@ public class User implements Serializable {
      */
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 }

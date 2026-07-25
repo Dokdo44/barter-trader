@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.model.Chat;
+import com.example.a3130_grp8_app.model.Message;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
@@ -21,8 +23,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Centralizes Firebase Auth and Realtime Database calls so Activities do not hold business logic.
@@ -35,6 +40,7 @@ public class FirebaseManager {
     private static final String USERS_PATH = "users";
     private static final String PRODUCTS_PATH = "product";
     private static final String REQUESTS_PATH = "requests";
+    private static final String CHAT_PATH = "chats";
     static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private FirebaseAuth auth;
@@ -140,7 +146,8 @@ public class FirebaseManager {
                         throw new FirebaseConnectionError();
                     }
 
-                    return getUserReference(firebaseUser.getUid()).setValue(new User(email, role));
+                    User user = new User(email, role, firebaseUser.getUid());
+                    return getUserReference(firebaseUser.getUid()).setValue(user);
                 });
     }
 
@@ -444,14 +451,36 @@ public class FirebaseManager {
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
 
+    public Task<Void> addChat(Chat chat) {
+        DatabaseReference chatReference = getDb()
+                .getReference(CHAT_PATH)
+                .push();
+
+        String chatId = chatReference.getKey();
+        chat.setId(chatId);
+        return chatReference.setValue(chat);
+    }
+
     /**
-     * Sends a message from a receiver to a provider about a product.
-     *
-     * @param productId the ID of the product
-     * @param message the message text to send
-     * @return a Task that completes when the message is sent
+     * Add a message to the user's list of messages in the databse
+     * @param user the user that will recieve the message
+     * @param message the message to add to the user object
+     * @return a task that completes when the message has been added to the user's list
      */
-    public Task<Void> sendMessage(String productId, String message) {
-        throw new UnsupportedOperationException();
+    public Task<Void> addMessageToChat(Chat chat, Message message) {
+        return getDb()
+                .getReference(CHAT_PATH)
+                .child(chat.getId())
+                .child("messages")
+                .push()
+                .setValue(message);
+    }
+
+    public void addChildEventListenerForChatMessages(Chat chat, ChildEventListener childEventListener) {
+        getDb()
+                .getReference(CHAT_PATH)
+                .child(chat.getId())
+                .child("messages")
+                .addChildEventListener(childEventListener);
     }
 }

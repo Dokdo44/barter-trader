@@ -11,6 +11,7 @@ import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Locale;
@@ -58,11 +59,12 @@ public final class TestAuthHelper {
             throw new IllegalStateException("Firebase did not return a test user");
         }
 
+        DatabaseReference userRef = FirebaseDatabase.getInstance(FIREBASE_URL)
+                .getReference("users")
+                .child(firebaseUser.getUid());
+
         Tasks.await(
-                FirebaseDatabase.getInstance(FIREBASE_URL)
-                        .getReference("users")
-                        .child(firebaseUser.getUid())
-                        .setValue(new User(email, role)),
+                userRef.setValue(new User(email, role, userRef.getKey())),
                 15,
                 TimeUnit.SECONDS
         );

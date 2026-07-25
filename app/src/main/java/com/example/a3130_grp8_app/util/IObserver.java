@@ -1,4 +1,8 @@
 package com.example.a3130_grp8_app.util;
 
-public interface IObservable {
+public interface IObserver<T> {
+
+    void sendUpdate(T update);
+
+    void getUpdates();
 }

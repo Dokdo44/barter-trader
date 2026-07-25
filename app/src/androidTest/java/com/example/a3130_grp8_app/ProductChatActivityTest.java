@@ -17,9 +17,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.a3130_grp8_app.activities.ContactProviderActivity;
+import com.example.a3130_grp8_app.activities.ProductChatActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.model.Chat;
+import com.example.a3130_grp8_app.model.Message;
+import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Tasks;
 
 import org.junit.Before;
@@ -28,21 +31,33 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class ContactProviderActivityTest {
+public class ProductChatActivityTest {
 
     Intent intent;
+    static Chat chat;
+    static Message message1;
+    static Message message2;
+    static Message message3;
 
     @BeforeClass
     public static void setUpClass() throws FirebaseConnectionError {
         FirebaseManager mockFirebaseManager = mock(FirebaseManager.class);
 
-        when(mockFirebaseManager.sendMessage(eq("1"), eq("Hi, is this still available?")))
+        chat = mock(Chat.class);
+        message1 = new Message(new User("fake@email.com", "buyer", "1"),
+                "2026-07-25 18:15:30", "Hi, is this still available?");
+        message2 = new Message(new User("fake@email.com", "buyer", "1"),
+                "2026-07-25 18:15:30", "");
+        message3 = new Message(new User("fake@email.com", "buyer", "1"),
+                "2026-07-25 18:15:30", "will fail!");
+
+        when(mockFirebaseManager.addMessageToChat(chat, message1))
                 .thenReturn(Tasks.forResult(null));
 
-        when(mockFirebaseManager.sendMessage(eq("1"), eq("")))
+        when(mockFirebaseManager.addMessageToChat(chat, message2))
                 .thenReturn(Tasks.forException(new Exception("Message cannot be empty")));
 
-        when(mockFirebaseManager.sendMessage(eq("2"), any()))
+        when(mockFirebaseManager.addMessageToChat(chat, message3))
                 .thenReturn(Tasks.forException(new Exception("Failed to send message")));
 
         FirebaseManager.install(mockFirebaseManager);
@@ -51,7 +66,7 @@ public class ContactProviderActivityTest {
     @Before
     public void setUp() {
         TestAuthHelper.signOut();
-        intent = new Intent(ApplicationProvider.getApplicationContext(), ContactProviderActivity.class);
+        intent = new Intent(ApplicationProvider.getApplicationContext(), ProductChatActivity.class);
     }
     /**
      * AC1: Receiver can send a message to the provider from the product page.
