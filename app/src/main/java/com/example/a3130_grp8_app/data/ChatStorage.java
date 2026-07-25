@@ -29,16 +29,37 @@ public class ChatStorage implements IObserver<Chat> {
     }
 
     public List<Chat> getChats() {
+        List<Chat> currList;
         try {
-            return (List<Chat>) storageManager.loadObject(CHATS_FILE_NAME);
+            currList = (List<Chat>) storageManager.loadObject(CHATS_FILE_NAME);
         } catch (Exception e) {
             Log.e("e", "cast failed for stored object");
             return null;
         }
+
+        List<Chat> ret = updateChats(currList);
+        saveChats(ret);
+        return ret;
     }
 
-    private void updateChats(List<Chat> chats) {
+    private List<Chat> updateChats(List<Chat> chats) {
+        List<Chat> updatedChats = new ArrayList<>(chats);
+        List<Integer> removedIndices = new ArrayList<>();
 
+        for(int i = 0; i < chatUpdates.size(); i++) {
+            int index = updatedChats.indexOf(chatUpdates.get(i));
+            if(index > -1) {
+                updatedChats.set(index, chatUpdates.get(i));
+                removedIndices.add(i);
+            }
+        }
+
+        for(int removedIdx : removedIndices) {
+            chatUpdates.remove(removedIdx);
+        }
+
+        updatedChats.addAll(chatUpdates);
+        return updatedChats;
     }
 
     @Override

@@ -41,7 +41,7 @@ public class ChatStorageTest {
         initialMessage = new Message(user1, timeString, "Hello, is this available?", "1");
         List<Message> messageList = new ArrayList<>(List.of(initialMessage));
 
-        originalChatList = new ArrayList<>(List.of(new Chat(user2, user1, productMock, messageList)));
+        originalChatList = new ArrayList<>(List.of(new Chat(user2, user1, productMock, messageList, "1")));
         when(storageManager.loadObject(ChatStorage.CHATS_FILE_NAME))
                 .thenReturn(originalChatList);
     }
@@ -54,7 +54,7 @@ public class ChatStorageTest {
         assertEquals(chatStorage.getChats(), originalChatList);
 
         List<Message> messageList = new ArrayList<>(List.of(initialMessage, nextMessage));
-        Chat nextChat = new Chat(user2, user1, mock(Product.class), messageList);
+        Chat nextChat = new Chat(user2, user1, mock(Product.class), messageList, "1");
         chatStorage.sendUpdate(nextChat);
 
         List<Chat> chats = chatStorage.getChats();

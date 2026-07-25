@@ -12,11 +12,12 @@ public class Chat implements Serializable {
 
     private List<Message> messages;
 
-    public Chat(User provider, User receiver, Product product, List<Message> messages) {
+    public Chat(User provider, User receiver, Product product, List<Message> messages, String id) {
         this.provider = provider;
         this.receiver = receiver;
         this.messages = messages;
         this.product = product;
+        this.id = id;
     }
 
     public Chat() {}
@@ -52,5 +53,9 @@ public class Chat implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public Product getProduct() {
+        return product;
     }
 }
