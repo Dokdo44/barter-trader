@@ -481,6 +481,7 @@ public class FirebaseManager {
                 .getReference(CHAT_PATH)
                 .child(chat.getId())
                 .child("messages")
+                .orderByChild("timeSent")
                 .addChildEventListener(childEventListener);
     }
 }

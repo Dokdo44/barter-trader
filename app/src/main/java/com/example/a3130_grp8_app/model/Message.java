@@ -6,16 +6,14 @@ import java.util.Objects;
 
 public class Message implements Serializable {
 
-    private String id;
     private User sender;
     private LocalDateTime timeSent;
     private String message;
 
-    public Message(User sender, String timeSent, String message, String id) {
+    public Message(User sender, String timeSent, String message) {
         this.sender = sender;
         this.timeSent = LocalDateTime.parse(timeSent);
         this.message = message;
-        this.id = id;
     }
 
     public Message() {}
@@ -30,17 +28,5 @@ public class Message implements Serializable {
 
     public String getMessage() {
         return message;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Message otherMessage = (Message) o;
-        return Objects.equals(this.id, otherMessage.id);
     }
 }

@@ -5,6 +5,7 @@ import com.example.a3130_grp8_app.model.Chat;
 import com.example.a3130_grp8_app.model.Message;
 import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,6 +26,9 @@ public class MessageSender {
      * @return the message added task
      */
     public Task<Void> sendMessage(Message message) {
+        if(message.getMessage().isEmpty()) {
+            return Tasks.forException(new IllegalArgumentException("Message cannot be empty"));
+        }
         return FirebaseManager.getInstance().addMessageToChat(chat, message);
     }
 }
