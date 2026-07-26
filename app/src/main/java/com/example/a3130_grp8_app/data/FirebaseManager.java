@@ -461,6 +461,20 @@ public class FirebaseManager {
         return chatReference.setValue(chat);
     }
 
+    public void addChildEventListenerToUserChats(User user, ChildEventListener childEventListener) {
+        getDb()
+                .getReference(CHAT_PATH)
+                .orderByChild("provider/id")
+                .equalTo(user.getId())
+                .addChildEventListener(childEventListener);
+
+        getDb()
+                .getReference(CHAT_PATH)
+                .orderByChild("receiver/id")
+                .equalTo(user.getId())
+                .addChildEventListener(childEventListener);
+    }
+
     /**
      * Add a message to the user's list of messages in the databse
      * @param user the user that will recieve the message
