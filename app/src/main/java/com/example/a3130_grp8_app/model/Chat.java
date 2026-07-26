@@ -58,4 +58,8 @@ public class Chat implements Serializable {
     public Product getProduct() {
         return product;
     }
+
+    public void addMessage(Message message) {
+        messages.add(message);
+    }
 }

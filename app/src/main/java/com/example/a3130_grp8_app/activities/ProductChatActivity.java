@@ -34,7 +34,6 @@ public class ProductChatActivity extends AppCompatActivity {
         }
 
         chat = getIntent().getSerializableExtra("CHAT", Chat.class);
-        FirebaseUser currUser = FirebaseManager.getInstance().getCurrentUser();
         try {
             FirebaseManager.getInstance().getCurrentUserProfile()
                     .addOnSuccessListener(this::onGetUserSuccess)
