@@ -22,7 +22,15 @@ public class MessageAdapterChatObserver implements IObserver<Message> {
 
     @Override
     public void sendUpdate(Message update) {
-
+        // Adds the message in reverse chronological order to adapter messages
+        List<Message> messagesAdapterMessages = messagesAdapter.getMessages();
+        int i = 0;
+        for(; i < messagesAdapterMessages.size(); i++) {
+            if(update.getTimeSent().isAfter(messagesAdapterMessages.get(i).getTimeSent())) {
+                break;
+            }
+        }
+        messagesAdapter.addMessage(i, update);
     }
 
     public MessagesAdapter getMessagesAdapter() {
