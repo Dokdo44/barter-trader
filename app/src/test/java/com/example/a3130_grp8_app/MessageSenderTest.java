@@ -101,4 +101,26 @@ public class MessageSenderTest {
         assertEquals(chat.getMessages(), expectedMessageHashMap);
         assertEquals(receiver.getMessageInbox(), expectedMessageHashMap);
     }
+
+    @Test
+    public void testMessageSendsToChatAndInboxReceiver() throws ExecutionException, InterruptedException, TimeoutException {
+        MessageSender messageSender = new MessageSender(receiver, chat);
+        Task<Message> sendMessageTask = messageSender.sendMessage("text", "This is a test!");
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Message> future = executor.submit(() -> Tasks.await(sendMessageTask, 5, TimeUnit.SECONDS));
+
+        // Flush Robolectric's main-thread queue so the task's internal
+        // callbacks (which likely post back to main) actually run
+        shadowOf(Looper.getMainLooper()).idle();
+
+        future.get(5, TimeUnit.SECONDS); // rethrows any exception from await
+
+        Message expected = new Message(receiver, "test", "This is a test!", "1");
+        HashMap<String, Message> expectedMessageHashMap = new HashMap<>();
+        expectedMessageHashMap.put(expected.getId(), expected);
+
+        assertEquals(chat.getMessages(), expectedMessageHashMap);
+        assertEquals(provider.getMessageInbox(), expectedMessageHashMap);
+    }
 }
