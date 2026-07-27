@@ -34,4 +34,12 @@ public class Message implements Serializable {
     public String getId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Message otherMessage = (Message) o;
+        return this.id.equals(otherMessage.id);
+    }
 }

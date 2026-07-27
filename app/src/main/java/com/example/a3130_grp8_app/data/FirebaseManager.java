@@ -23,12 +23,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Centralizes Firebase Auth and Realtime Database calls so Activities do not hold business logic.
@@ -510,6 +507,16 @@ public class FirebaseManager {
                 .push();
         Message message = new Message(sender, timeSent, messageString, messageRef.getKey());
         return toResult(messageRef.setValue(message), message);
+    }
+
+    public Task<Message> addMessageToUserInbox(User user, Message message) {
+        DatabaseReference userInboxRef = getDb()
+                .getReference(USERS_PATH)
+                .child(user.getId())
+                .child("messageInbox")
+                .push();
+
+        return toResult(userInboxRef.setValue(message), message);
     }
 
     public void addChildEventListenerForChatMessages(Chat chat, ChildEventListener childEventListener) {

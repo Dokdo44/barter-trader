@@ -24,6 +24,8 @@ jackson-databind = "2.22.1"
 recyclerview = "1.4.0"
 mockto-core = "5.23.0"
 mockito-junit-jupiter = "5.23.0"
+robolectric = "4.16.1"
+junitJunit = "4.12"
 
 [libraries]
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsValidator" }
@@ -49,6 +51,7 @@ jackson-databind = {group = "com.fasterxml.jackson.core", name="jackson-databind
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 moockito-core = {group = "org.mockito", name = "mockito-core", version.ref = "mockto-core"}
 mockito-junit-jupiter = {group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito-junit-jupiter"}
+robolectric = {group = "org.robolectric", name = "robolectric", version.ref = "robolectric"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
