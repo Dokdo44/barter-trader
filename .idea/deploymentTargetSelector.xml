@@ -14,10 +14,6 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="messageSentSuccessfullyTest()">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="ProductChatActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />

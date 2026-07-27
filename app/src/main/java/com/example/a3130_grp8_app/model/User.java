@@ -12,6 +12,7 @@ public class User implements Serializable {
     private String id;
     private String email;
     private String role;
+    private String notificationToken;
     private Map<String, Message> messageInbox;
 
     /**
@@ -82,5 +83,13 @@ public class User implements Serializable {
 
     public Map<String, Message> getMessageInbox() {
         return messageInbox;
+    }
+
+    public String getNotificationToken() {
+        return notificationToken;
+    }
+
+    public void setNotificationToken(String notificationToken) {
+        this.notificationToken = notificationToken;
     }
 }

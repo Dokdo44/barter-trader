@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -145,10 +146,31 @@ public class FirebaseManager {
                         throw new FirebaseConnectionError();
                     }
 
+                    FirebaseMessaging
+                            .getInstance()
+                            .getToken()
+                            .continueWithTask(t -> onGetTokenSuccess(t, firebaseUser, email, role));
+
                     User user = new User(email, role);
                     user.setId(firebaseUser.getUid());
                     return getUserReference(firebaseUser.getUid()).setValue(user);
                 });
+    }
+
+    private Task<Void> onGetTokenSuccess(Task<String> tokenTask, FirebaseUser firebaseUser, String email, String role) {
+        if(!tokenTask.isSuccessful() &&  tokenTask.getException() != null) {
+            return Tasks.forException(tokenTask.getException());
+        }
+
+        String token = tokenTask.getResult();
+        User user = new User(email, role);
+        user.setId(firebaseUser.getUid());
+        user.setNotificationToken(token);
+
+        return getDb()
+                .getReference(USERS_PATH)
+                .child(firebaseUser.getUid())
+                .setValue(user);
     }
 
     /**

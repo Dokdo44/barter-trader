@@ -83,8 +83,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
     }
 
     private void onChatsSnapshotSuccess(DataSnapshot snapshot, User user, View v) {
+        Chat productChat = null;
         if(snapshot.exists()) {
-            Chat productChat = null;
             for(DataSnapshot snapshotChild : snapshot.getChildren()) {
                 Chat chat = snapshotChild.getValue(Chat.class);
                 assert chat != null;
@@ -92,13 +92,13 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     productChat = chat;
                 }
             }
-            assert productChat != null;
-            onGetChatSuccess(productChat);
-        } else {
-            FirebaseManager.getInstance().getUserByUid(product.getProviderUid())
-                    .addOnSuccessListener(provider -> getProviderSuccess(provider, user, v))
-                    .addOnFailureListener(e -> getProviderFailure(e, v));
         }
+        if(productChat != null) {
+            onGetChatSuccess(productChat);
+        }
+        FirebaseManager.getInstance().getUserByUid(product.getProviderUid())
+                .addOnSuccessListener(provider -> getProviderSuccess(provider, user, v))
+                .addOnFailureListener(e -> getProviderFailure(e, v));
     }
 
     private void getProviderSuccess(DataSnapshot providerSnapshot, User receiver, View v) {
