@@ -66,7 +66,7 @@ public class ChatsListActivity extends AppCompatActivity {
                 Log.e("e", "Could not get chat from snapshot");
                 return;
             }
-            chatsListItemAdapter.addChat(chatsListItemAdapter.getItemCount() - 1, chat);
+            chatsListItemAdapter.addChat(chatsListItemAdapter.getItemCount(), chat);
         }
 
         @Override

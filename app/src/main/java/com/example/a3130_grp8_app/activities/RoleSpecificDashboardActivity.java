@@ -21,6 +21,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private TextView dashboardEmail;
     private TextView dashboardRole;
+    private Button viewMyChatsButton;
 
     /**
      * Initializes dashboard views, logout behavior, and profile loading.
@@ -58,6 +59,9 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
         // Logout clears the Auth session and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
+
+        viewMyChatsButton = findViewById(R.id.viewMyChatsButton);
+        viewMyChatsButton.setOnClickListener(viewMyChatsButtonClickListener);
 
         loadCurrentUserProfile();
     }
@@ -138,4 +142,10 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     private void onSearchForProductsButtonClick() {
         startActivity(new Intent(this, ProductSearchActivity.class));
     }
+
+    private View.OnClickListener viewMyChatsButtonClickListener = v -> {
+        Intent intent = new Intent(this, ChatsListActivity.class);
+        startActivity(intent);
+    };
 }
+

@@ -62,7 +62,7 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.activity_chats_list, viewGroup, false);
+                .inflate(R.layout.view_chat_list_item, viewGroup, false);
 
 
         return new ViewHolder(view);
@@ -80,12 +80,12 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Chat chat = chats.get(position);
         Product chatProduct = chat.getProduct();
-        viewHolder.getProductNameTextView().setText(chatProduct.getName());
+        viewHolder.getProductNameTextView().setText("Product: " + chatProduct.getName());
 
         User provider = chat.getProvider();
         User receiver = chat.getReceiver();
-        viewHolder.getProviderNameTextView().setText(provider.getEmail());
-        viewHolder.getReceiverNameTestView().setText(receiver.getEmail());
+        viewHolder.getProviderNameTextView().setText("seller: " + provider.getEmail());
+        viewHolder.getReceiverNameTestView().setText("buyer: " + receiver.getEmail());
 
         viewHolder.getChatListItemMain().setOnClickListener(getOnProductClickListener(chat));
     }
