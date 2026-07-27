@@ -40,12 +40,12 @@ public class ChatStorageTest {
     public void setUp() {
         storageManager = mock(StorageManager.class);
 
-        user1 = new User("fake1@email.com", "buyer", "1");
-        user2 = new User("fake2@email.com", "seller", "2");
+        user1 = new User("fake1@email.com", "buyer");
+        user2 = new User("fake2@email.com", "seller");
         timeString = LocalDateTime.now().toString();
         Product productMock = mock(Product.class);
 
-        initialMessage = new Message(user1, timeString, "Hello, is this available?", "1");
+        initialMessage = new Message(user1, timeString, "Hello, is this available?");
         List<Message> messageList = new ArrayList<>(List.of(initialMessage));
 
         originalChat = new Chat(user2, user1, productMock, messageList, "1");
@@ -60,7 +60,7 @@ public class ChatStorageTest {
 
     @Test
     public void getChatsUpdatesSuccessfully() {
-        Message nextMessage = new Message(user2, timeString, "Yes, it is available", "2");
+        Message nextMessage = new Message(user2, timeString, "Yes, it is available");
 
         ChatStorage chatStorage = ChatStorage.getInstance(storageManager, notifier);
         assertEquals(chatStorage.getChats(), originalChatList);
