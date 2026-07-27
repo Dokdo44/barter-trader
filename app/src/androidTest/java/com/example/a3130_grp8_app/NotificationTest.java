@@ -48,8 +48,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @RunWith(AndroidJUnit4.class)
 public class NotificationTest {
@@ -88,7 +91,7 @@ public class NotificationTest {
             );
         }
 
-        realSender = new AndroidNotificationSender();
+        realSender = new AndroidNotificationSender(appContext);
 
         expectedProductName = "Dinosaur Statue";
         expectedProviderInformation = "seller-1";
@@ -124,6 +127,8 @@ public class NotificationTest {
         notMatchingProduct = mock(Product.class);
         when(matchingProduct.getName()).thenReturn(expectedProductName);
         when(matchingProduct.getProviderUid()).thenReturn(expectedProviderInformation);
+        when(matchingProduct.getTimeUploaded()).thenReturn(
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA).format(new Date()));
 
         when(notMatchingProduct.getName()).thenReturn("2001 Honda Civic - best car in the market rn");
         when(notMatchingProduct.getProviderUid()).thenReturn("seller-2");
