@@ -23,10 +23,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.example.a3130_grp8_app.util.PreferredCategoriesListener;
+import com.example.a3130_grp8_app.util.ProductPostedListener; // NEW
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Centralizes Firebase Auth and Realtime Database calls so Activities do not hold business logic.
@@ -127,9 +135,9 @@ public class FirebaseManager {
     /**
      * Creates a new user account and stores the user's profile information.
      *
-     * @param email    the user's email address
+     * @param email the user's email address
      * @param password the user's password
-     * @param role     the user's role
+     * @param role the user's role
      * @return a Task that completes when the account and profile have been created
      */
     public Task<Void> createUser(String email, String password, String role) {
@@ -176,7 +184,7 @@ public class FirebaseManager {
     /**
      * Signs a user into Firebase Authentication.
      *
-     * @param email    the user's email address
+     * @param email the user's email address
      * @param password the user's password
      * @return a Task that resolves to the authentication result
      */
@@ -244,7 +252,7 @@ public class FirebaseManager {
      * Saves a product under the specified product ID.
      *
      * @param productId the ID of the product
-     * @param product   the product to save
+     * @param product the product to save
      * @return a Task that completes when the product has been saved
      * @throws FirebaseConnectionError if no user is signed in or the product ID is invalid
      */
@@ -293,21 +301,17 @@ public class FirebaseManager {
 
         @Override
         public final void onChildChanged(@NonNull DataSnapshot snapshot,
-                                         @Nullable String previousChildName) {
-        }
+                                         @Nullable String previousChildName) {}
 
         @Override
-        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {
-        }
+        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {}
 
         @Override
         public final void onChildMoved(@NonNull DataSnapshot snapshot,
-                                       @Nullable String previousChildName) {
-        }
+                                       @Nullable String previousChildName) {}
 
         @Override
-        public final void onCancelled(@NonNull DatabaseError error) {
-        }
+        public final void onCancelled(@NonNull DatabaseError error) {}
 
         public abstract void onGetProduct(Product product);
     }
@@ -326,8 +330,7 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {
-        }
+        public void onCancelled(DatabaseError databaseError) {}
 
         public abstract void onGetProducts(List<Product> products);
     }
@@ -335,7 +338,7 @@ public class FirebaseManager {
     /**
      * Registers a listener for product changes ordered by the specified field.
      *
-     * @param orderBy                   the child field used to order products
+     * @param orderBy the child field used to order products
      * @param productChildEventListener the listener that receives product events
      */
     public void addProductChildEventListener(String orderBy,
@@ -363,6 +366,71 @@ public class FirebaseManager {
 
     public DatabaseReference getProductReference() {
         return getDb().getReference(PRODUCTS_PATH);
+    }
+
+    public Task<Void> addPreferredProductForUser(String userId, String preferredProductId) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredProductIds")
+                        .push();
+
+        return userRef.setValue(preferredProductId);
+    }
+
+    public Task<Void> deletePreferredProductForUser(String userId, String preferredProductId) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredProductIds")
+                        .child(preferredProductId);
+        return userRef.removeValue();
+    }
+
+    public void addChildEventListenerForUserPreferredProductIds(String userId,
+                                                                            ChildEventListener preferredProductIdsChildEventListener) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredProductIds");
+        userRef.addChildEventListener(preferredProductIdsChildEventListener);
+
+    }
+
+    public Task<Void> addPreferredCategoryForUser(String userId, String preferredCategoryName) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredCategoryNames")
+                        .child(preferredCategoryName);
+
+        return userRef.setValue(preferredCategoryName);
+    }
+
+    public Task<Void> deletePreferredCategoriesForUser(String userId, String preferredCategoryName) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredCategoryNames")
+                        .child(preferredCategoryName);
+
+        return userRef.removeValue();
+    }
+
+    public void addChildEventListenerForUserPreferredCategoryNames(String userId,
+                                                                ChildEventListener preferredCategoryNamesChildEventListener) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredCategoryNames");
+        userRef.addChildEventListener(preferredCategoryNamesChildEventListener);
+
     }
 
     /**
@@ -440,7 +508,7 @@ public class FirebaseManager {
      * Updates the status of an existing request (e.g. "accepted" or "declined").
      *
      * @param requestId the Firebase key of the request
-     * @param status    the new status to set
+     * @param status the new status to set
      * @return a Task that resolves on success
      */
     public Task<Void> updateRequestStatus(String requestId, String status) {
@@ -464,8 +532,7 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError error) {
-        }
+        public void onCancelled(DatabaseError error) { }
 
         public abstract void onGetRequests(List<Request> requests);
     }
@@ -477,6 +544,94 @@ public class FirebaseManager {
                 .orderByChild("productId")
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
+    }
+
+    /**
+     * Loads the preferred category names for a given user.
+     *
+     * @param userId the UID of the user
+     * @param listener callback invoked with the loaded categories or an error
+     */
+    public void loadPreferredCategories(String userId, PreferredCategoriesListener listener) {
+        getDb().getReference(USERS_PATH)
+                .child(userId)
+                .child("preferredCategoryNames")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<String> categories = new ArrayList<>();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String category = child.getValue(String.class);
+                            if (category != null) {
+                                categories.add(category);
+                            }
+                        }
+                        listener.onCategoriesLoaded(categories);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        listener.onError(error.toException());
+                    }
+                });
+    }
+
+    public ProductListenerRegistration listenForNewProduct(ProductPostedListener listener) {
+        long registrationTime = System.currentTimeMillis();
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Product product = snapshot.getValue(Product.class);
+                if (product != null) {
+                    product.setId(snapshot.getKey());
+                    if (isProductNewSince(product, registrationTime)) {
+                        listener.onProductPosted(product);
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onError(error.toException());
+            }
+        };
+
+        DatabaseReference productsRef = getProductReference();
+        productsRef.addChildEventListener(childEventListener);
+
+        return () -> productsRef.removeEventListener(childEventListener);
+    }
+
+    private boolean isProductNewSince(Product product, long registrationTime) {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);
+            Date uploadedDate = format.parse(product.getTimeUploaded());
+            if (uploadedDate == null) return false;
+            return uploadedDate.getTime() >= registrationTime;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the UID of the currently signed-in user.
+     *
+     * @return the current user's UID, or {@code null} if no user is signed in
+     */
+    @Nullable
+    public String getCurrentUserID() {
+        FirebaseUser user = getCurrentUser();
+        return user != null ? user.getUid() : null;
     }
 
     public Task<Chat> addChat(User provider, User receiver, Product product, Map<String, Message> messages) {
@@ -565,4 +720,5 @@ public class FirebaseManager {
             return Tasks.forResult(toReturn);
         });
     }
+
 }
