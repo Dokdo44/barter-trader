@@ -18,6 +18,10 @@ import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Product;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -43,8 +47,10 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private Button goBackToListingsButton;
     private Button requestItemButton;
+    private Button addToPreferredProductsButton;
 
     private View productDetailsView;
+    private boolean productAlreadyPreferred;
 
     private View.OnClickListener requestItemButtonClickListener = v -> {
         Intent intent = new Intent(this, RequestProductActivity.class);
@@ -94,11 +100,13 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         goBackToListingsButton = findViewById(R.id.goBackToListingsButton);
         requestItemButton = findViewById(R.id.requestItemButton);
+        addToPreferredProductsButton = findViewById(R.id.addToPreferredProductsButton);
     }
 
     private void addClickListeners() {
         goBackToListingsButton.setOnClickListener(v -> finish());
         requestItemButton.setOnClickListener(requestItemButtonClickListener);
+        addToPreferredProductsButton.setOnClickListener(v -> saveProductPreference());
     }
 
     private void loadProductById(String productId) {
@@ -168,6 +176,72 @@ public class ProductDetailsActivity extends AppCompatActivity {
         } else {
             productPreferredItems.setText("None specified");
         }
+
+        listenForExistingProductPreference();
+    }
+
+    private void listenForExistingProductPreference() {
+        FirebaseUser user = FirebaseManager.getInstance().getCurrentUser();
+        if (user == null || product == null || product.getId() == null) {
+            return;
+        }
+
+        FirebaseManager.getInstance().addChildEventListenerForUserPreferredProductIds(
+                user.getUid(),
+                new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
+                        String savedProductId = snapshot.getValue(String.class);
+                        if (product.getId().equals(savedProductId)) {
+                            productAlreadyPreferred = true;
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot snapshot, String previousChildName) { }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot snapshot) {
+                        String savedProductId = snapshot.getValue(String.class);
+                        if (product.getId().equals(savedProductId)) {
+                            productAlreadyPreferred = false;
+                        }
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot snapshot, String previousChildName) { }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) { }
+                }
+        );
+    }
+
+    private void saveProductPreference() {
+        FirebaseUser user = FirebaseManager.getInstance().getCurrentUser();
+        if (user == null || product == null || product.getId() == null) {
+            Snackbar.make(productDetailsView, "Could not add product to preferred products",
+                    BaseTransientBottomBar.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (productAlreadyPreferred) {
+            Snackbar.make(productDetailsView,
+                    "You have already added this product as a preferred product",
+                    BaseTransientBottomBar.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseManager.getInstance().addPreferredProductForUser(user.getUid(), product.getId())
+                .addOnSuccessListener(unused -> {
+                    productAlreadyPreferred = true;
+                    Snackbar.make(productDetailsView,
+                            "Successfully added products to preferred products",
+                            BaseTransientBottomBar.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(error -> Snackbar.make(productDetailsView,
+                        "Could not add product to preferred products: " + error.getMessage(),
+                        BaseTransientBottomBar.LENGTH_SHORT).show());
     }
 
     private WindowInsetsCompat onApplyWindowInsets(

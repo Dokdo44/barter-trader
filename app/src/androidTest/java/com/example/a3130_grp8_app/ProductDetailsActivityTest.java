@@ -3,7 +3,14 @@ package com.example.a3130_grp8_app;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.action.ViewActions.click;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.content.Intent;
 
@@ -13,8 +20,14 @@ import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
 
 import org.junit.Test;
+import org.junit.After;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -25,6 +38,12 @@ public class ProductDetailsActivityTest {
     private static final String PRODUCT_ID = "product-details-test-product";
     private static final String PRODUCT_DETAILS_ACTIVITY =
             "com.example.a3130_grp8_app.activities.ProductDetailsActivity";
+
+    /** Clears any injected Firebase manager between instrumented tests. */
+    @After
+    public void clearFirebaseManager() {
+        FirebaseManager.install(null);
+    }
 
     /**
      * Verifies that opening a selected product shows every detail required by the user story.
@@ -57,6 +76,26 @@ public class ProductDetailsActivityTest {
         Espresso.onView(withText("Request Item")).check(matches(isDisplayed()));
     }
 
+    /** Verifies that a receiver can save the currently viewed product as a preference. */
+    @Test
+    public void receiverCanSaveProductPreference() {
+        FirebaseManager firebaseManager = mock(FirebaseManager.class);
+        FirebaseUser firebaseUser = mock(FirebaseUser.class);
+        when(firebaseUser.getUid()).thenReturn("receiver-1");
+        when(firebaseManager.getCurrentUser()).thenReturn(firebaseUser);
+        when(firebaseManager.addPreferredProductForUser("receiver-1", "product-1"))
+                .thenReturn(Tasks.forResult(null));
+        doAnswer(invocation -> null).when(firebaseManager)
+                .addChildEventListenerForUserPreferredProductIds(eq("receiver-1"), any());
+        FirebaseManager.install(firebaseManager);
+
+        openProductDetails();
+        Espresso.onView(withId(R.id.addToPreferredProductsButton)).perform(click());
+
+        Espresso.onView(withText("Successfully added products to preferred products"))
+                .check(matches(isDisplayed()));
+    }
+
     private void openProductDetails() {
         Intent intent = new Intent();
         intent.setClassName(BuildConfig.APPLICATION_ID, PRODUCT_DETAILS_ACTIVITY);
@@ -74,6 +113,7 @@ public class ProductDetailsActivityTest {
                 "2026-07-30",
                 new ArrayList<String>()
         );
+        product.setId("product-1");
 
         intent.putExtra("PRODUCT", product);
         ActivityScenario.launch(intent);
