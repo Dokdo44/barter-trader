@@ -1,5 +1,7 @@
 package com.example.a3130_grp8_app.data;
 
+import android.provider.ContactsContract;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -333,6 +335,71 @@ public class FirebaseManager {
 
     public DatabaseReference getProductReference() {
         return getDb().getReference(PRODUCTS_PATH);
+    }
+
+    public Task<Void> addPreferredProductForUser(String userId, String preferredProductId) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredProductIds")
+                        .push();
+
+        return userRef.setValue(preferredProductId);
+    }
+
+    public Task<Void> deletePreferredProductForUser(String userId, String preferredProductId) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredProductIds")
+                        .child(preferredProductId);
+        return userRef.removeValue();
+    }
+
+    public void addChildEventListenerForUserPreferredProductIds(String userId,
+                                                                            ChildEventListener preferredProductIdsChildEventListener) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredProductIds");
+        userRef.addChildEventListener(preferredProductIdsChildEventListener);
+
+    }
+
+    public Task<Void> addPreferredCategoryForUser(String userId, String preferredCategoryName) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredCategoryNames")
+                        .child(preferredCategoryName);
+
+        return userRef.setValue(preferredCategoryName);
+    }
+
+    public Task<Void> deletePreferredCategoriesForUser(String userId, String preferredCategoryName) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredCategoryNames")
+                        .child(preferredCategoryName);
+
+        return userRef.removeValue();
+    }
+
+    public void addChildEventListenerForUserPreferredCategoryNames(String userId,
+                                                                ChildEventListener preferredCategoryNamesChildEventListener) {
+        DatabaseReference userRef =
+                getDb()
+                        .getReference(USERS_PATH)
+                        .child(userId)
+                        .child("preferredCategoryNames");
+        userRef.addChildEventListener(preferredCategoryNamesChildEventListener);
+
     }
 
     /**
