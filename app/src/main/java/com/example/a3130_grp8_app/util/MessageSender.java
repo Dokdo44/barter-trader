@@ -22,15 +22,34 @@ public class MessageSender {
 
     /**
      * Add the message to the chat
-     * @param sender the sender of the message
      * @param timeSent the time that the message was sent, as a String
      * @param messageString the text content of the message to be sent
      * @return the message added task
      */
-    public Task<Message> sendMessage(User sender, String timeSent, String messageString) {
+    public Task<Message> sendMessage(String timeSent, String messageString) {
         if(messageString.isEmpty()) {
             return Tasks.forException(new IllegalArgumentException("Message cannot be empty"));
         }
-        return FirebaseManager.getInstance().addMessageToChat(chat, sender, timeSent, messageString);
+
+        Task<Message> addMessageToChatTask = FirebaseManager
+                .getInstance()
+                .addMessageToChat(chat, sender, timeSent, messageString);
+
+        return addMessageToChatTask.continueWithTask(task -> {
+            if(!task.isSuccessful() && task.getException() != null) {
+                return Tasks.forException(task.getException());
+            }
+
+            Message message = task.getResult();
+            if(sender.getId().equals(chat.getProvider().getId())) {
+                return FirebaseManager
+                        .getInstance()
+                        .addMessageToUserInbox(chat.getReceiver(), message);
+            } else {
+                return FirebaseManager
+                        .getInstance()
+                        .addMessageToUserInbox(chat.getProvider(), message);
+            }
+        });
     }
 }
