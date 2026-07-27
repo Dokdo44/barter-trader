@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ChatStorage implements IObserver<Message> {
 
@@ -65,8 +66,8 @@ public class ChatStorage implements IObserver<Message> {
             index = updatedChats.size() - 1;
         }
         for(int i = 0; i < messageUpdates.size(); i++) {
-            List<Message> chatMessages = updatedChats.get(index).getMessages();
-            if(!chatMessages.contains(messageUpdates.get(i))) {
+            Map<String, Message> chatMessages = updatedChats.get(index).getMessages();
+            if(!chatMessages.containsValue(messageUpdates.get(i))) {
                 updatedChats.get(index).addMessage(messageUpdates.get(i));
             }
         }

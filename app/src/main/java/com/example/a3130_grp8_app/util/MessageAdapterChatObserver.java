@@ -4,6 +4,7 @@ import com.example.a3130_grp8_app.adapters.MessagesAdapter;
 import com.example.a3130_grp8_app.data.ChatStorage;
 import com.example.a3130_grp8_app.model.Message;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class MessageAdapterChatObserver implements IObserver<Message> {
         List<Message> messagesAdapterMessages = messagesAdapter.getMessages();
         int i = 0;
         for(; i < messagesAdapterMessages.size(); i++) {
-            if(update.getTimeSent().isAfter(messagesAdapterMessages.get(i).getTimeSent())) {
+            if(LocalDateTime.parse(update.getTimeSent()).isAfter(LocalDateTime.parse(messagesAdapterMessages.get(i).getTimeSent()))) {
                 break;
             }
         }

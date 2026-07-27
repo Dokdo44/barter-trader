@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @RunWith(AndroidJUnit4.class)
 public class ProductChatActivityTest {
@@ -52,26 +53,19 @@ public class ProductChatActivityTest {
     public static void setUpClass() throws FirebaseConnectionError {
         FirebaseManager mockFirebaseManager = mock(FirebaseManager.class);
 
-        User receiver = new User("fake@email.com", "buyer", "1");
-        User provider = new User("fake2@email.com", "seller", "2");
+        User receiver = new User("fake@email.com", "buyer");
+        User provider = new User("fake2@email.com", "seller");
         Product product = mock(Product.class);
-        chat1 = new Chat(provider, receiver, product, new ArrayList<>(), "1");
-        chat2 = new Chat(provider, receiver, product, new ArrayList<>(), "2");
-        chat3 = new Chat(provider, receiver, product, new ArrayList<>(), "3");
-
-        message1 = new Message(receiver,
-                "2026-07-25T18:15:30", "Hi, is this still available?");
-        message2 = new Message(receiver,
-                "2026-07-25T18:15:30", "");
-        message3 = new Message(receiver,
-                "2026-07-25T18:15:30", "will fail!");
+        chat1 = new Chat(provider, receiver, product, new HashMap<>(), "1");
+        chat2 = new Chat(provider, receiver, product, new HashMap<>(), "2");
+        chat3 = new Chat(provider, receiver, product, new HashMap<>(), "3");
 
         when(mockFirebaseManager.getCurrentUserProfile()).thenReturn(Tasks.forResult(receiver));
 
-        when(mockFirebaseManager.addMessageToChat(eq(chat1), any()))
+        when(mockFirebaseManager.addMessageToChat(eq(chat1), any(), any(), any()))
                 .thenReturn(Tasks.forResult(null));
 
-        when(mockFirebaseManager.addMessageToChat(eq(chat3), any()))
+        when(mockFirebaseManager.addMessageToChat(eq(chat3), any(), any(), any()))
                 .thenReturn(Tasks.forException(new Exception("Failed to send message")));
 
         FirebaseManager.install(mockFirebaseManager);

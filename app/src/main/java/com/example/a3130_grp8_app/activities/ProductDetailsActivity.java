@@ -16,10 +16,17 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.model.Chat;
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Activity responsible for displaying detailed information about a product listing.
@@ -43,6 +50,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private Button goBackToListingsButton;
     private Button requestItemButton;
+    private Button sendMessageToProviderButton;
 
     private View productDetailsView;
 
@@ -51,6 +59,80 @@ public class ProductDetailsActivity extends AppCompatActivity {
         intent.putExtra(PRODUCT_EXTRA_TAG, product);
         startActivity(intent);
     };
+
+    private View.OnClickListener sendMessgageToProviderButtonClickListener = v -> {
+        try {
+            FirebaseManager.getInstance().getCurrentUserProfile()
+                    .addOnSuccessListener(user -> onUserSuccess(user, v))
+                    .addOnFailureListener(e -> onUserFailure(e, v));
+        } catch(FirebaseConnectionError e) {
+            onUserFailure(e, v);
+        }
+    };
+
+    private void onUserSuccess(User user, View v) {
+        FirebaseManager.getInstance().getChatsForProduct(product)
+                .addOnSuccessListener(snapshot -> onChatsSnapshotSuccess(snapshot, user, v))
+                .addOnFailureListener(e -> {onChatFailure(e, v);});
+    }
+
+    private void onUserFailure(Exception e, View view) {
+        Snackbar.make(view,
+                "Failed to get user profile: " + e.getMessage(),
+                Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void onChatsSnapshotSuccess(DataSnapshot snapshot, User user, View v) {
+        if(snapshot.exists()) {
+            Chat productChat = null;
+            for(DataSnapshot snapshotChild : snapshot.getChildren()) {
+                Chat chat = snapshotChild.getValue(Chat.class);
+                assert chat != null;
+                if(chat.getReceiver().getId().equals(user.getId())) {
+                    productChat = chat;
+                }
+            }
+            assert productChat != null;
+            onGetChatSuccess(productChat);
+        } else {
+            FirebaseManager.getInstance().getUserByUid(product.getProviderUid())
+                    .addOnSuccessListener(provider -> getProviderSuccess(provider, user, v))
+                    .addOnFailureListener(e -> getProviderFailure(e, v));
+        }
+    }
+
+    private void getProviderSuccess(DataSnapshot providerSnapshot, User receiver, View v) {
+        User provider = providerSnapshot.getValue(User.class);
+        FirebaseManager.getInstance().addChat(
+                        provider,
+                        receiver,
+                        product,
+                        new HashMap<>())
+                .addOnSuccessListener(this::onGetChatSuccess)
+                .addOnFailureListener(e -> onGetChatFailure(e, v));
+    }
+
+    private void getProviderFailure(Exception e, View v) {
+        Snackbar.make(v, "Failed to get provider user: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void onChatFailure(Exception e, View v) {
+        Snackbar.make(v,
+                "Failed to get chats: " + e.getMessage(),
+                Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void onGetChatSuccess(Chat chat) {
+        Intent intent = new Intent(this, ProductChatActivity.class);
+        intent.putExtra("CHAT", chat);
+        startActivity(intent);
+    }
+
+    private void onGetChatFailure(Exception e, View v) {
+        Snackbar.make(v,
+                "Failed to create chat: " + e.getMessage(),
+                Snackbar.LENGTH_SHORT).show();
+    }
 
     /**
      * Initializes product detail views and loads product information.
@@ -94,11 +176,13 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         goBackToListingsButton = findViewById(R.id.goBackToListingsButton);
         requestItemButton = findViewById(R.id.requestItemButton);
+        sendMessageToProviderButton = findViewById(R.id.sendMessageToProviderButton);
     }
 
     private void addClickListeners() {
         goBackToListingsButton.setOnClickListener(v -> finish());
         requestItemButton.setOnClickListener(requestItemButtonClickListener);
+        sendMessageToProviderButton.setOnClickListener(sendMessgageToProviderButtonClickListener);
     }
 
     private void loadProductById(String productId) {

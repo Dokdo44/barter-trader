@@ -25,8 +25,7 @@ public class User implements Serializable {
      * @param email profile email address
      * @param role selected app role
      */
-    public User(String email, String role, String id) {
-        this.id = id;
+    public User(String email, String role) {
         this.email = email;
         this.role = role;
     }

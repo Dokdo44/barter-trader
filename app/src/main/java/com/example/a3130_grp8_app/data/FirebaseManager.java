@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -46,7 +47,8 @@ public class FirebaseManager {
     private FirebaseAuth auth;
     private FirebaseDatabase db;
 
-    protected FirebaseManager() {}
+    protected FirebaseManager() {
+    }
 
     /**
      * Returns the singleton instance of the Firebase manager.
@@ -127,9 +129,9 @@ public class FirebaseManager {
     /**
      * Creates a new user account and stores the user's profile information.
      *
-     * @param email the user's email address
+     * @param email    the user's email address
      * @param password the user's password
-     * @param role the user's role
+     * @param role     the user's role
      * @return a Task that completes when the account and profile have been created
      */
     public Task<Void> createUser(String email, String password, String role) {
@@ -146,7 +148,8 @@ public class FirebaseManager {
                         throw new FirebaseConnectionError();
                     }
 
-                    User user = new User(email, role, firebaseUser.getUid());
+                    User user = new User(email, role);
+                    user.setId(firebaseUser.getUid());
                     return getUserReference(firebaseUser.getUid()).setValue(user);
                 });
     }
@@ -154,7 +157,7 @@ public class FirebaseManager {
     /**
      * Signs a user into Firebase Authentication.
      *
-     * @param email the user's email address
+     * @param email    the user's email address
      * @param password the user's password
      * @return a Task that resolves to the authentication result
      */
@@ -222,7 +225,7 @@ public class FirebaseManager {
      * Saves a product under the specified product ID.
      *
      * @param productId the ID of the product
-     * @param product the product to save
+     * @param product   the product to save
      * @return a Task that completes when the product has been saved
      * @throws FirebaseConnectionError if no user is signed in or the product ID is invalid
      */
@@ -271,17 +274,21 @@ public class FirebaseManager {
 
         @Override
         public final void onChildChanged(@NonNull DataSnapshot snapshot,
-                                         @Nullable String previousChildName) {}
+                                         @Nullable String previousChildName) {
+        }
 
         @Override
-        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {
+        }
 
         @Override
         public final void onChildMoved(@NonNull DataSnapshot snapshot,
-                                       @Nullable String previousChildName) {}
+                                       @Nullable String previousChildName) {
+        }
 
         @Override
-        public final void onCancelled(@NonNull DatabaseError error) {}
+        public final void onCancelled(@NonNull DatabaseError error) {
+        }
 
         public abstract void onGetProduct(Product product);
     }
@@ -290,7 +297,7 @@ public class FirebaseManager {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             ArrayList<Product> products = new ArrayList<>();
-            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 Product product = snapshot.getValue(Product.class);
                 assert product != null;
                 product.setId(snapshot.getKey());
@@ -300,7 +307,8 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {}
+        public void onCancelled(DatabaseError databaseError) {
+        }
 
         public abstract void onGetProducts(List<Product> products);
     }
@@ -308,7 +316,7 @@ public class FirebaseManager {
     /**
      * Registers a listener for product changes ordered by the specified field.
      *
-     * @param orderBy the child field used to order products
+     * @param orderBy                   the child field used to order products
      * @param productChildEventListener the listener that receives product events
      */
     public void addProductChildEventListener(String orderBy,
@@ -346,7 +354,7 @@ public class FirebaseManager {
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
     public Task<Void> submitRequest(String productId, String requesterName,
-                                           String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
+                                    String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
             throw new FirebaseConnectionError();
@@ -413,7 +421,7 @@ public class FirebaseManager {
      * Updates the status of an existing request (e.g. "accepted" or "declined").
      *
      * @param requestId the Firebase key of the request
-     * @param status the new status to set
+     * @param status    the new status to set
      * @return a Task that resolves on success
      */
     public Task<Void> updateRequestStatus(String requestId, String status) {
@@ -427,7 +435,7 @@ public class FirebaseManager {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             ArrayList<Request> requests = new ArrayList<>();
-            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 Request request = snapshot.getValue(Request.class);
                 assert request != null;
                 request.setRequestId(snapshot.getKey());
@@ -437,7 +445,8 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError error) { }
+        public void onCancelled(DatabaseError error) {
+        }
 
         public abstract void onGetRequests(List<Request> requests);
     }
@@ -451,14 +460,23 @@ public class FirebaseManager {
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
 
-    public Task<Void> addChat(Chat chat) {
+    public Task<Chat> addChat(User provider, User receiver, Product product, Map<String, Message> messages) {
         DatabaseReference chatReference = getDb()
                 .getReference(CHAT_PATH)
                 .push();
 
         String chatId = chatReference.getKey();
+        Chat chat = new Chat(provider, receiver, product, messages, chatId);
         chat.setId(chatId);
-        return chatReference.setValue(chat);
+        return toResult(chatReference.setValue(chat), chat);
+    }
+
+    public Task<DataSnapshot> getChatsForProduct(Product product) {
+        return getDb()
+                .getReference(CHAT_PATH)
+                .orderByChild("product/id")
+                .equalTo(product.getId())
+                .get();
     }
 
     public void addChildEventListenerToUserChats(User user, ChildEventListener childEventListener) {
@@ -477,17 +495,21 @@ public class FirebaseManager {
 
     /**
      * Add a message to the user's list of messages in the databse
-     * @param user the user that will recieve the message
-     * @param message the message to add to the user object
+     *
+     * @param chat the chat that will recieve the message
+     * @param sender the sender of the message
+     * @param timeSent the time that the message was sent, as a String
+     * @param messageString the text content of the message to be sent
      * @return a task that completes when the message has been added to the user's list
      */
-    public Task<Void> addMessageToChat(Chat chat, Message message) {
-        return getDb()
+    public Task<Message> addMessageToChat(Chat chat, User sender, String timeSent, String messageString) {
+        DatabaseReference messageRef = getDb()
                 .getReference(CHAT_PATH)
                 .child(chat.getId())
                 .child("messages")
-                .push()
-                .setValue(message);
+                .push();
+        Message message = new Message(sender, timeSent, messageString, messageRef.getKey());
+        return toResult(messageRef.setValue(message), message);
     }
 
     public void addChildEventListenerForChatMessages(Chat chat, ChildEventListener childEventListener) {
@@ -497,5 +519,21 @@ public class FirebaseManager {
                 .child("messages")
                 .orderByChild("timeSent")
                 .addChildEventListener(childEventListener);
+    }
+
+    public Task<DataSnapshot> getUserByUid(String uid) {
+        return getDb()
+                .getReference(USERS_PATH)
+                .child(uid)
+                .get();
+    }
+
+    private <T> Task<T> toResult(Task<Void> voidTask, T toReturn) {
+        return voidTask.continueWithTask(task -> {
+            if(!task.isSuccessful() && task.getException() != null) {
+                return Tasks.forException(task.getException());
+            }
+            return Tasks.forResult(toReturn);
+        });
     }
 }

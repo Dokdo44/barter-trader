@@ -87,8 +87,7 @@ public class ProductChatActivity extends AppCompatActivity {
             Snackbar.make(view, "Please wait for initialization...", Snackbar.LENGTH_SHORT).show();
             return;
         }
-        Message message = new Message(currUser, LocalDateTime.now().toString(), messageInput.getText().toString());
-        messageSender.sendMessage(message)
+        messageSender.sendMessage(currUser, LocalDateTime.now().toString(), messageInput.getText().toString())
                 .addOnSuccessListener(result -> getSendSuccess(view))
                 .addOnFailureListener(e -> getSendFailure(view, e));
     };

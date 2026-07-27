@@ -2,18 +2,19 @@ package com.example.a3130_grp8_app.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 public class Message implements Serializable {
 
+    private String id;
     private User sender;
-    private LocalDateTime timeSent;
-    private String message;
+    private String timeSent;
+    private String messageString;
 
-    public Message(User sender, String timeSent, String message) {
+    public Message(User sender, String timeSent, String messageString, String id) {
         this.sender = sender;
-        this.timeSent = LocalDateTime.parse(timeSent);
-        this.message = message;
+        this.timeSent = timeSent;
+        this.messageString = messageString;
+        this.id = id;
     }
 
     public Message() {}
@@ -22,11 +23,15 @@ public class Message implements Serializable {
         return sender;
     }
 
-    public LocalDateTime getTimeSent() {
+    public String getTimeSent() {
         return timeSent;
     }
 
-    public String getMessage() {
-        return message;
+    public String getMessageString() {
+        return messageString;
+    }
+
+    public String getId() {
+        return id;
     }
 }

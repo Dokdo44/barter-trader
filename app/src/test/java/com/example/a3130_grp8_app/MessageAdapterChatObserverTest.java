@@ -28,7 +28,9 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MessageAdapterChatObserverTest {
@@ -49,11 +51,11 @@ public class MessageAdapterChatObserverTest {
 
     @Before
     public void setUp() {
-        User provider = new User("fake1@email.com", "seller", "1");
-        User receiver = new User("fake2@email.com", "buyer", "2");
+        User provider = new User("fake1@email.com", "seller");
+        User receiver = new User("fake2@email.com", "buyer");
         Product product = mock(Product.class);
 
-        chat = new Chat(provider, receiver, product, new ArrayList<Message>(), "1");
+        chat = new Chat(provider, receiver, product, new HashMap<>(), "1");
         chatNotifier = new ChatNotifier(chat);
 
         messagesAdapter = mock(MessagesAdapter.class);

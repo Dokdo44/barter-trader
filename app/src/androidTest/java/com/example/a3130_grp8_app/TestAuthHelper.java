@@ -64,7 +64,7 @@ public final class TestAuthHelper {
                 .child(firebaseUser.getUid());
 
         Tasks.await(
-                userRef.setValue(new User(email, role, userRef.getKey())),
+                userRef.setValue(new User(email, role)),
                 15,
                 TimeUnit.SECONDS
         );
