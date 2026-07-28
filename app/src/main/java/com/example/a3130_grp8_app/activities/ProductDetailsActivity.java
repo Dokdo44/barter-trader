@@ -71,7 +71,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     };
 
     private void onUserSuccess(User user, View v) {
-        FirebaseManager.getInstance().getChatsForProduct(product)
+        FirebaseManager.getInstance().getChatsForProduct(product.getId())
                 .addOnSuccessListener(snapshot -> onChatsSnapshotSuccess(snapshot, user, v))
                 .addOnFailureListener(e -> {onChatFailure(e, v);});
     }
@@ -88,26 +88,29 @@ public class ProductDetailsActivity extends AppCompatActivity {
             for(DataSnapshot snapshotChild : snapshot.getChildren()) {
                 Chat chat = snapshotChild.getValue(Chat.class);
                 assert chat != null;
-                if(chat.getReceiver().getId().equals(user.getId())) {
+                if(chat.getReceiverUid().equals(user.getId())) {
                     productChat = chat;
                 }
             }
         }
         if(productChat != null) {
             onGetChatSuccess(productChat);
+        } else {
+            FirebaseManager.getInstance().getUserByUid(product.getProviderUid())
+                    .addOnSuccessListener(provider -> getProviderSuccess(provider, user, v))
+                    .addOnFailureListener(e -> getProviderFailure(e, v));
         }
-        FirebaseManager.getInstance().getUserByUid(product.getProviderUid())
-                .addOnSuccessListener(provider -> getProviderSuccess(provider, user, v))
-                .addOnFailureListener(e -> getProviderFailure(e, v));
     }
 
-    private void getProviderSuccess(DataSnapshot providerSnapshot, User receiver, View v) {
-        User provider = providerSnapshot.getValue(User.class);
+    private void getProviderSuccess(User provider, User receiver, View v) {
         FirebaseManager.getInstance().addChat(
-                        provider,
-                        receiver,
-                        product,
-                        new HashMap<>())
+                        provider.getEmail(),
+                        receiver.getEmail(),
+                        product.getName(),
+                        product.getId(),
+                        new ArrayList<>(),
+                        product.getProviderUid(),
+                        receiver.getId())
                 .addOnSuccessListener(this::onGetChatSuccess)
                 .addOnFailureListener(e -> onGetChatFailure(e, v));
     }

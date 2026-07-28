@@ -2,6 +2,7 @@ package com.example.a3130_grp8_app.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Business object for the app-specific user profile stored in Realtime Database.
@@ -11,7 +12,7 @@ public class User implements Serializable {
     private String email;
     private String role;
     private String notificationToken;
-    private Map<String, Message> messageInbox;
+    private Map<String, String> messageInbox;
     private List<String> preferredProductIds;
     private List<String> preferredCategoryNames;
 
@@ -77,11 +78,11 @@ public class User implements Serializable {
         return id;
     }
 
-    public void setMessageInbox(Map<String, Message> messageInbox) {
+    public void setMessageInbox(Map<String, String> messageInbox) {
         this.messageInbox = messageInbox;
     }
 
-    public Map<String, Message> getMessageInbox() {
+    public Map<String, String> getMessageInbox() {
         return messageInbox;
     }
 

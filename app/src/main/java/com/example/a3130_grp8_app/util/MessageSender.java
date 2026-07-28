@@ -7,17 +7,15 @@ import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 public class MessageSender {
-    User sender;
+    String senderId;
+    String senderName;
     Chat chat;
 
-    public MessageSender(User sender, Chat chat) {
-        this.sender = sender;
+    public MessageSender(String senderId, String senderName, Chat chat) {
+        this.senderId = senderId;
         this.chat = chat;
+        this.senderName = senderName;
     }
 
     /**
@@ -33,7 +31,7 @@ public class MessageSender {
 
         Task<Message> addMessageToChatTask = FirebaseManager
                 .getInstance()
-                .addMessageToChat(chat, sender, timeSent, messageString);
+                .addMessageToChat(chat.getId(), senderName, timeSent, messageString);
 
         return addMessageToChatTask.continueWithTask(task -> {
             if(!task.isSuccessful() && task.getException() != null) {
@@ -41,14 +39,16 @@ public class MessageSender {
             }
 
             Message message = task.getResult();
-            if(sender.getId().equals(chat.getProvider().getId())) {
+            if(senderId.equals(chat.getProviderUid())) {
                 return FirebaseManager
                         .getInstance()
-                        .addMessageToUserInbox(chat.getReceiver(), message);
+                        .addMessageToUserInbox(chat.getReceiverUid(), message.getId())
+                        .continueWith(innerTask -> message);
             } else {
                 return FirebaseManager
                         .getInstance()
-                        .addMessageToUserInbox(chat.getProvider(), message);
+                        .addMessageToUserInbox(chat.getProviderUid(), message.getId())
+                        .continueWith(innerTask -> message);
             }
         });
     }

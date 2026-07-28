@@ -12,9 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.activities.ProductChatActivity;
-import com.example.a3130_grp8_app.activities.ViewRequestsActivity;
 import com.example.a3130_grp8_app.model.Chat;
-import com.example.a3130_grp8_app.model.Message;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.User;
 
@@ -79,13 +77,13 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Chat chat = chats.get(position);
-        Product chatProduct = chat.getProduct();
-        viewHolder.getProductNameTextView().setText("Product: " + chatProduct.getName());
+        String chatProductName = chat.getProductName();
+        viewHolder.getProductNameTextView().setText("Product: " + chatProductName);
 
-        User provider = chat.getProvider();
-        User receiver = chat.getReceiver();
-        viewHolder.getProviderNameTextView().setText("seller: " + provider.getEmail());
-        viewHolder.getReceiverNameTestView().setText("buyer: " + receiver.getEmail());
+        String providerName = chat.getProviderName();
+        String receiverName = chat.getReceiverName();
+        viewHolder.getProviderNameTextView().setText("seller: " + providerName);
+        viewHolder.getReceiverNameTestView().setText("buyer: " + receiverName);
 
         viewHolder.getChatListItemMain().setOnClickListener(getOnProductClickListener(chat));
     }

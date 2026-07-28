@@ -17,14 +17,11 @@ import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.data.StorageManager;
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Chat;
-import com.example.a3130_grp8_app.model.Message;
-import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.User;
-import com.example.a3130_grp8_app.util.ChatNotifier;
-import com.example.a3130_grp8_app.util.MessageAdapterChatObserver;
+import com.example.a3130_grp8_app.util.MessageNotifier;
+import com.example.a3130_grp8_app.util.MessageAdapterChatMessageObserver;
 import com.example.a3130_grp8_app.util.MessageSender;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,8 +40,8 @@ public class ProductChatActivity extends AppCompatActivity {
     MessagesAdapter messagesAdapter;
 
     ChatStorage chatStorage;
-    ChatNotifier chatNotifier;
-    MessageAdapterChatObserver messageAdapterChatObserver;
+    MessageNotifier messageNotifier;
+    MessageAdapterChatMessageObserver messageAdapterChatObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +69,12 @@ public class ProductChatActivity extends AppCompatActivity {
         messageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageRecyclerView.setAdapter(messagesAdapter);
 
-        chatNotifier = new ChatNotifier(chat);
+        messageNotifier = new MessageNotifier(chat);
 
         StorageManager storageManager = new StorageManager(this);
-        chatStorage = ChatStorage.getInstance(storageManager, chatNotifier);
+        chatStorage = ChatStorage.getInstance(storageManager, messageNotifier);
 
-        messageAdapterChatObserver = new MessageAdapterChatObserver(chatNotifier, chatStorage, messagesAdapter);
+        messageAdapterChatObserver = new MessageAdapterChatMessageObserver(messageNotifier, chatStorage, messagesAdapter);
 
         sendMessageButton.setOnClickListener(sendButtonOnClickListener);
     }
@@ -99,7 +96,7 @@ public class ProductChatActivity extends AppCompatActivity {
     }
 
     private void createMessageSender() {
-        messageSender = new MessageSender(currUser, chat);
+        messageSender = new MessageSender(currUser.getId(), currUser.getEmail(), chat);
     }
 
     public void onGetUserFailure(Exception e) {

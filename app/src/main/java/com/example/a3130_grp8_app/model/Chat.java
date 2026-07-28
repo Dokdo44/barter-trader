@@ -2,37 +2,49 @@ package com.example.a3130_grp8_app.model;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class Chat implements Serializable {
     private String id;
-    private User provider;
-    private User receiver;
-    private Product product;
+    private String providerName;
+    private String receiverName;
+    private String productName;
+    private String productId;
+    private String providerUid;
+    private String receiverUid;
 
-    private Map<String, Message> messages;
+    private List<String> messageIds;
 
-    public Chat(User provider, User receiver, Product product, Map<String, Message> messages, String id) {
-        this.provider = provider;
-        this.receiver = receiver;
-        this.messages = messages;
-        this.product = product;
+    public Chat(String providerName,
+                String receiverName,
+                String productName,
+                String productId,
+                List<String> messageIds,
+                String id,
+                String providerUid,
+                String receiverUid) {
+        this.providerName = providerName;
+        this.receiverName = receiverName;
+        this.messageIds = messageIds;
+        this.productName = productName;
         this.id = id;
+        this.providerUid = providerUid;
+        this.receiverUid = receiverUid;
+        this.productId = productId;
     }
 
     public Chat() {}
 
-    public Map<String, Message> getMessages() {
-        return messages;
+    public List<String> getMessageIds() {
+        return messageIds;
     }
 
-    public User getReceiver() {
-        return receiver;
+    public String getReceiverName() {
+        return receiverName;
     }
 
-    public User getProvider() {
-        return provider;
+    public String getProviderName() {
+        return providerName;
     }
 
     public String getId() {
@@ -56,11 +68,23 @@ public class Chat implements Serializable {
         return Objects.hash(id);
     }
 
-    public Product getProduct() {
-        return product;
+    public String getProductName() {
+        return productName;
     }
 
-    public void addMessage(Message message) {
-        messages.put(message.getId(), message);
+    public void addMessageId(String messageId) {
+        messageIds.add(messageId);
+    }
+
+    public String getProviderUid() {
+        return providerUid;
+    }
+
+    public String getReceiverUid() {
+        return receiverUid;
+    }
+
+    public String getProductId() {
+        return productId;
     }
 }

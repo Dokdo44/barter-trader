@@ -99,7 +99,7 @@ public class AndroidNotificationSender implements NotificationSender {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("New message from " + message.getSender().getEmail())
+                .setContentTitle("New message from " + message.getSenderName())
                 .setContentText(message.getMessageString())
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)

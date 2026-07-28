@@ -55,7 +55,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Message currMessage = messages.get(position);
-        viewHolder.getSenderTextView().setText(currMessage.getSender().getEmail());
+        viewHolder.getSenderTextView().setText(currMessage.getSenderName());
         viewHolder.getMessageTextView().setText(currMessage.getMessageString());
     }
 

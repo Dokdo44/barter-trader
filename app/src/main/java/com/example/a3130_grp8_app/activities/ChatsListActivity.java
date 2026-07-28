@@ -30,6 +30,7 @@ public class ChatsListActivity extends AppCompatActivity {
 
     RecyclerView chatsListRecyclerView;
     ChatsListItemAdapter chatsListItemAdapter;
+    String currUserId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,13 +50,11 @@ public class ChatsListActivity extends AppCompatActivity {
         chatsListRecyclerView.setAdapter(chatsListItemAdapter);
 
 
-        try {
-            FirebaseManager.getInstance().getCurrentUserProfile()
-                    .addOnSuccessListener(this::onGetUserSuccess)
-                    .addOnFailureListener(this::onGetUserFailure);
-        } catch (FirebaseConnectionError e) {
-            Log.e("e", "Unable to get current user profile from firebase");
+        currUserId = FirebaseManager.getInstance().getCurrentUserID();
+        if(currUserId == null) {
+            throw new RuntimeException("Unable to get user");
         }
+        onGetUserSuccess(currUserId);
     }
 
     private ChildEventListener chatChildEventListener = new ChildEventListener() {
@@ -91,13 +90,7 @@ public class ChatsListActivity extends AppCompatActivity {
     };
 
 
-    private void onGetUserSuccess(User user) {
-        FirebaseManager.getInstance().addChildEventListenerToUserChats(user, chatChildEventListener);
-    }
-
-    private void onGetUserFailure(Exception e) {
-        Snackbar.make(findViewById(R.id.chatsListActivityMain),
-                "Could not get user: " + e.getMessage(),
-                Snackbar.LENGTH_SHORT).show();
+    private void onGetUserSuccess(String userId) {
+        FirebaseManager.getInstance().addChildEventListenerToUserChats(userId, chatChildEventListener);
     }
 }

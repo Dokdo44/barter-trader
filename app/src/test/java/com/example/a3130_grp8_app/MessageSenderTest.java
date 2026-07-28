@@ -1,9 +1,10 @@
 package com.example.a3130_grp8_app;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -19,13 +20,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,33 +41,7 @@ public class MessageSenderTest {
     User provider;
     User receiver;
     Chat chat;
-
-    int messageId;
-
-    @BeforeClass
-    public static void setUpClass() {
-        FirebaseManager mockManager = mock(FirebaseManager.class);
-        doAnswer(invocation -> {
-            Chat chat = invocation.getArgument(0);
-            User sender = invocation.getArgument(1);
-            String timeSent = invocation.getArgument(2);
-            String messageString = invocation.getArgument(3);
-
-            Message message = new Message(sender, timeSent, messageString, "1");
-            chat.addMessage(message);
-            return Tasks.forResult(message);
-        }).when(mockManager).addMessageToChat(any(), any(), any(), any());
-
-        doAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            Message message = invocation.getArgument(1);
-
-            user.getMessageInbox().put(message.getId(), message);
-            return Tasks.forResult(message);
-        }).when(mockManager).addMessageToUserInbox(any(), any());
-
-        FirebaseManager.install(mockManager);
-    }
+    FirebaseManager mockManager;
 
     @Before
     public void setUp() {
@@ -77,50 +53,77 @@ public class MessageSenderTest {
         receiver.setId("2");
         receiver.setMessageInbox(new HashMap<>());
 
-        chat = new Chat(provider, receiver, mock(Product.class), new HashMap<>(), "1");
-    }
+        Product productMock = mock(Product.class);
 
-    @Test
-    public void testMessageSendsToChatAndInboxProvider() throws ExecutionException, InterruptedException, TimeoutException {
-        MessageSender messageSender = new MessageSender(provider, chat);
-        Task<Message> sendMessageTask = messageSender.sendMessage("text", "This is a test!");
+        List<String> messageIds = new ArrayList<>();
+        chat = new Chat(
+                provider.getEmail(),   // providerName
+                receiver.getEmail(),   // receiverName
+                "productName",
+                "productId",
+                messageIds,
+                "1",                   // chat id
+                provider.getId(),      // providerUid
+                receiver.getId());     // receiverUid
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<Message> future = executor.submit(() -> Tasks.await(sendMessageTask, 5, TimeUnit.SECONDS));
+        mockManager = mock(FirebaseManager.class);
 
-        // Flush Robolectric's main-thread queue so the task's internal
-        // callbacks (which likely post back to main) actually run
-        shadowOf(Looper.getMainLooper()).idle();
+        // Mirrors FirebaseManager.addMessageToChat(chatId, senderName, timeSent, messageString)
+        doAnswer(invocation -> {
+            String chatId = invocation.getArgument(0);
+            String senderName = invocation.getArgument(1);
+            String timeSent = invocation.getArgument(2);
+            String messageString = invocation.getArgument(3);
 
-        future.get(5, TimeUnit.SECONDS); // rethrows any exception from await
+            Message message = new Message(senderName, timeSent, messageString, chatId, "m1");
+            chat.getMessageIds().add(message.getId());
+            return Tasks.forResult(message);
+        }).when(mockManager).addMessageToChat(eq("1"), any(), any(), any());
 
-        Message expected = new Message(provider, "test", "This is a test!", "1");
-        HashMap<String, Message> expectedMessageHashMap = new HashMap<>();
-        expectedMessageHashMap.put(expected.getId(), expected);
+        // Mirrors FirebaseManager.addMessageToUserInbox(userId, messageId)
+        doAnswer(invocation -> {
+            String userId = invocation.getArgument(0);
+            String messageId = invocation.getArgument(1);
 
-        assertEquals(chat.getMessages(), expectedMessageHashMap);
-        assertEquals(receiver.getMessageInbox(), expectedMessageHashMap);
+            Map<String, String> inbox = userId.equals(provider.getId())
+                    ? provider.getMessageInbox()
+                    : receiver.getMessageInbox();
+            inbox.put(messageId, chat.getId());
+            return Tasks.forResult(null);
+        }).when(mockManager).addMessageToUserInbox(any(), any());
+
+        FirebaseManager.install(mockManager);
     }
 
     @Test
     public void testMessageSendsToChatAndInboxReceiver() throws ExecutionException, InterruptedException, TimeoutException {
-        MessageSender messageSender = new MessageSender(receiver, chat);
-        Task<Message> sendMessageTask = messageSender.sendMessage("text", "This is a test!");
+        MessageSender messageSender = new MessageSender(provider.getId(), provider.getEmail(), chat);
+        Task<Message> sendMessageTask = messageSender.sendMessage("test", "This is a test!");
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Message> future = executor.submit(() -> Tasks.await(sendMessageTask, 5, TimeUnit.SECONDS));
 
-        // Flush Robolectric's main-thread queue so the task's internal
-        // callbacks (which likely post back to main) actually run
         shadowOf(Looper.getMainLooper()).idle();
+        Message sent = future.get(5, TimeUnit.SECONDS);
 
-        future.get(5, TimeUnit.SECONDS); // rethrows any exception from await
+        assertTrue(chat.getMessageIds().contains(sent.getId()));
+        assertEquals(chat.getId(), receiver.getMessageInbox().get(sent.getId()));
+        assertTrue(provider.getMessageInbox().isEmpty());
+    }
 
-        Message expected = new Message(receiver, "test", "This is a test!", "1");
-        HashMap<String, Message> expectedMessageHashMap = new HashMap<>();
-        expectedMessageHashMap.put(expected.getId(), expected);
+    @Test
+    public void testMessageSendsToChatAndInboxProvider() throws ExecutionException, InterruptedException, TimeoutException {
+        MessageSender messageSender = new MessageSender(receiver.getId(), receiver.getEmail(), chat);
+        Task<Message> sendMessageTask = messageSender.sendMessage("test", "This is a test!");
 
-        assertEquals(chat.getMessages(), expectedMessageHashMap);
-        assertEquals(provider.getMessageInbox(), expectedMessageHashMap);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Message> future = executor.submit(() -> Tasks.await(sendMessageTask, 5, TimeUnit.SECONDS));
+
+        shadowOf(Looper.getMainLooper()).idle();
+        Message sent = future.get(5, TimeUnit.SECONDS);
+
+        assertTrue(chat.getMessageIds().contains(sent.getId()));
+        assertEquals(chat.getId(), provider.getMessageInbox().get(sent.getId()));
+        assertTrue(receiver.getMessageInbox().isEmpty());
     }
 }

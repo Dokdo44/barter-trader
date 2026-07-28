@@ -49,6 +49,7 @@ public class FirebaseManager {
     private static final String PRODUCTS_PATH = "product";
     private static final String REQUESTS_PATH = "requests";
     private static final String CHAT_PATH = "chats";
+    private static final String MESSAGES_PATH = "messages";
     static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private FirebaseAuth auth;
@@ -635,36 +636,51 @@ public class FirebaseManager {
         return user != null ? user.getUid() : null;
     }
 
-    public Task<Chat> addChat(User provider, User receiver, Product product, Map<String, Message> messages) {
+    public Task<Chat> addChat(String providerName,
+                              String receiverName,
+                              String productName,
+                              String productId,
+                              List<String> messageIds,
+                              String providerId,
+                              String receiverId) {
+
         DatabaseReference chatReference = getDb()
                 .getReference(CHAT_PATH)
                 .push();
 
         String chatId = chatReference.getKey();
-        Chat chat = new Chat(provider, receiver, product, messages, chatId);
+        Chat chat = new Chat(
+                providerName,
+                receiverName,
+                productName,
+                productId,
+                messageIds,
+                chatId,
+                providerId,
+                receiverId);
         chat.setId(chatId);
         return toResult(chatReference.setValue(chat), chat);
     }
 
-    public Task<DataSnapshot> getChatsForProduct(Product product) {
+    public Task<DataSnapshot> getChatsForProduct(String productId) {
         return getDb()
                 .getReference(CHAT_PATH)
-                .orderByChild("product/id")
-                .equalTo(product.getId())
+                .orderByChild("productId")
+                .equalTo(productId)
                 .get();
     }
 
-    public void addChildEventListenerToUserChats(User user, ChildEventListener childEventListener) {
+    public void addChildEventListenerToUserChats(String userId, ChildEventListener childEventListener) {
         getDb()
                 .getReference(CHAT_PATH)
-                .orderByChild("provider/id")
-                .equalTo(user.getId())
+                .orderByChild("providerUid")
+                .equalTo(userId)
                 .addChildEventListener(childEventListener);
 
         getDb()
                 .getReference(CHAT_PATH)
-                .orderByChild("receiver/id")
-                .equalTo(user.getId())
+                .orderByChild("receiverUid")
+                .equalTo(userId)
                 .addChildEventListener(childEventListener);
     }
 
@@ -677,30 +693,30 @@ public class FirebaseManager {
      * @param messageString the text content of the message to be sent
      * @return a task that completes when the message has been added to the user's list
      */
-    public Task<Message> addMessageToChat(Chat chat, User sender, String timeSent, String messageString) {
+    public Task<Message> addMessageToChat(String chatId, String senderName, String timeSent, String messageString) {
         DatabaseReference messageRef = getDb()
                 .getReference(CHAT_PATH)
-                .child(chat.getId())
+                .child(chatId)
                 .child("messages")
                 .push();
-        Message message = new Message(sender, timeSent, messageString, messageRef.getKey(), chat.getId());
+        Message message = new Message(senderName, timeSent, messageString, messageRef.getKey(), chatId);
         return toResult(messageRef.setValue(message), message);
     }
 
-    public Task<Message> addMessageToUserInbox(User user, Message message) {
+    public Task<String> addMessageToUserInbox(String userId, String messageId) {
         DatabaseReference userInboxRef = getDb()
                 .getReference(USERS_PATH)
-                .child(user.getId())
+                .child(userId)
                 .child("messageInbox")
                 .push();
 
-        return toResult(userInboxRef.setValue(message), message);
+        return toResult(userInboxRef.setValue(messageId), messageId);
     }
 
-    public void addChildEventListenerForChatMessages(Chat chat, ChildEventListener childEventListener) {
+    public void addChildEventListenerForChatMessages(String chatId, ChildEventListener childEventListener) {
         getDb()
                 .getReference(CHAT_PATH)
-                .child(chat.getId())
+                .child(chatId)
                 .child("messages")
                 .orderByChild("timeSent")
                 .addChildEventListener(childEventListener);
@@ -726,6 +742,13 @@ public class FirebaseManager {
                 .child(user.getId())
                 .child("messageInbox")
                 .addChildEventListener(childEventListener);
+    }
+
+    public Task<Message> getMessageById(String messageId) {
+        return getDb()
+                .getReference(MESSAGES_PATH)
+                .child(messageId)
+                .get().continueWith(task -> task.getResult().getValue(Message.class));
     }
 
     private <T> Task<T> toResult(Task<Void> voidTask, T toReturn) {

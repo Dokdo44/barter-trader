@@ -1,15 +1,12 @@
 package com.example.a3130_grp8_app.util;
 
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.a3130_grp8_app.data.ChatStorage;
 import com.example.a3130_grp8_app.data.FirebaseManager;
-import com.example.a3130_grp8_app.data.StorageManager;
 import com.example.a3130_grp8_app.model.Chat;
 import com.example.a3130_grp8_app.model.Message;
 import com.google.firebase.database.ChildEventListener;
@@ -19,8 +16,8 @@ import com.google.firebase.database.DatabaseError;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatNotifier {
-    List<IObserver<Message>> messageObservers;
+public class MessageNotifier {
+    List<IMessageObserver<Message>> messageObservers;
     Chat chat;
 
     private final ChildEventListener chatMessageChildEventListener = new ChildEventListener() {
@@ -55,27 +52,27 @@ public class ChatNotifier {
         }
     };
 
-    public ChatNotifier(Chat chat) {
+    public MessageNotifier(Chat chat) {
         this.chat = chat;
         this.messageObservers = new ArrayList<>();
         initFirebase();
     }
 
     private void initFirebase() {
-        FirebaseManager.getInstance().addChildEventListenerForChatMessages(chat, chatMessageChildEventListener);
+        FirebaseManager.getInstance().addChildEventListenerForChatMessages(chat.getId(), chatMessageChildEventListener);
     }
 
     private void updateObservers(Message message) {
-        for(IObserver<Message> observer : messageObservers) {
+        for(IMessageObserver<Message> observer : messageObservers) {
             observer.sendUpdate(message);
         }
     }
 
-    public void attach(IObserver<Message> chatObserver) {
+    public void attach(IMessageObserver<Message> chatObserver) {
         messageObservers.add(chatObserver);
     }
 
-    public void detach(IObserver<Message> chatObserver) {
+    public void detach(IMessageObserver<Message> chatObserver) {
         messageObservers.remove(chatObserver);
     }
 

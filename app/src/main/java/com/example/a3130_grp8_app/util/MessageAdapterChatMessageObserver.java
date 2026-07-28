@@ -5,20 +5,19 @@ import com.example.a3130_grp8_app.data.ChatStorage;
 import com.example.a3130_grp8_app.model.Message;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-public class MessageAdapterChatObserver implements IObserver<Message> {
+public class MessageAdapterChatMessageObserver implements IMessageObserver<Message> {
 
-    ChatNotifier chatNotifier;
+    MessageNotifier messageNotifier;
     ChatStorage chatStorage;
     MessagesAdapter messagesAdapter;
 
-    public MessageAdapterChatObserver(ChatNotifier chatNotifier, ChatStorage chatStorage, MessagesAdapter messagesAdapter) {
-        this.chatNotifier = chatNotifier;
+    public MessageAdapterChatMessageObserver(MessageNotifier messageNotifier, ChatStorage chatStorage, MessagesAdapter messagesAdapter) {
+        this.messageNotifier = messageNotifier;
         this.chatStorage = chatStorage;
         this.messagesAdapter = messagesAdapter;
-        chatNotifier.attach(this);
+        messageNotifier.attach(this);
     }
 
     @Override
