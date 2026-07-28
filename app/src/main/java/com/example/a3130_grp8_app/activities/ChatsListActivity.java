@@ -15,14 +15,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.adapters.ChatsListItemAdapter;
+import com.example.a3130_grp8_app.data.ChatStorage;
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.data.StorageManager;
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Chat;
 import com.example.a3130_grp8_app.model.User;
+import com.example.a3130_grp8_app.util.ChatAdapterChatObserver;
+import com.example.a3130_grp8_app.util.ChatNotifier;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -30,6 +35,7 @@ public class ChatsListActivity extends AppCompatActivity {
 
     RecyclerView chatsListRecyclerView;
     ChatsListItemAdapter chatsListItemAdapter;
+    ChatAdapterChatObserver chatAdapterChatObserver;
     String currUserId;
 
     /**
@@ -58,43 +64,34 @@ public class ChatsListActivity extends AppCompatActivity {
         if(currUserId == null) {
             throw new RuntimeException("Unable to get user");
         }
-        onGetUserSuccess(currUserId);
-    }
 
-    private ChildEventListener chatChildEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            Chat chat = snapshot.getValue(Chat.class);
-            if(chat == null) {
-                Log.e("e", "Could not get chat from snapshot");
-                return;
+        ChatNotifier chatNotifier = new ChatNotifier(currUserId);
+
+        StorageManager storageManager = new StorageManager(this);
+        ChatStorage chatStorage = ChatStorage.getInstance(storageManager, chatNotifier);
+        chatAdapterChatObserver = new ChatAdapterChatObserver(chatNotifier, chatStorage, chatsListItemAdapter);
+
+        FirebaseManager.getInstance().addValueEventListenerForConnection(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean connected = snapshot.getValue(Boolean.class);
+                if(connected == null) {
+                    Log.e("e", "could not get snapshot value");
+                    return;
+                }
+                if(connected) {
+                    chatAdapterChatObserver.attachToChatNotifier();
+                } else {
+                    chatAdapterChatObserver.attachToChatStorage();
+                    chatStorage.feedObservers();
+                }
             }
-            chatsListItemAdapter.addChat(chatsListItemAdapter.getItemCount(), chat);
-        }
 
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-        }
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError error) {
-
-        }
-    };
-
-
-    private void onGetUserSuccess(String userId) {
-        FirebaseManager.getInstance().addChildEventListenerToUserChats(userId, chatChildEventListener);
+            }
+        });
     }
+
 }

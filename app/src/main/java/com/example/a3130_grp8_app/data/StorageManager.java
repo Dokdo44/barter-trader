@@ -29,7 +29,7 @@ public class StorageManager {
     }
 
     public Object loadObject(String filename) {
-        try (FileInputStream fis = context.openFileInput("filename");
+        try (FileInputStream fis = context.openFileInput(filename);
              ObjectInputStream ois = new ObjectInputStream(fis)) {
             return ois.readObject();
         } catch (IOException | ClassNotFoundException e) {

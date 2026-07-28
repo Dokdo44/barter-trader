@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +15,7 @@ import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.adapters.MessagesAdapter;
 import com.example.a3130_grp8_app.data.ChatStorage;
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.data.MessageStorage;
 import com.example.a3130_grp8_app.data.StorageManager;
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Chat;
@@ -22,6 +24,9 @@ import com.example.a3130_grp8_app.util.MessageNotifier;
 import com.example.a3130_grp8_app.util.MessageAdapterChatMessageObserver;
 import com.example.a3130_grp8_app.util.MessageSender;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,7 +44,7 @@ public class ProductChatActivity extends AppCompatActivity {
 
     MessagesAdapter messagesAdapter;
 
-    ChatStorage chatStorage;
+    MessageStorage messageStorage;
     MessageNotifier messageNotifier;
     MessageAdapterChatMessageObserver messageAdapterChatObserver;
 
@@ -76,11 +81,32 @@ public class ProductChatActivity extends AppCompatActivity {
         messageNotifier = new MessageNotifier(chat);
 
         StorageManager storageManager = new StorageManager(this);
-        chatStorage = ChatStorage.getInstance(storageManager, messageNotifier);
+        messageStorage = MessageStorage.getInstance(storageManager, messageNotifier);
 
-        messageAdapterChatObserver = new MessageAdapterChatMessageObserver(messageNotifier, chatStorage, messagesAdapter);
+        messageAdapterChatObserver = new MessageAdapterChatMessageObserver(messageNotifier, messageStorage, messagesAdapter);
 
         sendMessageButton.setOnClickListener(sendButtonOnClickListener);
+
+        FirebaseManager.getInstance().addValueEventListenerForConnection(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean connected = snapshot.getValue(Boolean.class);
+                if(connected == null) {
+                    return;
+                }
+                if(connected) {
+                    messageAdapterChatObserver.attachToMessageNotifier();
+                } else {
+                    messageAdapterChatObserver.attachToMessageStorage();
+                    messageStorage.feedObservers(chat.getId());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private final View.OnClickListener sendButtonOnClickListener = view -> {

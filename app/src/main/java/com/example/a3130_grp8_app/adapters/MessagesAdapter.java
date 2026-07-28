@@ -60,7 +60,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     }
 
     public void addMessage(int position, Message message) {
-        messages.add(position, message);
+        if(!messages.contains(message)) {
+            messages.add(position, message);
+        }
         notifyItemInserted(position);
     }
 

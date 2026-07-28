@@ -124,8 +124,10 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
      * @param chat the Chat item
      */
     public void addChat(int position, Chat chat) {
-        chats.add(position, chat);
-        notifyItemInserted(position);
+        if(!chats.contains(chat)) {
+            chats.add(position, chat);
+            notifyItemInserted(position);
+        }
     }
 
 }

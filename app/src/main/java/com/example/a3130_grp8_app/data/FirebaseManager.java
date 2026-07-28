@@ -848,6 +848,10 @@ public class FirebaseManager {
                 .continueWith(task -> task.getResult().getValue(Message.class));
     }
 
+    public void addValueEventListenerForConnection(ValueEventListener valueEventListener) {
+        getDb().getReference(".info/connected").addValueEventListener(valueEventListener);
+    }
+
     /**
      * Converts a database write task into a task that returns a specified result.
      *

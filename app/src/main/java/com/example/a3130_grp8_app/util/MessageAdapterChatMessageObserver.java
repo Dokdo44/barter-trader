@@ -1,7 +1,7 @@
 package com.example.a3130_grp8_app.util;
 
 import com.example.a3130_grp8_app.adapters.MessagesAdapter;
-import com.example.a3130_grp8_app.data.ChatStorage;
+import com.example.a3130_grp8_app.data.MessageStorage;
 import com.example.a3130_grp8_app.model.Message;
 
 import java.time.LocalDateTime;
@@ -10,14 +10,13 @@ import java.util.List;
 public class MessageAdapterChatMessageObserver implements IMessageObserver {
 
     MessageNotifier messageNotifier;
-    ChatStorage chatStorage;
+    MessageStorage messageStorage;
     MessagesAdapter messagesAdapter;
 
-    public MessageAdapterChatMessageObserver(MessageNotifier messageNotifier, ChatStorage chatStorage, MessagesAdapter messagesAdapter) {
+    public MessageAdapterChatMessageObserver(MessageNotifier messageNotifier, MessageStorage MessageStorage, MessagesAdapter messagesAdapter) {
         this.messageNotifier = messageNotifier;
-        this.chatStorage = chatStorage;
+        this.messageStorage = MessageStorage;
         this.messagesAdapter = messagesAdapter;
-        messageNotifier.attach(this);
     }
 
     /**
@@ -40,5 +39,15 @@ public class MessageAdapterChatMessageObserver implements IMessageObserver {
 
     public MessagesAdapter getMessagesAdapter() {
         return messagesAdapter;
+    }
+
+    public void attachToMessageNotifier() {
+        messageStorage.detach(this);
+        messageNotifier.attach(this);
+    }
+
+    public void attachToMessageStorage() {
+        messageNotifier.detach(this);
+        messageStorage.attach(this);
     }
 }
