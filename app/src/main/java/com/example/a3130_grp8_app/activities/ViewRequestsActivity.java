@@ -75,7 +75,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
     private void showRequestDetailsDialog(String requestKey, Request request) {
         new android.app.AlertDialog.Builder(this)
                 .setTitle("Requester Details")
-                .setMessage("Email: " + request.getReceiverEmail() + "\nStatus: " + request.getStatus())
+                .setMessage("Email: " + request.getReceiverEmail() + "\nOffered items: "+ String.join(", ", request.getOfferedItems()) + "\nStatus: " + request.getStatus())
                 .setPositiveButton("Accept", (dialog, which) ->
                         updateRequestStatus(requestKey, "accepted"))
                 .setNegativeButton("Decline", (dialog, which) ->
