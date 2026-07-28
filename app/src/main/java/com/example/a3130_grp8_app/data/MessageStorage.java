@@ -34,6 +34,7 @@ public class MessageStorage implements IMessageObserver {
         this.messageUpdates = new ArrayList<>();
         this.messageNotifier = messageNotifier;
         this.currChat = messageNotifier.getChat();
+        this.observers = new ArrayList<>();
         messageNotifier.attach(this);
     }
 
