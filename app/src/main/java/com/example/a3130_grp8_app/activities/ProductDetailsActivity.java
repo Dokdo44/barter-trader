@@ -88,7 +88,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             for(DataSnapshot snapshotChild : snapshot.getChildren()) {
                 Chat chat = snapshotChild.getValue(Chat.class);
                 assert chat != null;
-                if(chat.getReceiverUid().equals(user.getId())) {
+                if(chat.getReceiverUid().equals(FirebaseManager.getInstance().getCurrentUserID())) {
                     productChat = chat;
                 }
             }
@@ -110,7 +110,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         product.getId(),
                         new HashMap<>(),
                         product.getProviderUid(),
-                        receiver.getId())
+                        FirebaseManager.getInstance().getCurrentUserID())
                 .addOnSuccessListener(this::onGetChatSuccess)
                 .addOnFailureListener(e -> onGetChatFailure(e, v));
     }

@@ -100,7 +100,8 @@ public class ProductChatActivity extends AppCompatActivity {
     }
 
     private void createMessageSender() {
-        messageSender = new MessageSender(currUser.getId(), currUser.getEmail(), chat);
+        messageSender = new MessageSender(FirebaseManager.getInstance().getCurrentUserID(),
+                currUser.getEmail(), chat);
     }
 
     private void onGetUserFailure(Exception e) {
