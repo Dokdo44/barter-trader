@@ -55,7 +55,7 @@ public class MessageSenderTest {
 
         Product productMock = mock(Product.class);
 
-        List<String> messageIds = new ArrayList<>();
+        HashMap<String, String> messageIds = new HashMap<>();
         chat = new Chat(
                 provider.getEmail(),   // providerName
                 receiver.getEmail(),   // receiverName
@@ -76,7 +76,7 @@ public class MessageSenderTest {
             String messageString = invocation.getArgument(3);
 
             Message message = new Message(senderName, timeSent, messageString, chatId, "m1");
-            chat.getMessageIds().add(message.getId());
+            chat.getMessageIds().put(message.getId(), message.getId());
             return Tasks.forResult(message);
         }).when(mockManager).addMessageToChat(eq("1"), any(), any(), any());
 
@@ -106,7 +106,7 @@ public class MessageSenderTest {
         shadowOf(Looper.getMainLooper()).idle();
         Message sent = future.get(5, TimeUnit.SECONDS);
 
-        assertTrue(chat.getMessageIds().contains(sent.getId()));
+        assertTrue(chat.getMessageIds().containsValue(sent.getId()));
         assertEquals(chat.getId(), receiver.getMessageInbox().get(sent.getId()));
         assertTrue(provider.getMessageInbox().isEmpty());
     }
@@ -122,7 +122,7 @@ public class MessageSenderTest {
         shadowOf(Looper.getMainLooper()).idle();
         Message sent = future.get(5, TimeUnit.SECONDS);
 
-        assertTrue(chat.getMessageIds().contains(sent.getId()));
+        assertTrue(chat.getMessageIds().containsValue(sent.getId()));
         assertEquals(chat.getId(), provider.getMessageInbox().get(sent.getId()));
         assertTrue(receiver.getMessageInbox().isEmpty());
     }

@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 public class MessageAdapterChatObserverTest {
@@ -56,7 +57,7 @@ public class MessageAdapterChatObserverTest {
                 receiver.getEmail(),
                 "productName",
                 "productId",
-                new ArrayList<>(),
+                new HashMap<>(),
                 "1",
                 provider.getId(),
                 receiver.getId());
