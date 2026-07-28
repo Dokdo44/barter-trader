@@ -48,19 +48,30 @@ public class TransactionAdapter extends BaseAdapter {
                     .inflate(R.layout.transaction_item, parent, false);
         }
 
-
         TextView productNameText =
                 convertView.findViewById(R.id.productNameText);
+
+        TextView productDescriptionText =
+                convertView.findViewById(R.id.productDescriptionText);
+
         TextView productAddressText =
                 convertView.findViewById(R.id.productAddressText);
-        TextView requesterText =
-                convertView.findViewById(R.id.requesterText);
-        TextView locationText =
-                convertView.findViewById(R.id.locationText);
+
+        TextView sellerNameText =
+                convertView.findViewById(R.id.sellerNameText);
+
+        TextView buyerNameText =
+                convertView.findViewById(R.id.buyerNameText);
+
+        TextView buyerLocationText =
+                convertView.findViewById(R.id.buyerLocationText);
+
         TextView offeredItemsText =
                 convertView.findViewById(R.id.offeredItemsText);
+
         TextView statusText =
                 convertView.findViewById(R.id.statusText);
+
         TextView dateText =
                 convertView.findViewById(R.id.dateText);
 
@@ -69,14 +80,25 @@ public class TransactionAdapter extends BaseAdapter {
         productNameText.setText(
                 "Product: " + transaction.getProductName()
         );
+
+        productDescriptionText.setText(
+                "Description: " + transaction.getProductDescription()
+        );
+
         productAddressText.setText(
                 "Address: " + transaction.getProductAddress()
         );
-        requesterText.setText(
-                "Requester: " + transaction.getRequesterName()
+
+        sellerNameText.setText(
+                "Seller: " + transaction.getSellerName()
         );
-        locationText.setText(
-                "Location: " + transaction.getRequesterLocation()
+
+        buyerNameText.setText(
+                "Buyer: " + transaction.getBuyerName()
+        );
+
+        buyerLocationText.setText(
+                "Buyer Location: " + transaction.getBuyerLocation()
         );
 
         StringBuilder offeredItems = new StringBuilder();
@@ -107,10 +129,12 @@ public class TransactionAdapter extends BaseAdapter {
                         "MMMM dd, yyyy",
                         Locale.getDefault()
                 );
+
         String date =
                 formatter.format(
                         new Date(transaction.getTimestamp())
                 );
+
         dateText.setText(
                 "Date: " + date
         );

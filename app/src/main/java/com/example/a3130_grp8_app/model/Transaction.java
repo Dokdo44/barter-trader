@@ -5,18 +5,31 @@ import java.util.List;
 public class Transaction {
 
     private String productName;
+    private String productDescription;
     private String productAddress;
-    private String requesterName;
-    private String requesterLocation;
+
+    private String sellerName;
+    private String buyerName;
+    private String buyerLocation;
+
     private List<String> offeredItems;
     private String status;
     private long timestamp;
 
-    public Transaction(String productName, String productAddress, String requesterName, String requesterLocation, List<String> offeredItems, String status, long timestamp) {
+    public Transaction() {
+        // Required empty constructor for Firebase
+    }
+
+    public Transaction(
+            String productName, String productDescription, String productAddress,
+            String sellerName, String buyerName, String buyerLocation,
+            List<String> offeredItems, String status, long timestamp) {
         this.productName = productName;
+        this.productDescription = productDescription;
         this.productAddress = productAddress;
-        this.requesterName = requesterName;
-        this.requesterLocation = requesterLocation;
+        this.sellerName = sellerName;
+        this.buyerName = buyerName;
+        this.buyerLocation = buyerLocation;
         this.offeredItems = offeredItems;
         this.status = status;
         this.timestamp = timestamp;
@@ -26,16 +39,24 @@ public class Transaction {
         return productName;
     }
 
+    public String getProductDescription() {
+        return productDescription;
+    }
+
     public String getProductAddress() {
         return productAddress;
     }
 
-    public String getRequesterName() {
-        return requesterName;
+    public String getSellerName() {
+        return sellerName;
     }
 
-    public String getRequesterLocation() {
-        return requesterLocation;
+    public String getBuyerName() {
+        return buyerName;
+    }
+
+    public String getBuyerLocation() {
+        return buyerLocation;
     }
 
     public List<String> getOfferedItems() {

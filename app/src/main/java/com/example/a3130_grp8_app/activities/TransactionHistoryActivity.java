@@ -10,8 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.adapters.TransactionAdapter;
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.model.User;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.Transaction;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +45,16 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         transactionListView = findViewById(R.id.transactionListView);
         noTransactionsText = findViewById(R.id.noTransactionsText);
 
-        userId = getIntent().getStringExtra("USER_ID");
-        // Testing only
-        userId = "mqssMmUHXYh2cxqU47OxWAxqYUv1";
+        FirebaseUser currentUser = firebaseManager.getCurrentUser();
+
+        if (currentUser == null) {
+            noTransactionsText.setText("Unable to load transaction history");
+            noTransactionsText.setVisibility(View.VISIBLE);
+            transactionListView.setVisibility(View.GONE);
+            return;
+        }
+
+        userId = currentUser.getUid();
 
         loadBuyerHistory();
         loadSellerHistory();
@@ -64,7 +74,6 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         );
     }
 
-
     private void loadSellerHistory() {
         firebaseManager.getRequestsByProvider(
                 userId,
@@ -79,7 +88,6 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         );
     }
 
-
     private void addCompletedTransactions(List<Request> requests) {
         for (Request request : requests) {
             if ("accepted".equals(request.getStatus())) {
@@ -88,26 +96,68 @@ public class TransactionHistoryActivity extends AppCompatActivity {
                 firebaseManager.getProductById(
                         request.getProductId(),
                         product -> {
-                            Transaction transaction =
-                                    new Transaction(
-                                            product.getName(),
-                                            product.getAddress(),
-                                            request.getRequesterName(),
-                                            request.getRequesterLocation(),
-                                            request.getOfferedItems(),
-                                            request.getStatus(),
-                                            request.getTimestamp()
-                                    );
 
-                            transactions.add(transaction);
-                            pendingProducts--;
-                            checkFinishedLoading();
+                            if (product == null) {
+                                pendingProducts--;
+                                checkFinishedLoading();
+                                return;
+                            }
+
+                            firebaseManager.getUserById(
+                                    product.getProviderUid()
+                            ).addOnSuccessListener(
+                                    seller -> {
+                                        String sellerName = "Unknown";
+
+                                        if (seller != null) {
+                                            sellerName = seller.getEmail();
+                                        }
+
+                                        Transaction transaction =
+                                                new Transaction(
+                                                        product.getName(),
+                                                        product.getDescription(),
+                                                        product.getAddress(),
+                                                        sellerName,
+                                                        request.getRequesterName(),
+                                                        request.getRequesterLocation(),
+                                                        request.getOfferedItems(),
+                                                        request.getStatus(),
+                                                        request.getTimestamp()
+                                                );
+
+                                        transactions.add(transaction);
+
+                                        pendingProducts--;
+                                        checkFinishedLoading();
+                                    }
+                            ).addOnFailureListener(         // So loading screen doesn't get stuck
+                                    e -> {
+
+                                        Transaction transaction =
+                                                new Transaction(
+                                                        product.getName(),
+                                                        product.getDescription(),
+                                                        product.getAddress(),
+                                                        "Unknown",
+                                                        request.getRequesterName(),
+                                                        request.getRequesterLocation(),
+                                                        request.getOfferedItems(),
+                                                        request.getStatus(),
+                                                        request.getTimestamp()
+                                                );
+
+                                        transactions.add(transaction);
+
+                                        pendingProducts--;
+                                        checkFinishedLoading();
+                                    }
+                            );
                         }
                 );
             }
         }
     }
-
 
     private void checkFinishedLoading() {
         if (!buyerLoaded || !sellerLoaded || pendingProducts > 0) {
@@ -119,6 +169,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         } else {
             noTransactionsText.setVisibility(View.GONE);
             transactionListView.setVisibility(View.VISIBLE);
+
             TransactionAdapter adapter =
                     new TransactionAdapter(
                             this,

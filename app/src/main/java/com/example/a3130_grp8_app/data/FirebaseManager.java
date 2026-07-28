@@ -172,6 +172,24 @@ public class FirebaseManager {
     }
 
     /**
+     * Retrieves the profile of a user by their Firebase UID.
+     *
+     * @param uid the UID of the user to retrieve
+     * @return a Task that resolves to the user's profile
+     */
+    public Task<User> getUserById(String uid) {
+        return getUserReference(uid)
+                .get()
+                .continueWith(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    return task.getResult().getValue(User.class);
+                });
+    }
+
+    /**
      * Saves new product listing under /product/{productId}.
      *
      * @param product product to save
