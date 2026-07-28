@@ -93,6 +93,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.MyProductsActivity" android:exported="false"/>
+        <activity android:name=".activities.UserRatingActivity" android:exported="true"/>
         <activity android:name=".activities.PreferredProductsActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

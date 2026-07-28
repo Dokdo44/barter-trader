@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.example.a3130_grp8_app.model.Rating;
 
 import com.example.a3130_grp8_app.util.PreferredCategoriesListener;
 import com.example.a3130_grp8_app.util.ProductPostedListener; // NEW
@@ -29,6 +30,7 @@ import com.example.a3130_grp8_app.util.ProductPostedListener; // NEW
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -518,6 +520,23 @@ public class FirebaseManager {
                 .orderByChild("productId")
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
+    }
+
+    /**
+     * Retrieves all ratings for a specific provider.
+     *
+     * @param providerId the ID of the provider
+     * @param listener callback to handle the ratings data
+     */
+    public void getRatings(String providerId, RatingValueEventListener listener) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Callback interface for rating data retrieval.
+     */
+    public interface RatingValueEventListener {
+        void onGetRatings(ArrayList<Rating> ratings);
     }
 
     /**
