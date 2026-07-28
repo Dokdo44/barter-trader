@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.a3130_grp8_app.R;
+import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Rating;
 
 import java.util.ArrayList;
@@ -23,6 +24,13 @@ public class UserRatingActivity extends AppCompatActivity {
 
         averageRatingText = findViewById(R.id.averageRatingText);
         ratingsContainer = findViewById(R.id.ratingsContainer);
+        FirebaseManager firebaseManager = FirebaseManager.getInstance();
+
+        String providerId = getIntent().getStringExtra("PROVIDER_ID");
+
+        firebaseManager.getRatings(providerId, ratings -> {
+            displayRatings(ratings);
+        });
     }
 
     private void displayRatings(ArrayList<Rating> ratings) {
