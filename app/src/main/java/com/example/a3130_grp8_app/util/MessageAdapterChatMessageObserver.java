@@ -20,6 +20,11 @@ public class MessageAdapterChatMessageObserver implements IMessageObserver {
         messageNotifier.attach(this);
     }
 
+    /**
+     * On a message update, the message is sorted into the adapter's messages in reverse
+     * chronological order
+     * @param update the message update
+     */
     @Override
     public void update(Message update) {
         // Adds the message in reverse chronological order to adapter messages

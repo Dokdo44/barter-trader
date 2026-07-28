@@ -53,6 +53,10 @@ public class MessageNotifier {
         }
     };
 
+    /**
+     * Listens to messages on a chat and updates observers
+     * @param chat the chat to listen for messages on
+     */
     public MessageNotifier(Chat chat) {
         this.chat = chat;
         this.messageObservers = new ArrayList<>();

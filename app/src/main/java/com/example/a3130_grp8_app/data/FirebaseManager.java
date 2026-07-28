@@ -137,9 +137,9 @@ public class FirebaseManager {
     /**
      * Creates a new user account and stores the user's profile information.
      *
-     * @param email the user's email address
+     * @param email    the user's email address
      * @param password the user's password
-     * @param role the user's role
+     * @param role     the user's role
      * @return a Task that completes when the account and profile have been created
      */
     public Task<Void> createUser(String email, String password, String role) {
@@ -168,7 +168,7 @@ public class FirebaseManager {
     }
 
     private Task<Void> onGetTokenSuccess(Task<String> tokenTask, FirebaseUser firebaseUser, String email, String role) {
-        if(!tokenTask.isSuccessful() &&  tokenTask.getException() != null) {
+        if (!tokenTask.isSuccessful() && tokenTask.getException() != null) {
             return Tasks.forException(tokenTask.getException());
         }
 
@@ -186,7 +186,7 @@ public class FirebaseManager {
     /**
      * Signs a user into Firebase Authentication.
      *
-     * @param email the user's email address
+     * @param email    the user's email address
      * @param password the user's password
      * @return a Task that resolves to the authentication result
      */
@@ -254,7 +254,7 @@ public class FirebaseManager {
      * Saves a product under the specified product ID.
      *
      * @param productId the ID of the product
-     * @param product the product to save
+     * @param product   the product to save
      * @return a Task that completes when the product has been saved
      * @throws FirebaseConnectionError if no user is signed in or the product ID is invalid
      */
@@ -303,17 +303,21 @@ public class FirebaseManager {
 
         @Override
         public final void onChildChanged(@NonNull DataSnapshot snapshot,
-                                         @Nullable String previousChildName) {}
+                                         @Nullable String previousChildName) {
+        }
 
         @Override
-        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {
+        }
 
         @Override
         public final void onChildMoved(@NonNull DataSnapshot snapshot,
-                                       @Nullable String previousChildName) {}
+                                       @Nullable String previousChildName) {
+        }
 
         @Override
-        public final void onCancelled(@NonNull DatabaseError error) {}
+        public final void onCancelled(@NonNull DatabaseError error) {
+        }
 
         public abstract void onGetProduct(Product product);
     }
@@ -332,7 +336,8 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {}
+        public void onCancelled(DatabaseError databaseError) {
+        }
 
         public abstract void onGetProducts(List<Product> products);
     }
@@ -340,7 +345,7 @@ public class FirebaseManager {
     /**
      * Registers a listener for product changes ordered by the specified field.
      *
-     * @param orderBy the child field used to order products
+     * @param orderBy                   the child field used to order products
      * @param productChildEventListener the listener that receives product events
      */
     public void addProductChildEventListener(String orderBy,
@@ -392,7 +397,7 @@ public class FirebaseManager {
     }
 
     public void addChildEventListenerForUserPreferredProductIds(String userId,
-                                                                            ChildEventListener preferredProductIdsChildEventListener) {
+                                                                ChildEventListener preferredProductIdsChildEventListener) {
         DatabaseReference userRef =
                 getDb()
                         .getReference(USERS_PATH)
@@ -425,7 +430,7 @@ public class FirebaseManager {
     }
 
     public void addChildEventListenerForUserPreferredCategoryNames(String userId,
-                                                                ChildEventListener preferredCategoryNamesChildEventListener) {
+                                                                   ChildEventListener preferredCategoryNamesChildEventListener) {
         DatabaseReference userRef =
                 getDb()
                         .getReference(USERS_PATH)
@@ -510,7 +515,7 @@ public class FirebaseManager {
      * Updates the status of an existing request (e.g. "accepted" or "declined").
      *
      * @param requestId the Firebase key of the request
-     * @param status the new status to set
+     * @param status    the new status to set
      * @return a Task that resolves on success
      */
     public Task<Void> updateRequestStatus(String requestId, String status) {
@@ -534,7 +539,8 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError error) { }
+        public void onCancelled(DatabaseError error) {
+        }
 
         public abstract void onGetRequests(List<Request> requests);
     }
@@ -551,7 +557,7 @@ public class FirebaseManager {
     /**
      * Loads the preferred category names for a given user.
      *
-     * @param userId the UID of the user
+     * @param userId   the UID of the user
      * @param listener callback invoked with the loaded categories or an error
      */
     public void loadPreferredCategories(String userId, PreferredCategoriesListener listener) {
@@ -594,13 +600,16 @@ public class FirebaseManager {
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
 
             @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            }
 
             @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -636,6 +645,18 @@ public class FirebaseManager {
         return user != null ? user.getUid() : null;
     }
 
+    /**
+     * Adds a Chat item to the database
+     *
+     * @param providerName The name of the provider of the product in the chat
+     * @param receiverName the name of the receiver of the product in the chat
+     * @param productName  the name of the product being discussed
+     * @param productId    the Id of the product
+     * @param messageIds   a map of the message Ids contained in the chat
+     * @param providerId   the Id of the provider
+     * @param receiverId   the Id of the receiver
+     * @return a task that completes to the newly created chat
+     */
     public Task<Chat> addChat(String providerName,
                               String receiverName,
                               String productName,
@@ -662,6 +683,12 @@ public class FirebaseManager {
         return toResult(chatReference.setValue(chat), chat);
     }
 
+    /**
+     * Get the chats associated with the given product id
+     *
+     * @param productId the Id of the product associated with the chats
+     * @return a DataSnapshot containing all of the chats associated with the product id
+     */
     public Task<DataSnapshot> getChatsForProduct(String productId) {
         return getDb()
                 .getReference(CHAT_PATH)
@@ -670,6 +697,16 @@ public class FirebaseManager {
                 .get();
     }
 
+    /**
+     * Adds a child event listener to all chats where the specified user is either
+     * the provider or receiver.
+     *
+     * <p>This registers listeners for both possible relationships because Firebase
+     * Realtime Database queries cannot perform an OR operation on multiple fields.</p>
+     *
+     * @param userId             the unique identifier of the user whose chats should be observed
+     * @param childEventListener the listener to receive chat events
+     */
     public void addChildEventListenerToUserChats(String userId, ChildEventListener childEventListener) {
         getDb()
                 .getReference(CHAT_PATH)
@@ -685,13 +722,17 @@ public class FirebaseManager {
     }
 
     /**
-     * Add a message to the user's list of messages in the databse
+     * Adds a new message to a chat and stores the message ID in the chat's message list.
      *
-     * @param chat the chat that will recieve the message
-     * @param sender the sender of the message
-     * @param timeSent the time that the message was sent, as a String
-     * @param messageString the text content of the message to be sent
-     * @return a task that completes when the message has been added to the user's list
+     * <p>The message is stored under the messages collection, and a reference to the
+     * message is added to the specified chat so that the chat can retrieve its messages.</p>
+     *
+     * @param chatId        the unique identifier of the chat receiving the message
+     * @param senderName    the display name of the user sending the message
+     * @param timeSent      the time the message was sent, represented as a String
+     * @param messageString the text content of the message
+     * @return a task that completes with the created Message when both database writes
+     * have completed successfully
      */
     public Task<Message> addMessageToChat(String chatId, String senderName, String timeSent, String messageString) {
         DatabaseReference messageRef = getDb()
@@ -708,10 +749,19 @@ public class FirebaseManager {
         Task<Void> addMessage = messageRef.setValue(message);
         Task<Void> addMessageId = chatRef.setValue(messageRef.getKey());
 
-
         return toResult(Tasks.whenAll(addMessage, addMessageId), message);
     }
 
+    /**
+     * Adds a message ID to a user's inbox.
+     *
+     * <p>This allows users to be notified of or retrieve messages associated with
+     * their account.</p>
+     *
+     * @param userId    the unique identifier of the user receiving the message reference
+     * @param messageId the unique identifier of the message to add
+     * @return a task that completes with the message ID when the operation finishes
+     */
     public Task<String> addMessageToUserInbox(String userId, String messageId) {
         DatabaseReference userInboxRef = getDb()
                 .getReference(USERS_PATH)
@@ -722,6 +772,15 @@ public class FirebaseManager {
         return toResult(userInboxRef.setValue(messageId), messageId);
     }
 
+    /**
+     * Adds a child event listener to the messages belonging to a specific chat.
+     *
+     * <p>The listener will receive updates when messages are added, changed,
+     * removed, or moved within the chat's message ID list.</p>
+     *
+     * @param chatId             the unique identifier of the chat to observe
+     * @param childEventListener the listener to receive message events
+     */
     public void addChildEventListenerForChatMessages(String chatId, ChildEventListener childEventListener) {
         getDb()
                 .getReference(CHAT_PATH)
@@ -730,20 +789,43 @@ public class FirebaseManager {
                 .addChildEventListener(childEventListener);
     }
 
+    /**
+     * Retrieves a user from the database using their unique identifier.
+     *
+     * @param uid the unique identifier of the user
+     * @return a task that completes with the User object associated with the UID
+     */
     public Task<User> getUserByUid(String uid) {
         return getDb()
                 .getReference(USERS_PATH)
                 .child(uid)
-                .get().continueWith(task -> task.getResult().getValue(User.class));
+                .get()
+                .continueWith(task -> task.getResult().getValue(User.class));
     }
 
+    /**
+     * Retrieves a chat from the database using its unique identifier.
+     *
+     * @param chatId the unique identifier of the chat
+     * @return a task that completes with the Chat object associated with the ID
+     */
     public Task<Chat> getChatById(String chatId) {
         return getDb()
                 .getReference(CHAT_PATH)
                 .child(chatId)
-                .get().continueWith(task -> task.getResult().getValue(Chat.class));
+                .get()
+                .continueWith(task -> task.getResult().getValue(Chat.class));
     }
 
+    /**
+     * Adds a child event listener to a user's message inbox.
+     *
+     * <p>The listener receives events when message references are added, changed,
+     * removed, or moved in the user's inbox.</p>
+     *
+     * @param user               the user whose message inbox should be observed
+     * @param childEventListener the listener to receive inbox events
+     */
     public void addChildEventListenerForUserMessageInbox(User user, ChildEventListener childEventListener) {
         getDb()
                 .getReference(USERS_PATH)
@@ -752,20 +834,37 @@ public class FirebaseManager {
                 .addChildEventListener(childEventListener);
     }
 
+    /**
+     * Retrieves a message from the database using its unique identifier.
+     *
+     * @param messageId the unique identifier of the message
+     * @return a task that completes with the Message object associated with the ID
+     */
     public Task<Message> getMessageById(String messageId) {
         return getDb()
                 .getReference(MESSAGES_PATH)
                 .child(messageId)
-                .get().continueWith(task -> task.getResult().getValue(Message.class));
+                .get()
+                .continueWith(task -> task.getResult().getValue(Message.class));
     }
 
+    /**
+     * Converts a database write task into a task that returns a specified result.
+     *
+     * <p>If the original task fails, the returned task also fails with the same
+     * exception. Otherwise, the returned task completes with the provided value.</p>
+     *
+     * @param voidTask the database operation task to monitor
+     * @param toReturn the value to return after successful completion
+     * @param <T>      the type of the result value
+     * @return a task that completes with the provided result value
+     */
     private <T> Task<T> toResult(Task<Void> voidTask, T toReturn) {
         return voidTask.continueWithTask(task -> {
-            if(!task.isSuccessful() && task.getException() != null) {
+            if (!task.isSuccessful() && task.getException() != null) {
                 return Tasks.forException(task.getException());
             }
             return Tasks.forResult(toReturn);
         });
     }
-
 }
