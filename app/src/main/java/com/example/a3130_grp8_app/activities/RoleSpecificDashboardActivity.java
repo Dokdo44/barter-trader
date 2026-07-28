@@ -16,14 +16,19 @@ import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.User;
+import com.example.a3130_grp8_app.util.AndroidNotificationSender;
+import com.example.a3130_grp8_app.util.DefaultPreferredCategoryMatcher;
+import com.example.a3130_grp8_app.util.PreferredProductNotificationManager;
 
 public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private TextView dashboardEmail;
     private TextView dashboardRole;
+    private PreferredProductNotificationManager notificationManager;
 
     /**
-     * Initializes dashboard views, logout behavior, and profile loading.
+     * Initializes dashboard views, logout behavior, profile loading, and starts
+     * listening for preferred product notifications.
      *
      * @param savedInstanceState prior Activity state provided by Android
      */
@@ -56,10 +61,23 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         searchForProductsButton.setVisibility(View.INVISIBLE);
         searchForProductsButton.setOnClickListener(v -> onSearchForProductsButtonClick());
 
-        // Logout clears the Auth session and returns to login.
+        // Logout clears the Auth session, stops notifications, and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
 
         loadCurrentUserProfile();
+        startNotificationManager();
+    }
+
+    /**
+     * Starts listening for preferred product notifications for the current session.
+     */
+    private void startNotificationManager() {
+        notificationManager = new PreferredProductNotificationManager(
+                FirebaseManager.getInstance(),
+                new AndroidNotificationSender(this),
+                new DefaultPreferredCategoryMatcher()
+        );
+        notificationManager.start();
     }
 
     private void loadCurrentUserProfile() {
@@ -82,6 +100,9 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onLogoutButtonClick() {
+        if (notificationManager != null) {
+            notificationManager.stop();
+        }
         FirebaseManager.getInstance().signOut();
         startActivity(new Intent(this, LoginActivity.class));
         finish();
@@ -125,7 +146,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onMyProductsButtonClick() {
-       startActivity(new Intent(this, MyProductsActivity.class));
+        startActivity(new Intent(this, MyProductsActivity.class));
     }
 
     private void searchForProductsButtonSetup() {
@@ -137,5 +158,16 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void onSearchForProductsButtonClick() {
         startActivity(new Intent(this, ProductSearchActivity.class));
+    }
+
+    /**
+     * Stops the notification listener when the activity is destroyed to avoid leaks.
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (notificationManager != null) {
+            notificationManager.stop();
+        }
     }
 }
