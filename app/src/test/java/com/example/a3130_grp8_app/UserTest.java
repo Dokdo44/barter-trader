@@ -9,10 +9,8 @@ import org.junit.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Unit tests for profile preference storage. */
 public class UserTest {
 
-    /** Verifies that both types of preference are retained by the profile model. */
     @Test
     public void userStoresPreferredProductsAndCategories() {
         User user = new User("receiver@example.com", "Buyer");

@@ -14,33 +14,20 @@ import com.example.a3130_grp8_app.model.Product;
 
 import java.util.List;
 
-/** Displays saved product preferences and delegates removal to its owning Activity. */
 public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<PreferredProductTeasersAdapter.ViewHolder> {
 
-    /** Receives a product selected for removal. */
     public interface OnDeleteClickListener {
-        /**
-         * Handles a request to remove a saved product.
-         *
-         * @param product saved product selected by the receiver
-         */
         void onDelete(Product product);
     }
 
     private final List<Product> preferredProducts;
     private final OnDeleteClickListener onDeleteClickListener;
 
-    /** Holds the views that display one saved product. */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView productNameTextView;
         private final TextView productCategoriesTextView;
         private final Button deleteButton;
 
-        /**
-         * Creates a holder for a preferred-product row.
-         *
-         * @param view inflated row view
-         */
         public ViewHolder(View view) {
             super(view);
             productNameTextView = view.findViewById(R.id.productNameTextView);
@@ -49,19 +36,12 @@ public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<Preferr
         }
     }
 
-    /**
-     * Creates an adapter for the receiver's saved product list.
-     *
-     * @param preferredProducts mutable list displayed by this adapter
-     * @param onDeleteClickListener callback for removal actions
-     */
     public PreferredProductTeasersAdapter(
             List<Product> preferredProducts, OnDeleteClickListener onDeleteClickListener) {
         this.preferredProducts = preferredProducts;
         this.onDeleteClickListener = onDeleteClickListener;
     }
 
-    /** {@inheritDoc} */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -70,7 +50,6 @@ public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<Preferr
         return new ViewHolder(view);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product preferredProduct = preferredProducts.get(position);
@@ -83,7 +62,6 @@ public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<Preferr
         holder.deleteButton.setOnClickListener(v -> onDeleteClickListener.onDelete(preferredProduct));
     }
 
-    /** {@inheritDoc} */
     @Override
     public int getItemCount() {
         return preferredProducts.size();

@@ -66,38 +66,18 @@ public class User implements Serializable {
         this.role = role;
     }
 
-    /**
-     * Returns the saved product IDs keyed by their profile preference IDs.
-     *
-     * @return saved product IDs, or {@code null} when no products have been saved
-     */
     public Map<String, String> getPreferredProductIds() {
         return preferredProductIds;
     }
 
-    /**
-     * Stores the saved product IDs for this profile.
-     *
-     * @param preferredProductIds saved product IDs keyed by preference ID
-     */
     public void setPreferredProductIds(Map<String, String> preferredProductIds) {
         this.preferredProductIds = preferredProductIds;
     }
 
-    /**
-     * Returns the saved category names keyed by category name.
-     *
-     * @return saved category names, or {@code null} when no categories have been saved
-     */
     public Map<String, String> getPreferredCategoryNames() {
         return preferredCategoryNames;
     }
 
-    /**
-     * Stores the saved category names for this profile.
-     *
-     * @param preferredCategoryNames saved category names keyed by category name
-     */
     public void setPreferredCategoryNames(Map<String, String> preferredCategoryNames) {
         this.preferredCategoryNames = preferredCategoryNames;
     }

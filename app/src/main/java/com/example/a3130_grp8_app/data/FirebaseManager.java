@@ -327,13 +327,6 @@ public class FirebaseManager {
         return getDb().getReference(PRODUCTS_PATH);
     }
 
-    /**
-     * Adds a product ID to a user's profile preferences.
-     *
-     * @param userId Firebase UID of the profile to update
-     * @param preferredProductId ID of the product to save
-     * @return a Task that completes after the preference is stored
-     */
     public Task<Void> addPreferredProductForUser(String userId, String preferredProductId) {
         return getUserReference(userId)
                 .child("preferredProductIds")
@@ -341,13 +334,6 @@ public class FirebaseManager {
                 .setValue(preferredProductId);
     }
 
-    /**
-     * Removes a saved product preference from a user's profile.
-     *
-     * @param userId Firebase UID of the profile to update
-     * @param preferenceId Firebase key of the saved product preference
-     * @return a Task that completes after the preference is removed
-     */
     public Task<Void> deletePreferredProductForUser(String userId, String preferenceId) {
         return getUserReference(userId)
                 .child("preferredProductIds")
@@ -355,12 +341,6 @@ public class FirebaseManager {
                 .removeValue();
     }
 
-    /**
-     * Listens for saved product IDs in a user's profile.
-     *
-     * @param userId Firebase UID of the profile to read
-     * @param listener listener notified when a saved product changes
-     */
     public void addChildEventListenerForUserPreferredProductIds(
             String userId, ChildEventListener listener) {
         getUserReference(userId)
@@ -368,13 +348,6 @@ public class FirebaseManager {
                 .addChildEventListener(listener);
     }
 
-    /**
-     * Adds a category name to a user's profile preferences.
-     *
-     * @param userId Firebase UID of the profile to update
-     * @param preferredCategoryName category name to save
-     * @return a Task that completes after the category is stored
-     */
     public Task<Void> addPreferredCategoryForUser(String userId, String preferredCategoryName) {
         return getUserReference(userId)
                 .child("preferredCategoryNames")
@@ -382,13 +355,6 @@ public class FirebaseManager {
                 .setValue(preferredCategoryName);
     }
 
-    /**
-     * Removes a saved category from a user's profile.
-     *
-     * @param userId Firebase UID of the profile to update
-     * @param preferredCategoryName category name to remove
-     * @return a Task that completes after the category is removed
-     */
     public Task<Void> deletePreferredCategoriesForUser(
             String userId, String preferredCategoryName) {
         return getUserReference(userId)
@@ -397,12 +363,6 @@ public class FirebaseManager {
                 .removeValue();
     }
 
-    /**
-     * Listens for saved category names in a user's profile.
-     *
-     * @param userId Firebase UID of the profile to read
-     * @param listener listener notified when a saved category changes
-     */
     public void addChildEventListenerForUserPreferredCategoryNames(
             String userId, ChildEventListener listener) {
         getUserReference(userId)

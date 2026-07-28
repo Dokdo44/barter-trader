@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Lets a receiver view, remove, and edit preferences stored in their profile. */
 public class PreferredProductsActivity extends AppCompatActivity {
     private final List<Product> preferredProducts = new ArrayList<>();
     private final Map<String, String> preferenceKeyByProductId = new HashMap<>();
@@ -40,7 +39,6 @@ public class PreferredProductsActivity extends AppCompatActivity {
     private View mainView;
     private String userId;
 
-    /** Initializes the receiver's saved products and category preferences. */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
