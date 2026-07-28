@@ -640,7 +640,7 @@ public class FirebaseManager {
                               String receiverName,
                               String productName,
                               String productId,
-                              List<String> messageIds,
+                              Map<String, String> messageIds,
                               String providerId,
                               String receiverId) {
 
@@ -695,12 +695,21 @@ public class FirebaseManager {
      */
     public Task<Message> addMessageToChat(String chatId, String senderName, String timeSent, String messageString) {
         DatabaseReference messageRef = getDb()
+                .getReference(MESSAGES_PATH)
+                .push();
+
+        DatabaseReference chatRef = getDb()
                 .getReference(CHAT_PATH)
                 .child(chatId)
-                .child("messages")
+                .child("messageIds")
                 .push();
-        Message message = new Message(senderName, timeSent, messageString, messageRef.getKey(), chatId);
-        return toResult(messageRef.setValue(message), message);
+
+        Message message = new Message(senderName, timeSent, messageString, chatId, messageRef.getKey());
+        Task<Void> addMessage = messageRef.setValue(message);
+        Task<Void> addMessageId = chatRef.setValue(messageRef.getKey());
+
+
+        return toResult(Tasks.whenAll(addMessage, addMessageId), message);
     }
 
     public Task<String> addMessageToUserInbox(String userId, String messageId) {
@@ -717,8 +726,7 @@ public class FirebaseManager {
         getDb()
                 .getReference(CHAT_PATH)
                 .child(chatId)
-                .child("messages")
-                .orderByChild("timeSent")
+                .child("messageIds")
                 .addChildEventListener(childEventListener);
     }
 

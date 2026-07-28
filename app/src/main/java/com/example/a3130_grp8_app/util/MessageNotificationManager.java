@@ -36,8 +36,10 @@ public class MessageNotificationManager {
         FirebaseManager.getInstance().addChildEventListenerForUserMessageInbox(user, new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Message message = snapshot.getValue(Message.class);
-                notificationSender.sendMessageNotification(message);
+                String messageId = snapshot.getValue(String.class);
+                FirebaseManager.getInstance().getMessageById(messageId)
+                                .addOnSuccessListener(message ->
+                                        notificationSender.sendMessageNotification(message));
             }
 
             @Override

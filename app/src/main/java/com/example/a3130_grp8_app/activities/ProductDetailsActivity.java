@@ -108,7 +108,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         receiver.getEmail(),
                         product.getName(),
                         product.getId(),
-                        new ArrayList<>(),
+                        new HashMap<>(),
                         product.getProviderUid(),
                         receiver.getId())
                 .addOnSuccessListener(this::onGetChatSuccess)

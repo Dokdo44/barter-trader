@@ -17,15 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessageNotifier {
-    List<IMessageObserver<Message>> messageObservers;
+    List<IMessageObserver> messageObservers;
     Chat chat;
 
     private final ChildEventListener chatMessageChildEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            Message message = snapshot.getValue(Message.class);
-            if(message != null) {
-                updateObservers(message);
+            String messageId = snapshot.getValue(String.class);
+            if(messageId != null) {
+                FirebaseManager.getInstance().getMessageById(messageId)
+                                .addOnSuccessListener(message -> updateObservers(message));
             } else {
                 Log.e("e", "Failed to get value of message snapshot");
             }
@@ -63,16 +64,16 @@ public class MessageNotifier {
     }
 
     private void updateObservers(Message message) {
-        for(IMessageObserver<Message> observer : messageObservers) {
-            observer.sendUpdate(message);
+        for(IMessageObserver observer : messageObservers) {
+            observer.update(message);
         }
     }
 
-    public void attach(IMessageObserver<Message> chatObserver) {
+    public void attach(IMessageObserver chatObserver) {
         messageObservers.add(chatObserver);
     }
 
-    public void detach(IMessageObserver<Message> chatObserver) {
+    public void detach(IMessageObserver chatObserver) {
         messageObservers.remove(chatObserver);
     }
 

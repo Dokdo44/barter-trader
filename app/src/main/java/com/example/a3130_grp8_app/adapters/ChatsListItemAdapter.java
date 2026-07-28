@@ -23,6 +23,9 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
     private List<Chat> chats;
     private Context context;
 
+    /**
+     * The viewholder for chat items
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView providerNameTextView;
         private final TextView receiverNameTestView;
@@ -52,11 +55,23 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
         }
     }
 
+    /**
+     * Constructs the adapter
+     * @param context the application context that the adapter is in
+     * @param chats the chat items to add to the view
+     */
     public ChatsListItemAdapter(Context context, List<Chat> chats) {
         this.chats = chats;
         this.context = context;
     }
 
+    /**
+     * Creaes the ViewHolder
+     * @param viewGroup   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return the created view in the ViewHolder
+     */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext())
@@ -74,6 +89,12 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
         };
     }
 
+    /**
+     * Sets the text of the view
+     * @param viewHolder   The ViewHolder which should be updated to represent the contents of the
+     *                 item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Chat chat = chats.get(position);
@@ -88,11 +109,20 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
         viewHolder.getChatListItemMain().setOnClickListener(getOnProductClickListener(chat));
     }
 
+    /**
+     * gets the number of chats in the adapter
+     * @return the number of Chat items in the adapter
+     */
     @Override
     public int getItemCount() {
         return chats.size();
     }
 
+    /**
+     * Add a Chat item to the adapter
+     * @param position the position that the chat should be inserted into in the adapter
+     * @param chat the Chat item
+     */
     public void addChat(int position, Chat chat) {
         chats.add(position, chat);
         notifyItemInserted(position);

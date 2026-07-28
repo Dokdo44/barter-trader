@@ -32,6 +32,10 @@ public class ChatsListActivity extends AppCompatActivity {
     ChatsListItemAdapter chatsListItemAdapter;
     String currUserId;
 
+    /**
+     * Create view variables and start child listeners
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

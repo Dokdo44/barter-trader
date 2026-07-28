@@ -43,6 +43,10 @@ public class ProductChatActivity extends AppCompatActivity {
     MessageNotifier messageNotifier;
     MessageAdapterChatMessageObserver messageAdapterChatObserver;
 
+    /**
+     * Create view variables and set click listeners
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +93,7 @@ public class ProductChatActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> getSendFailure(view, e));
     };
 
-    public void onGetUserSuccess(User user) {
+    private void onGetUserSuccess(User user) {
         currUser = user;
         createMessageSender();
         initialized = true;
@@ -99,15 +103,15 @@ public class ProductChatActivity extends AppCompatActivity {
         messageSender = new MessageSender(currUser.getId(), currUser.getEmail(), chat);
     }
 
-    public void onGetUserFailure(Exception e) {
+    private void onGetUserFailure(Exception e) {
         Log.e("e", "Exception occurred: " + e.getMessage());
     }
 
-    public void getSendSuccess(View view) {
+    private void getSendSuccess(View view) {
         Snackbar.make(view, "Message sent.", Snackbar.LENGTH_SHORT).show();
     }
 
-    public void getSendFailure(View view, Exception e) {
+    private void getSendFailure(View view, Exception e) {
         Snackbar.make(view, "Failed to send message: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
     }
 }

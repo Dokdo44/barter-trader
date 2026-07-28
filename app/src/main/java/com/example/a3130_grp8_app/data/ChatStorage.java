@@ -11,6 +11,7 @@ import com.example.a3130_grp8_app.util.IMessageObserver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatStorage implements IMessageObserver {
 
@@ -79,8 +80,8 @@ public class ChatStorage implements IMessageObserver {
             index = updatedChats.size() - 1;
         }
         for(int i = 0; i < messageUpdates.size(); i++) {
-            List<String> chatMessageIds = updatedChats.get(index).getMessageIds();
-            if(!chatMessageIds.contains(messageUpdates.get(i).getId())) {
+            Map<String, String> chatMessageIds = updatedChats.get(index).getMessageIds();
+            if(!chatMessageIds.containsValue(messageUpdates.get(i).getId())) {
                 updatedChats.get(index).addMessageId(messageUpdates.get(i).getId());
             }
         }

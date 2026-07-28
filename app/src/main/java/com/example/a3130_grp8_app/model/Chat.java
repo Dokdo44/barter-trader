@@ -1,7 +1,9 @@
 package com.example.a3130_grp8_app.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class Chat implements Serializable {
@@ -13,13 +15,13 @@ public class Chat implements Serializable {
     private String providerUid;
     private String receiverUid;
 
-    private List<String> messageIds;
+    private Map<String, String> messageIds;
 
     public Chat(String providerName,
                 String receiverName,
                 String productName,
                 String productId,
-                List<String> messageIds,
+                Map<String, String> messageIds,
                 String id,
                 String providerUid,
                 String receiverUid) {
@@ -35,7 +37,7 @@ public class Chat implements Serializable {
 
     public Chat() {}
 
-    public List<String> getMessageIds() {
+    public Map<String, String> getMessageIds() {
         return messageIds;
     }
 
@@ -73,7 +75,7 @@ public class Chat implements Serializable {
     }
 
     public void addMessageId(String messageId) {
-        messageIds.add(messageId);
+        messageIds.put(messageId, messageId);
     }
 
     public String getProviderUid() {

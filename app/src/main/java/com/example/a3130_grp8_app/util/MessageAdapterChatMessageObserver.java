@@ -7,7 +7,7 @@ import com.example.a3130_grp8_app.model.Message;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class MessageAdapterChatMessageObserver implements IMessageObserver<Message> {
+public class MessageAdapterChatMessageObserver implements IMessageObserver {
 
     MessageNotifier messageNotifier;
     ChatStorage chatStorage;
@@ -21,7 +21,7 @@ public class MessageAdapterChatMessageObserver implements IMessageObserver<Messa
     }
 
     @Override
-    public void sendUpdate(Message update) {
+    public void update(Message update) {
         // Adds the message in reverse chronological order to adapter messages
         List<Message> messagesAdapterMessages = messagesAdapter.getMessages();
         int i = 0;

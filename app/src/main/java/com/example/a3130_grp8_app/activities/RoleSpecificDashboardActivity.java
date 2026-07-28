@@ -18,6 +18,7 @@ import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.User;
 import com.example.a3130_grp8_app.util.AndroidNotificationSender;
 import com.example.a3130_grp8_app.util.DefaultPreferredCategoryMatcher;
+import com.example.a3130_grp8_app.util.MessageNotificationManager;
 import com.example.a3130_grp8_app.util.PreferredProductNotificationManager;
 
 public class RoleSpecificDashboardActivity extends AppCompatActivity {
@@ -25,7 +26,8 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     private TextView dashboardEmail;
     private TextView dashboardRole;
     private Button viewMyChatsButton;
-    private PreferredProductNotificationManager notificationManager;
+    private PreferredProductNotificationManager preferredProductNotificationManager;
+    private MessageNotificationManager messageNotificationManager;
 
     /**
      * Initializes dashboard views, logout behavior, and profile loading.
@@ -68,19 +70,23 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         viewMyChatsButton.setOnClickListener(viewMyChatsButtonClickListener);
 
         loadCurrentUserProfile();
-        startNotificationManager();
+        startNotificationManagers();
     }
 
     /**
      * Starts listening for preferred product notifications for the current session.
      */
-    private void startNotificationManager() {
-        notificationManager = new PreferredProductNotificationManager(
+    private void startNotificationManagers() {
+        preferredProductNotificationManager = new PreferredProductNotificationManager(
                 FirebaseManager.getInstance(),
                 new AndroidNotificationSender(this),
                 new DefaultPreferredCategoryMatcher()
         );
-        notificationManager.start();
+        preferredProductNotificationManager.start();
+
+        messageNotificationManager = new MessageNotificationManager(
+                new AndroidNotificationSender(this));
+        messageNotificationManager.start();
     }
 
     private void loadCurrentUserProfile() {
@@ -103,8 +109,8 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onLogoutButtonClick() {
-        if (notificationManager != null) {
-            notificationManager.stop();
+        if (preferredProductNotificationManager != null) {
+            preferredProductNotificationManager.stop();
         }
         FirebaseManager.getInstance().signOut();
         startActivity(new Intent(this, LoginActivity.class));
@@ -169,8 +175,8 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (notificationManager != null) {
-            notificationManager.stop();
+        if (preferredProductNotificationManager != null) {
+            preferredProductNotificationManager.stop();
         }
     }
 

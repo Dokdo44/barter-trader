@@ -89,7 +89,7 @@ public class MessageAdapterChatObserverTest {
         MessageAdapterChatMessageObserver messageAdapterChatObserver =
                 new MessageAdapterChatMessageObserver(messageNotifier, chatStorage, messagesAdapter);
         for (Message message : messages) {
-            messageAdapterChatObserver.sendUpdate(message);
+            messageAdapterChatObserver.update(message);
         }
         List<Message> sortedMessages = messages.stream()
                 .sorted(Comparator.comparing(Message::getTimeSent).reversed())
