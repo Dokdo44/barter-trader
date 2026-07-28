@@ -16,10 +16,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.R;
@@ -68,6 +73,7 @@ public class AddProductActivity extends AppCompatActivity {
     private Uri selectedPhotoUri;
     private ActivityResultLauncher<String[]> photoPickerLauncher;
     private boolean isSubmitting;
+    private Button backButton;
 
     private final ExecutorService photoUploadExecutor = Executors.newSingleThreadExecutor();
 
@@ -86,6 +92,11 @@ public class AddProductActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.add_product_activity);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.addListingRoot), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         titleInput = findViewById(R.id.InputTitle);
         descriptionInput = findViewById(R.id.InputDescription);
@@ -98,8 +109,10 @@ public class AddProductActivity extends AppCompatActivity {
         addPhotoPlaceholder = findViewById(R.id.addPhotoPlaceholder);
         selectedPhotoPreview = findViewById(R.id.selectedPhotoPreview);
         addPhotoPrompt = findViewById(R.id.addPhotoPrompt);
-
+        backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
         categorySpinner.setAdapter(createCategoryAdapter());
+
 
         SimpleTextWatcher requiredFieldsWatcher = createRequiredFieldsWatcher();
         titleInput.addTextChangedListener(requiredFieldsWatcher);
@@ -128,8 +141,8 @@ public class AddProductActivity extends AppCompatActivity {
 
     private ArrayAdapter<String> createCategoryAdapter() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, CATEGORY_OPTIONS);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item, CATEGORY_OPTIONS);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
         return adapter;
     }
     private void checkCreateListingButtonState() {
@@ -185,10 +198,6 @@ public class AddProductActivity extends AppCompatActivity {
         selectedPhotoPreview.setVisibility(View.VISIBLE);
         addPhotoPrompt.setText("Change Photo");
         Toast.makeText(this, "Photo attached", Toast.LENGTH_SHORT).show();
-    }
-
-    Uri getSelectedPhotoUri() {
-        return selectedPhotoUri;
     }
 
     private void onCreateListingButtonClick() {

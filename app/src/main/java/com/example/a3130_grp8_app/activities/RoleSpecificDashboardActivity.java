@@ -45,15 +45,15 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         Button searchForProductsButton = findViewById(R.id.searchForProductsButton);
 
         // Add product button will start AddProduct activity. Only visible if user role is seller.
-        productButton.setVisibility(View.INVISIBLE);
+        productButton.setVisibility(View.GONE);
         productButton.setOnClickListener(v -> onAddProductButtonClick());
 
         // Add product button will start MyProducts activity. Only visible if user role is seller.
-        myProductsButton.setVisibility(View.INVISIBLE);
+        myProductsButton.setVisibility(View.GONE);
         myProductsButton.setOnClickListener(v -> onMyProductsButtonClick());
 
         // Add product button will start ProductSearch activity. Only visible if user role is buyer.
-        searchForProductsButton.setVisibility(View.INVISIBLE);
+        searchForProductsButton.setVisibility(View.GONE);
         searchForProductsButton.setOnClickListener(v -> onSearchForProductsButtonClick());
 
         // Logout clears the Auth session and returns to login.
@@ -94,8 +94,8 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
             return;
         }
 
-        dashboardEmail.setText(user.getEmail());
-        dashboardRole.setText(user.getRole() + " dashboard");
+        dashboardEmail.setText("Email: " + user.getEmail());
+        dashboardRole.setText("Role: " + user.getRole());
         addProductButtonSetup();
         myProductsButtonSetup();
         searchForProductsButtonSetup();
@@ -108,7 +108,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void addProductButtonSetup() {
         Button productButton = findViewById(R.id.productButton);
-        if (dashboardRole.getText().equals("Seller dashboard")) {
+        if (dashboardRole.getText().equals("Role: Seller")) {
             productButton.setVisibility(View.VISIBLE);
         }
     }
@@ -119,7 +119,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void myProductsButtonSetup() {
         Button myProductsButton = findViewById(R.id.viewMyProductsButton);
-        if (dashboardRole.getText().equals("Seller dashboard")) {
+        if (dashboardRole.getText().equals("Role: Seller")) {
             myProductsButton.setVisibility(View.VISIBLE);
         }
     }
@@ -130,7 +130,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void searchForProductsButtonSetup() {
         Button searchForProductsButton = findViewById(R.id.searchForProductsButton);
-        if (dashboardRole.getText().equals("Buyer dashboard")) {
+        if (dashboardRole.getText().equals("Role: Buyer")) {
             searchForProductsButton.setVisibility(View.VISIBLE);
         }
     }

@@ -4,75 +4,69 @@
     android:id="@+id/roleSelectionMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <TextView
         android:id="@+id/dashboardTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
         android:text="Dashboard"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/dashboardEmail"/>
-
+        app:layout_constraintTop_toTopOf="parent"/>
     <TextView
         android:id="@+id/dashboardEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:text="Loading account..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardTitle"
-        app:layout_constraintBottom_toTopOf="@id/dashboardRole"/>
-
+        app:layout_constraintTop_toBottomOf="@id/dashboardTitle"/>
     <TextView
         android:id="@+id/dashboardRole"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Loading role..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardEmail"
-        app:layout_constraintBottom_toTopOf="@id/productButton"/>
-
+        app:layout_constraintTop_toBottomOf="@id/dashboardEmail"/>
     <Button
         android:id="@+id/productButton"
-        android:layout_width="wrap_content"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
         android:text="Add Product"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardRole"
-        app:layout_constraintBottom_toTopOf="@id/logoutButton"/>
-
+        app:layout_constraintTop_toBottomOf="@id/dashboardRole"/>
     <Button
         android:id="@+id/viewMyProductsButton"
-        android:layout_width="wrap_content"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="View My Products"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/productButton" />
-
     <Button
         android:id="@+id/searchForProductsButton"
-        android:layout_width="wrap_content"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Search For Products"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/viewMyProductsButton"/>
-
     <Button
         android:id="@+id/logoutButton"
-        android:layout_width="wrap_content"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:text="Log Out"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/productButton"/>
-
+        app:layout_constraintTop_toBottomOf="@id/searchForProductsButton"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

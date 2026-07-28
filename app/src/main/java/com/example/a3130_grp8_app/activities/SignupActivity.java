@@ -91,9 +91,9 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private Spinner createRoleSpinner(Spinner roleSpinner) {
-        ArrayAdapter<String> aa = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
+        ArrayAdapter<String> aa = new ArrayAdapter<>(this, R.layout.spinner_item,
                 ROLE_SPINNER_OPTIONS);
-        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        aa.setDropDownViewResource(R.layout.spinner_item);
         roleSpinner.setAdapter(aa);
         return roleSpinner;
     }

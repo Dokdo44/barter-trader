@@ -9,25 +9,40 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/resultsConstraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="106dp">
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/backButtonSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="← Back"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/searchConstraintLayout"
             android:layout_width="350dp"
             android:layout_height="match_parent"
+            android:layout_marginTop="64dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="277dp">
+            app:layout_constraintTop_toBottomOf="@id/backButtonSearch">
 
-            <EditText
-                android:id="@+id/searchEditText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchInputContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="Search"
-                android:inputType="text"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:hint="Search" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/categoryChipGroup"
@@ -36,7 +51,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/searchEditText">
+                app:layout_constraintTop_toBottomOf="@id/searchInputContainer">
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/decorationChip"
@@ -78,8 +93,10 @@
                 android:id="@+id/proximitySpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
                 app:layout_constraintTop_toBottomOf="@id/categoryChipGroup"
-                app:layout_constraintBottom_toTopOf="@id/buttonConstraintLayout"/>
+                app:layout_constraintBottom_toTopOf="@id/buttonConstraintLayout"
+                android:popupBackground="@color/md_surface"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/buttonConstraintLayout"
@@ -103,18 +120,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="View Map"
-                    app:layout_constraintEnd_toStartOf="@id/backButtonSearch"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/searchButton"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/backButtonSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintStart_toEndOf="@id/mapViewButton"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:text="Back" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <fragment
@@ -142,7 +150,6 @@
             </ScrollView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

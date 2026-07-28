@@ -163,10 +163,10 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         proximitySpinner = findViewById(R.id.proximitySpinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
-                android.R.layout.simple_spinner_item,
+                R.layout.spinner_item,
                 proximitySpinnerOptions
         );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
         proximitySpinner.setAdapter(adapter);
     }
 
