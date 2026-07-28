@@ -26,7 +26,7 @@ espresso-contrib="3.7.0"
 mockto-core = "5.23.0"
 mockito-junit-jupiter = "5.23.0"
 robolectric = "4.16.1"
-junitJunit = "4.12"
+firebaseMessaging = "25.0.0"
 
 [libraries]
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsValidator" }

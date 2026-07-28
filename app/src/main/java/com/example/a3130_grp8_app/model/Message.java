@@ -9,12 +9,14 @@ public class Message implements Serializable {
     private User sender;
     private String timeSent;
     private String messageString;
+    private String chatId;
 
-    public Message(User sender, String timeSent, String messageString, String id) {
+    public Message(User sender, String timeSent, String messageString, String chatId, String id) {
         this.sender = sender;
         this.timeSent = timeSent;
         this.messageString = messageString;
         this.id = id;
+        this.chatId = chatId;
     }
 
     public Message() {}
@@ -41,5 +43,9 @@ public class Message implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Message otherMessage = (Message) o;
         return this.id.equals(otherMessage.id);
+    }
+
+    public String getChatId() {
+        return chatId;
     }
 }

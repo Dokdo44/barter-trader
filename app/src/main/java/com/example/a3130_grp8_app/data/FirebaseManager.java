@@ -9,6 +9,7 @@ import com.example.a3130_grp8_app.model.Message;
 import com.example.a3130_grp8_app.model.Product;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
+import com.example.a3130_grp8_app.util.ProductListenerRegistration;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -682,7 +683,7 @@ public class FirebaseManager {
                 .child(chat.getId())
                 .child("messages")
                 .push();
-        Message message = new Message(sender, timeSent, messageString, messageRef.getKey());
+        Message message = new Message(sender, timeSent, messageString, messageRef.getKey(), chat.getId());
         return toResult(messageRef.setValue(message), message);
     }
 
@@ -705,11 +706,26 @@ public class FirebaseManager {
                 .addChildEventListener(childEventListener);
     }
 
-    public Task<DataSnapshot> getUserByUid(String uid) {
+    public Task<User> getUserByUid(String uid) {
         return getDb()
                 .getReference(USERS_PATH)
                 .child(uid)
-                .get();
+                .get().continueWith(task -> task.getResult().getValue(User.class));
+    }
+
+    public Task<Chat> getChatById(String chatId) {
+        return getDb()
+                .getReference(CHAT_PATH)
+                .child(chatId)
+                .get().continueWith(task -> task.getResult().getValue(Chat.class));
+    }
+
+    public void addChildEventListenerForUserMessageInbox(User user, ChildEventListener childEventListener) {
+        getDb()
+                .getReference(USERS_PATH)
+                .child(user.getId())
+                .child("messageInbox")
+                .addChildEventListener(childEventListener);
     }
 
     private <T> Task<T> toResult(Task<Void> voidTask, T toReturn) {
