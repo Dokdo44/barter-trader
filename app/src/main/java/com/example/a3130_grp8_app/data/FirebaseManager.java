@@ -203,6 +203,32 @@ public class FirebaseManager {
     }
 
     /**
+     * Loads a single product by ID and returns it through a callback.
+     *
+     * @param productId ID of the product to load
+     * @param callback callback that receives the product
+     */
+    public void getProductById(String productId, ProductCallback callback) {
+        getProductsReference()
+                .child(productId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    Product product = snapshot.getValue(Product.class);
+                    callback.onProductLoaded(product);
+                })
+                .addOnFailureListener(e -> {
+                    callback.onProductLoaded(null);
+                });
+    }
+
+    /**
+     * Callback interface for loading a single product.
+     */
+    public interface ProductCallback {
+        void onProductLoaded(Product product);
+    }
+
+    /**
      * Reserves and returns a unique product ID.
      *
      * @return a newly generated product ID
