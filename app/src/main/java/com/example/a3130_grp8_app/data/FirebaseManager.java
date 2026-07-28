@@ -443,4 +443,20 @@ public class FirebaseManager {
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
+    /**
+     * Retrieves all ratings for a specific provider.
+     *
+     * @param providerId the ID of the provider
+     * @param listener callback to handle the ratings data
+     */
+    public void getRatings(String providerId, RatingValueEventListener listener) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Callback interface for rating data retrieval.
+     */
+    public interface RatingValueEventListener {
+        void onGetRatings(ArrayList<Rating> ratings);
+    }
 }
