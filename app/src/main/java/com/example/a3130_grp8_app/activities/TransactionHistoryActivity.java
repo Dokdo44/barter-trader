@@ -42,6 +42,8 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         noTransactionsText = findViewById(R.id.noTransactionsText);
 
         userId = getIntent().getStringExtra("USER_ID");
+        // For testing
+        userId = "mqssMmUHXYh2cxqU47OxWAxqYUv1";
 
         loadBuyerHistory();
         loadSellerHistory();
