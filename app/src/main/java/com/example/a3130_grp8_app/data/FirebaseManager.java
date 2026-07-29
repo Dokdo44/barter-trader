@@ -767,9 +767,9 @@ public class FirebaseManager {
                 .getReference(USERS_PATH)
                 .child(userId)
                 .child("messageInbox")
-                .push();
+                .child(messageId);
 
-        return toResult(userInboxRef.setValue(messageId), messageId);
+        return toResult(userInboxRef.setValue(true), messageId);
     }
 
     /**
@@ -823,13 +823,13 @@ public class FirebaseManager {
      * <p>The listener receives events when message references are added, changed,
      * removed, or moved in the user's inbox.</p>
      *
-     * @param user               the user whose message inbox should be observed
+     * @param userId               the user whose message inbox should be observed
      * @param childEventListener the listener to receive inbox events
      */
-    public void addChildEventListenerForUserMessageInbox(User user, ChildEventListener childEventListener) {
+    public void addChildEventListenerForUserMessageInbox(String userId, ChildEventListener childEventListener) {
         getDb()
                 .getReference(USERS_PATH)
-                .child(user.getId())
+                .child(userId)
                 .child("messageInbox")
                 .addChildEventListener(childEventListener);
     }
@@ -850,6 +850,15 @@ public class FirebaseManager {
 
     public void addValueEventListenerForConnection(ValueEventListener valueEventListener) {
         getDb().getReference(".info/connected").addValueEventListener(valueEventListener);
+    }
+
+    public Task<Void> removeMessageIdFromUseInbox(String messageId, String userId) {
+        return getDb()
+                .getReference(USERS_PATH)
+                .child(userId)
+                .child("messageInbox")
+                .child(messageId)
+                .setValue(false);
     }
 
     /**

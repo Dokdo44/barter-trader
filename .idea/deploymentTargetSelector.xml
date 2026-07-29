@@ -6,7 +6,7 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="LoginActivity">
+      <SelectionState runConfigName="login">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

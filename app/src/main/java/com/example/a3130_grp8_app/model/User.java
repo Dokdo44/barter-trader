@@ -12,7 +12,7 @@ public class User implements Serializable {
     private String email;
     private String role;
     private String notificationToken;
-    private Map<String, String> messageInbox;
+    private Map<String, Boolean> messageInbox;
     private List<String> preferredProductIds;
     private List<String> preferredCategoryNames;
 
@@ -78,11 +78,11 @@ public class User implements Serializable {
         return id;
     }
 
-    public void setMessageInbox(Map<String, String> messageInbox) {
+    public void setMessageInbox(Map<String, Boolean> messageInbox) {
         this.messageInbox = messageInbox;
     }
 
-    public Map<String, String> getMessageInbox() {
+    public Map<String, Boolean> getMessageInbox() {
         return messageInbox;
     }
 

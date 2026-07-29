@@ -1,5 +1,7 @@
 package com.example.a3130_grp8_app.util;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -28,18 +30,29 @@ public class MessageNotificationManager {
      */
     public void start() {
         FirebaseUser firebaseUser = FirebaseManager.getInstance().getCurrentUser();
-        Task<User> currUserTask = FirebaseManager.getInstance().getUserByUid(firebaseUser.getUid());
-        currUserTask.addOnSuccessListener(this::onGetCurrUserSuccess);
+        if(firebaseUser != null) {
+            onGetCurrUserSuccess(firebaseUser.getUid());
+        }
     }
 
-    private void onGetCurrUserSuccess(User user) {
-        FirebaseManager.getInstance().addChildEventListenerForUserMessageInbox(user, new ChildEventListener() {
+    private void onGetCurrUserSuccess(String userId) {
+        FirebaseManager.getInstance().addChildEventListenerForUserMessageInbox(userId, new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                String messageId = snapshot.getValue(String.class);
-                FirebaseManager.getInstance().getMessageById(messageId)
-                                .addOnSuccessListener(message ->
-                                        notificationSender.sendMessageNotification(message));
+                String messageId = snapshot.getKey();
+                Boolean isValid = snapshot.getValue(Boolean.class);
+                if(isValid != null && isValid) {
+                    FirebaseManager.getInstance().getMessageById(messageId)
+                            .addOnSuccessListener(message -> {
+                                notificationSender.sendMessageNotification(message);
+                                FirebaseManager.getInstance().removeMessageIdFromUseInbox(messageId, userId)
+                                        .addOnFailureListener(this::onRemoveMessageFailure);
+                            });
+                }
+            }
+
+            private void onRemoveMessageFailure(Exception e) {
+                Log.e("e", "Failed to delete message from inbox: " + e.getMessage());
             }
 
             @Override

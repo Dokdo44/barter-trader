@@ -60,8 +60,8 @@ public class ChatStorage implements IChatObserver {
             if(!ret.contains(chatUpdate)) {
                 ret.add(chatUpdate);
             }
-            chatUpdates.remove(chatUpdate);
         }
+        chatUpdates.clear();
         saveChats(ret);
         return ret;
     }

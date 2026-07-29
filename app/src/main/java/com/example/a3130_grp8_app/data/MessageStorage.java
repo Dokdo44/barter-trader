@@ -53,8 +53,8 @@ public class MessageStorage implements IMessageObserver {
             } else {
                 ret.put(currChat.getId(), new ArrayList<>(List.of(message)));
             }
-            messageUpdates.remove(message);
         }
+        messageUpdates.clear();
         saveMessages(ret);
         return ret;
     }
@@ -91,11 +91,14 @@ public class MessageStorage implements IMessageObserver {
     }
 
     public void detach(IMessageObserver observer) {
-        observers.add(observer);
+        observers.remove(observer);
     }
 
     public void feedObservers(String chatId) {
         HashMap<String, List<Message>> messages = getMessages();
+        if(messages == null) {
+            return;
+        }
         if(!messages.containsKey(chatId)) {
             Log.e("e", "Not able to get chat for key " + chatId);
             return;

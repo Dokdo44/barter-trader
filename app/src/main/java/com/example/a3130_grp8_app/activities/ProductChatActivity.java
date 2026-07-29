@@ -136,6 +136,7 @@ public class ProductChatActivity extends AppCompatActivity {
 
     private void getSendSuccess(View view) {
         Snackbar.make(view, "Message sent.", Snackbar.LENGTH_SHORT).show();
+        messageInput.setText("");
     }
 
     private void getSendFailure(View view, Exception e) {
