@@ -1,15 +1,16 @@
 package com.example.a3130_grp8_app.data;
 
-import android.provider.ContactsContract;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.model.Rating;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
+import com.example.a3130_grp8_app.util.PreferredCategoriesListener;
 import com.example.a3130_grp8_app.util.ProductListenerRegistration;
+import com.example.a3130_grp8_app.util.ProductPostedListener;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -22,16 +23,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.example.a3130_grp8_app.model.Rating;
-
-import com.example.a3130_grp8_app.util.PreferredCategoriesListener;
-import com.example.a3130_grp8_app.util.ProductPostedListener; // NEW
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -71,12 +65,8 @@ public class FirebaseManager {
      * Installs the singleton instance for the application.
      *
      * @param firebaseManager the FirebaseManager instance to install
-     * @throws IllegalStateException if the singleton has already been initialized
      */
     public static void install(FirebaseManager firebaseManager) {
-        if (instance != null) {
-            throw new IllegalStateException("FirebaseManager singleton already initialized");
-        }
         instance = firebaseManager;
     }
 
@@ -345,68 +335,46 @@ public class FirebaseManager {
     }
 
     public Task<Void> addPreferredProductForUser(String userId, String preferredProductId) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredProductIds")
-                        .push();
-
-        return userRef.setValue(preferredProductId);
+        return getUserReference(userId)
+                .child("preferredProductIds")
+                .push()
+                .setValue(preferredProductId);
     }
 
-    public Task<Void> deletePreferredProductForUser(String userId, String preferredProductId) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredProductIds")
-                        .child(preferredProductId);
-        return userRef.removeValue();
+    public Task<Void> deletePreferredProductForUser(String userId, String preferenceId) {
+        return getUserReference(userId)
+                .child("preferredProductIds")
+                .child(preferenceId)
+                .removeValue();
     }
 
-    public void addChildEventListenerForUserPreferredProductIds(String userId,
-                                                                            ChildEventListener preferredProductIdsChildEventListener) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredProductIds");
-        userRef.addChildEventListener(preferredProductIdsChildEventListener);
-
+    public void addChildEventListenerForUserPreferredProductIds(
+            String userId, ChildEventListener listener) {
+        getUserReference(userId)
+                .child("preferredProductIds")
+                .addChildEventListener(listener);
     }
 
     public Task<Void> addPreferredCategoryForUser(String userId, String preferredCategoryName) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredCategoryNames")
-                        .child(preferredCategoryName);
-
-        return userRef.setValue(preferredCategoryName);
+        return getUserReference(userId)
+                .child("preferredCategoryNames")
+                .child(preferredCategoryName)
+                .setValue(preferredCategoryName);
     }
 
-    public Task<Void> deletePreferredCategoriesForUser(String userId, String preferredCategoryName) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredCategoryNames")
-                        .child(preferredCategoryName);
-
-        return userRef.removeValue();
+    public Task<Void> deletePreferredCategoriesForUser(
+            String userId, String preferredCategoryName) {
+        return getUserReference(userId)
+                .child("preferredCategoryNames")
+                .child(preferredCategoryName)
+                .removeValue();
     }
 
-    public void addChildEventListenerForUserPreferredCategoryNames(String userId,
-                                                                ChildEventListener preferredCategoryNamesChildEventListener) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredCategoryNames");
-        userRef.addChildEventListener(preferredCategoryNamesChildEventListener);
-
+    public void addChildEventListenerForUserPreferredCategoryNames(
+            String userId, ChildEventListener listener) {
+        getUserReference(userId)
+                .child("preferredCategoryNames")
+                .addChildEventListener(listener);
     }
 
     /**
@@ -521,7 +489,6 @@ public class FirebaseManager {
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
-
     /**
      * Retrieves all ratings for a specific provider.
      *

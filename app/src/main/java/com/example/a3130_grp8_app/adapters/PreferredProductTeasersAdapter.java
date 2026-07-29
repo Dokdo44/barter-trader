@@ -1,6 +1,5 @@
 package com.example.a3130_grp8_app.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,47 +16,50 @@ import java.util.List;
 
 public class PreferredProductTeasersAdapter extends RecyclerView.Adapter<PreferredProductTeasersAdapter.ViewHolder> {
 
-    private List<Product> preferredProducts;
-    private Context context;
+    public interface OnDeleteClickListener {
+        void onDelete(Product product);
+    }
+
+    private final List<Product> preferredProducts;
+    private final OnDeleteClickListener onDeleteClickListener;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView productNameTextView;
+        private final TextView productCategoriesTextView;
         private final Button deleteButton;
 
         public ViewHolder(View view) {
             super(view);
-            productNameTextView = (TextView)view.findViewById(R.id.productNameTextView);
-            deleteButton = (Button)view.findViewById(R.id.preferredProductTeaserDeleteButton);
-        }
-
-        public TextView getProductNameTextView() {
-            return productNameTextView;
-        }
-
-        public Button getDeleteButton() {
-            return deleteButton;
+            productNameTextView = view.findViewById(R.id.productNameTextView);
+            productCategoriesTextView = view.findViewById(R.id.productCategoriesTextView);
+            deleteButton = view.findViewById(R.id.preferredProductTeaserDeleteButton);
         }
     }
 
-    public PreferredProductTeasersAdapter(Context context, List<Product> preferredProducts) {
+    public PreferredProductTeasersAdapter(
+            List<Product> preferredProducts, OnDeleteClickListener onDeleteClickListener) {
         this.preferredProducts = preferredProducts;
-        this.context = context;
+        this.onDeleteClickListener = onDeleteClickListener;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.view_preferred_product_teaser, viewGroup, false);
-
-
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.view_preferred_product_teaser, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product preferredProduct = preferredProducts.get(position);
-        throw new UnsupportedOperationException("This function needs to be implemented");
+        holder.productNameTextView.setText(preferredProduct.getName());
+        holder.productCategoriesTextView.setText(
+                preferredProduct.getCategories() == null
+                        ? ""
+                        : String.join(", ", preferredProduct.getCategories())
+        );
+        holder.deleteButton.setOnClickListener(v -> onDeleteClickListener.onDelete(preferredProduct));
     }
 
     @Override

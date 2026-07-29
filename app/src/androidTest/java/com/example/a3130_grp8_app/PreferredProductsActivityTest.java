@@ -227,7 +227,7 @@ public class PreferredProductsActivityTest {
     public void preferredProductDeleteFailure() {
         onView(withId(R.id.preferredProductsRecyclerView))
                 .perform(actionOnItem(
-                        hasDescendant(withText(containsString("Technology, Decoration"))),
+                        hasDescendant(withText("Ford Something")),
                         clickChildViewWithId(R.id.preferredProductTeaserDeleteButton)
                 ));
 
