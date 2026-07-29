@@ -2,6 +2,7 @@ package com.example.a3130_grp8_app.activities;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -45,6 +46,8 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         transactionListView = findViewById(R.id.transactionListView);
         noTransactionsText = findViewById(R.id.noTransactionsText);
 
+        Button backButtonTransactionHistory = findViewById(R.id.backButtonTransactionHistory);
+
         FirebaseUser currentUser = firebaseManager.getCurrentUser();
 
         if (currentUser == null) {
@@ -58,6 +61,8 @@ public class TransactionHistoryActivity extends AppCompatActivity {
 
         loadBuyerHistory();
         loadSellerHistory();
+
+        backButtonTransactionHistory.setOnClickListener(v -> finish());
     }
 
     private void loadBuyerHistory() {

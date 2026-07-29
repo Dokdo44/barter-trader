@@ -66,6 +66,15 @@
         app:layout_constraintTop_toBottomOf="@id/viewMyProductsButton"/>
 
     <Button
+        android:id="@+id/transactionHistoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Transaction History"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchForProductsButton" />
+
+    <Button
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,6 +82,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/productButton"/>
+        app:layout_constraintTop_toBottomOf="@id/transactionHistoryButton"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
