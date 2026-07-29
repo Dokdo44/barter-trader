@@ -848,10 +848,20 @@ public class FirebaseManager {
                 .continueWith(task -> task.getResult().getValue(Message.class));
     }
 
+    /**
+     * Add a value event listener that listens for a change in firebase connection status
+     * @param valueEventListener the ValueEventListener to add
+     */
     public void addValueEventListenerForConnection(ValueEventListener valueEventListener) {
         getDb().getReference(".info/connected").addValueEventListener(valueEventListener);
     }
 
+    /**
+     * Sets the valid flag on the message in the user's inbox to false
+     * @param messageId the Id to make invalid
+     * @param userId the user that has the message in their inbox
+     * @return a void task that completes when the message status is changed
+     */
     public Task<Void> removeMessageIdFromUseInbox(String messageId, String userId) {
         return getDb()
                 .getReference(USERS_PATH)
