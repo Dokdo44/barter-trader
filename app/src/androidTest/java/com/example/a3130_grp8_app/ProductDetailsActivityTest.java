@@ -29,6 +29,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 
 import org.junit.Test;
+import org.junit.After;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -39,6 +40,11 @@ public class ProductDetailsActivityTest {
     private static final String PRODUCT_ID = "product-details-test-product";
     private static final String PRODUCT_DETAILS_ACTIVITY =
             "com.example.a3130_grp8_app.activities.ProductDetailsActivity";
+
+    @After
+    public void clearFirebaseManager() {
+        FirebaseManager.install(null);
+    }
 
     /**
      * Verifies that opening a selected product shows every detail required by the user story.
@@ -164,6 +170,9 @@ public class ProductDetailsActivityTest {
             childEventListener.onChildAdded(snapshotMock, null);
             return null;
         }).when(mockManager).addChildEventListenerForUserPreferredProductIds(eq("1"), any());
+
+        FirebaseManager.install(mockManager);
+        openProductDetails();
 
         onView(withId(R.id.addToPreferredProductsButton)).perform(click());
 

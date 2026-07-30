@@ -54,6 +54,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         Button productButton = findViewById(R.id.productButton);
         Button myProductsButton = findViewById(R.id.viewMyProductsButton);
         Button searchForProductsButton = findViewById(R.id.searchForProductsButton);
+        Button preferredProductsButton = findViewById(R.id.preferredProductsButton);
 
         // Add product button will start AddProduct activity. Only visible if user role is seller.
         productButton.setVisibility(View.INVISIBLE);
@@ -67,7 +68,10 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         searchForProductsButton.setVisibility(View.INVISIBLE);
         searchForProductsButton.setOnClickListener(v -> onSearchForProductsButtonClick());
 
-        // Logout clears the Auth session and returns to login.
+        preferredProductsButton.setVisibility(View.INVISIBLE);
+        preferredProductsButton.setOnClickListener(v -> onPreferredProductsButtonClick());
+
+        // Logout clears the Auth session, stops notifications, and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
 
         viewMyChatsButton = findViewById(R.id.viewMyChatsButton);
@@ -147,6 +151,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         addProductButtonSetup();
         myProductsButtonSetup();
         searchForProductsButtonSetup();
+        preferredProductsButtonSetup();
     }
 
     private void onGetProfileFailure(Exception error) {
@@ -173,7 +178,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onMyProductsButtonClick() {
-       startActivity(new Intent(this, MyProductsActivity.class));
+        startActivity(new Intent(this, MyProductsActivity.class));
     }
 
     private void searchForProductsButtonSetup() {
@@ -185,6 +190,17 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void onSearchForProductsButtonClick() {
         startActivity(new Intent(this, ProductSearchActivity.class));
+    }
+
+    private void preferredProductsButtonSetup() {
+        Button preferredProductsButton = findViewById(R.id.preferredProductsButton);
+        if (dashboardRole.getText().equals("Buyer dashboard")) {
+            preferredProductsButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void onPreferredProductsButtonClick() {
+        startActivity(new Intent(this, PreferredProductsActivity.class));
     }
 
     /**

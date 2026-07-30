@@ -1,5 +1,7 @@
 package com.example.a3130_grp8_app.data;
 
+import android.provider.ContactsContract;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -7,9 +9,12 @@ import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.model.Chat;
 import com.example.a3130_grp8_app.model.Message;
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.model.Rating;
 import com.example.a3130_grp8_app.model.Request;
 import com.example.a3130_grp8_app.model.User;
+import com.example.a3130_grp8_app.util.PreferredCategoriesListener;
 import com.example.a3130_grp8_app.util.ProductListenerRegistration;
+import com.example.a3130_grp8_app.util.ProductPostedListener;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -137,9 +142,9 @@ public class FirebaseManager {
     /**
      * Creates a new user account and stores the user's profile information.
      *
-     * @param email    the user's email address
+     * @param email the user's email address
      * @param password the user's password
-     * @param role     the user's role
+     * @param role the user's role
      * @return a Task that completes when the account and profile have been created
      */
     public Task<Void> createUser(String email, String password, String role) {
@@ -376,24 +381,17 @@ public class FirebaseManager {
     }
 
     public Task<Void> addPreferredProductForUser(String userId, String preferredProductId) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredProductIds")
-                        .push();
-
-        return userRef.setValue(preferredProductId);
+        return getUserReference(userId)
+                .child("preferredProductIds")
+                .push()
+                .setValue(preferredProductId);
     }
 
-    public Task<Void> deletePreferredProductForUser(String userId, String preferredProductId) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredProductIds")
-                        .child(preferredProductId);
-        return userRef.removeValue();
+    public Task<Void> deletePreferredProductForUser(String userId, String preferenceId) {
+        return getUserReference(userId)
+                .child("preferredProductIds")
+                .child(preferenceId)
+                .removeValue();
     }
 
     public void addChildEventListenerForUserPreferredProductIds(String userId,
@@ -408,36 +406,25 @@ public class FirebaseManager {
     }
 
     public Task<Void> addPreferredCategoryForUser(String userId, String preferredCategoryName) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredCategoryNames")
-                        .child(preferredCategoryName);
-
-        return userRef.setValue(preferredCategoryName);
+        return getUserReference(userId)
+                .child("preferredCategoryNames")
+                .child(preferredCategoryName)
+                .setValue(preferredCategoryName);
     }
 
-    public Task<Void> deletePreferredCategoriesForUser(String userId, String preferredCategoryName) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredCategoryNames")
-                        .child(preferredCategoryName);
-
-        return userRef.removeValue();
+    public Task<Void> deletePreferredCategoriesForUser(
+            String userId, String preferredCategoryName) {
+        return getUserReference(userId)
+                .child("preferredCategoryNames")
+                .child(preferredCategoryName)
+                .removeValue();
     }
 
-    public void addChildEventListenerForUserPreferredCategoryNames(String userId,
-                                                                   ChildEventListener preferredCategoryNamesChildEventListener) {
-        DatabaseReference userRef =
-                getDb()
-                        .getReference(USERS_PATH)
-                        .child(userId)
-                        .child("preferredCategoryNames");
-        userRef.addChildEventListener(preferredCategoryNamesChildEventListener);
-
+    public void addChildEventListenerForUserPreferredCategoryNames(
+            String userId, ChildEventListener listener) {
+        getUserReference(userId)
+                .child("preferredCategoryNames")
+                .addChildEventListener(listener);
     }
 
     /**
@@ -448,7 +435,7 @@ public class FirebaseManager {
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
     public Task<Void> submitRequest(String productId, String requesterName,
-                                    String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
+                                           String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
             throw new FirebaseConnectionError();
@@ -553,11 +540,27 @@ public class FirebaseManager {
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
+    /**
+     * Retrieves all ratings for a specific provider.
+     *
+     * @param providerId the ID of the provider
+     * @param listener callback to handle the ratings data
+     */
+    public void getRatings(String providerId, RatingValueEventListener listener) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Callback interface for rating data retrieval.
+     */
+    public interface RatingValueEventListener {
+        void onGetRatings(ArrayList<Rating> ratings);
+    }
 
     /**
      * Loads the preferred category names for a given user.
      *
-     * @param userId   the UID of the user
+     * @param userId the UID of the user
      * @param listener callback invoked with the loaded categories or an error
      */
     public void loadPreferredCategories(String userId, PreferredCategoriesListener listener) {
@@ -600,16 +603,13 @@ public class FirebaseManager {
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
             @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            }
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
 
             @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

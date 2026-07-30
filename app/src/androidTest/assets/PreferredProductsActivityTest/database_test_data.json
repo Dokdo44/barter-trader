@@ -5,7 +5,7 @@
       "name": "Toyota Something",
       "description": "It's a real good car",
       "imageUrl": "https://yavuzceliker.github.io/sample-images/image-1021.jpg",
-      "categories": ["Decoration"],
+      "categories": ["Technology", "Decoration"],
       "address": "1030 South Park St., Halifax, NS B3W2X3, Canada",
       "available": true,
       "dateAvailable": "2026-07-16",
