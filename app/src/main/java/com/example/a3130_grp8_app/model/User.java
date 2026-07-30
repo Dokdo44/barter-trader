@@ -94,7 +94,7 @@ public class User implements Serializable {
         this.notificationToken = notificationToken;
     }
 
-    public List<String> getPreferredProductIds() {
+    public Map<String, String> getPreferredProductIds() {
         return preferredProductIds;
     }
 
