@@ -1,6 +1,8 @@
 package com.example.a3130_grp8_app.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,6 +10,8 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -18,17 +22,19 @@ import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.User;
 import com.example.a3130_grp8_app.util.AndroidNotificationSender;
 import com.example.a3130_grp8_app.util.DefaultPreferredCategoryMatcher;
+import com.example.a3130_grp8_app.util.MessageNotificationManager;
 import com.example.a3130_grp8_app.util.PreferredProductNotificationManager;
 
 public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private TextView dashboardEmail;
     private TextView dashboardRole;
-    private PreferredProductNotificationManager notificationManager;
+    private Button viewMyChatsButton;
+    private PreferredProductNotificationManager preferredProductNotificationManager;
+    private MessageNotificationManager messageNotificationManager;
 
     /**
-     * Initializes dashboard views, logout behavior, profile loading, and starts
-     * listening for preferred product notifications.
+     * Initializes dashboard views, logout behavior, and profile loading.
      *
      * @param savedInstanceState prior Activity state provided by Android
      */
@@ -75,20 +81,41 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         // Logout clears the Auth session, stops notifications, and returns to login.
         logoutButton.setOnClickListener(v -> onLogoutButtonClick());
 
+        viewMyChatsButton = findViewById(R.id.viewMyChatsButton);
+        viewMyChatsButton.setOnClickListener(viewMyChatsButtonClickListener);
+
         loadCurrentUserProfile();
-        startNotificationManager();
+        askForPermissions();
+        startNotificationManagers();
+    }
+
+    private void askForPermissions() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    100);
+        }
     }
 
     /**
      * Starts listening for preferred product notifications for the current session.
      */
-    private void startNotificationManager() {
-        notificationManager = new PreferredProductNotificationManager(
+    private void startNotificationManagers() {
+        preferredProductNotificationManager = new PreferredProductNotificationManager(
                 FirebaseManager.getInstance(),
                 new AndroidNotificationSender(this),
                 new DefaultPreferredCategoryMatcher()
         );
-        notificationManager.start();
+        preferredProductNotificationManager.start();
+
+        messageNotificationManager = new MessageNotificationManager(
+                new AndroidNotificationSender(this));
+        messageNotificationManager.start();
     }
 
     private void loadCurrentUserProfile() {
@@ -111,8 +138,8 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     private void onLogoutButtonClick() {
-        if (notificationManager != null) {
-            notificationManager.stop();
+        if (preferredProductNotificationManager != null) {
+            preferredProductNotificationManager.stop();
         }
         FirebaseManager.getInstance().signOut();
         startActivity(new Intent(this, LoginActivity.class));
@@ -195,8 +222,13 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (notificationManager != null) {
-            notificationManager.stop();
+        if (preferredProductNotificationManager != null) {
+            preferredProductNotificationManager.stop();
         }
     }
+
+    private View.OnClickListener viewMyChatsButtonClickListener = v -> {
+        Intent intent = new Intent(this, ChatsListActivity.class);
+        startActivity(intent);
+    };
 }
