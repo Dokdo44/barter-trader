@@ -56,16 +56,37 @@ public class ProductChatActivityTest {
         User receiver = new User("fake@email.com", "buyer");
         User provider = new User("fake2@email.com", "seller");
         Product product = mock(Product.class);
-        chat1 = new Chat(provider, receiver, product, new HashMap<>(), "1");
-        chat2 = new Chat(provider, receiver, product, new HashMap<>(), "2");
-        chat3 = new Chat(provider, receiver, product, new HashMap<>(), "3");
+        chat1 = new Chat(provider.getEmail(),
+                receiver.getEmail(),
+                product.getName(),
+                product.getId(),
+                new HashMap<>(),
+                "1",
+                provider.getId(),
+                receiver.getId());
+        chat2 = new Chat(provider.getEmail(),
+                receiver.getEmail(),
+                product.getName(),
+                product.getId(),
+                new HashMap<>(),
+                "2",
+                provider.getId(),
+                receiver.getId());
+        chat3 = new Chat(provider.getEmail(),
+                receiver.getEmail(),
+                product.getName(),
+                product.getId(),
+                new HashMap<>(),
+                "3",
+                provider.getId(),
+                receiver.getId());
 
         when(mockFirebaseManager.getCurrentUserProfile()).thenReturn(Tasks.forResult(receiver));
 
-        when(mockFirebaseManager.addMessageToChat(eq(chat1), any(), any(), any()))
+        when(mockFirebaseManager.addMessageToChat(eq(chat1.getId()), any(), any(), any()))
                 .thenReturn(Tasks.forResult(null));
 
-        when(mockFirebaseManager.addMessageToChat(eq(chat3), any(), any(), any()))
+        when(mockFirebaseManager.addMessageToChat(eq(chat3.getId()), any(), any(), any()))
                 .thenReturn(Tasks.forException(new Exception("Failed to send message")));
 
         FirebaseManager.install(mockFirebaseManager);
