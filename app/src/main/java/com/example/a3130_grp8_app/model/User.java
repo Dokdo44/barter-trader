@@ -1,6 +1,7 @@
 package com.example.a3130_grp8_app.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Business object for the app-specific user profile stored in Realtime Database.
@@ -8,6 +9,8 @@ import java.io.Serializable;
 public class User implements Serializable {
     private String email;
     private String role;
+    private Map<String, String> preferredProductIds;
+    private Map<String, String> preferredCategoryNames;
 
     /**
      * Creates an empty profile for Firebase Realtime Database deserialization.
@@ -61,5 +64,21 @@ public class User implements Serializable {
      */
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Map<String, String> getPreferredProductIds() {
+        return preferredProductIds;
+    }
+
+    public void setPreferredProductIds(Map<String, String> preferredProductIds) {
+        this.preferredProductIds = preferredProductIds;
+    }
+
+    public Map<String, String> getPreferredCategoryNames() {
+        return preferredCategoryNames;
+    }
+
+    public void setPreferredCategoryNames(Map<String, String> preferredCategoryNames) {
+        this.preferredCategoryNames = preferredCategoryNames;
     }
 }

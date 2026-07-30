@@ -29,6 +29,7 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="TransactionHistoryActivityTest">
+      <SelectionState runConfigName="UserRatingActivityTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-07-28T18:47:16.577171500Z">
           <Target type="DEFAULT_BOOT">

@@ -23,6 +23,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Centralizes Firebase Auth and Realtime Database calls so Activities do not hold business logic.
@@ -375,6 +379,49 @@ public class FirebaseManager {
         return getDb().getReference(PRODUCTS_PATH);
     }
 
+    public Task<Void> addPreferredProductForUser(String userId, String preferredProductId) {
+        return getUserReference(userId)
+                .child("preferredProductIds")
+                .push()
+                .setValue(preferredProductId);
+    }
+
+    public Task<Void> deletePreferredProductForUser(String userId, String preferenceId) {
+        return getUserReference(userId)
+                .child("preferredProductIds")
+                .child(preferenceId)
+                .removeValue();
+    }
+
+    public void addChildEventListenerForUserPreferredProductIds(
+            String userId, ChildEventListener listener) {
+        getUserReference(userId)
+                .child("preferredProductIds")
+                .addChildEventListener(listener);
+    }
+
+    public Task<Void> addPreferredCategoryForUser(String userId, String preferredCategoryName) {
+        return getUserReference(userId)
+                .child("preferredCategoryNames")
+                .child(preferredCategoryName)
+                .setValue(preferredCategoryName);
+    }
+
+    public Task<Void> deletePreferredCategoriesForUser(
+            String userId, String preferredCategoryName) {
+        return getUserReference(userId)
+                .child("preferredCategoryNames")
+                .child(preferredCategoryName)
+                .removeValue();
+    }
+
+    public void addChildEventListenerForUserPreferredCategoryNames(
+            String userId, ChildEventListener listener) {
+        getUserReference(userId)
+                .child("preferredCategoryNames")
+                .addChildEventListener(listener);
+    }
+
     /**
      * Submits a request for a product if the product is available and not already requested.
      *
@@ -517,4 +564,110 @@ public class FirebaseManager {
                 .equalTo(providerUid)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
+}
+    /**
+     * Retrieves all ratings for a specific provider.
+     *
+     * @param providerId the ID of the provider
+     * @param listener callback to handle the ratings data
+     */
+    public void getRatings(String providerId, RatingValueEventListener listener) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Callback interface for rating data retrieval.
+     */
+    public interface RatingValueEventListener {
+        void onGetRatings(ArrayList<Rating> ratings);
+    }
+
+    /**
+     * Loads the preferred category names for a given user.
+     *
+     * @param userId the UID of the user
+     * @param listener callback invoked with the loaded categories or an error
+     */
+    public void loadPreferredCategories(String userId, PreferredCategoriesListener listener) {
+        getDb().getReference(USERS_PATH)
+                .child(userId)
+                .child("preferredCategoryNames")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<String> categories = new ArrayList<>();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            String category = child.getValue(String.class);
+                            if (category != null) {
+                                categories.add(category);
+                            }
+                        }
+                        listener.onCategoriesLoaded(categories);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        listener.onError(error.toException());
+                    }
+                });
+    }
+
+    public ProductListenerRegistration listenForNewProduct(ProductPostedListener listener) {
+        long registrationTime = System.currentTimeMillis();
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Product product = snapshot.getValue(Product.class);
+                if (product != null) {
+                    product.setId(snapshot.getKey());
+                    if (isProductNewSince(product, registrationTime)) {
+                        listener.onProductPosted(product);
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onError(error.toException());
+            }
+        };
+
+        DatabaseReference productsRef = getProductReference();
+        productsRef.addChildEventListener(childEventListener);
+
+        return () -> productsRef.removeEventListener(childEventListener);
+    }
+
+    private boolean isProductNewSince(Product product, long registrationTime) {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);
+            Date uploadedDate = format.parse(product.getTimeUploaded());
+            if (uploadedDate == null) return false;
+            return uploadedDate.getTime() >= registrationTime;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the UID of the currently signed-in user.
+     *
+     * @return the current user's UID, or {@code null} if no user is signed in
+     */
+    @Nullable
+    public String getCurrentUserID() {
+        FirebaseUser user = getCurrentUser();
+        return user != null ? user.getUid() : null;
+    }
+
 }
