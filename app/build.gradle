@@ -50,6 +50,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
     }
+
+    testOptions {
+        animationsDisabled = true
+    }
 }
 
 configurations.configureEach {
@@ -78,9 +82,12 @@ dependencies {
     androidTestImplementation libs.espresso.intents
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.mockito.android
+    testImplementation libs.mockito.junit.jupiter
     implementation libs.secrets.gradle.plugin
     implementation libs.play.services.location
     implementation libs.firebase.auth
+    implementation libs.firebase.messaging
+    testImplementation libs.robolectric
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 }
