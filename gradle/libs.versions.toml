@@ -28,6 +28,7 @@ mockto-core = "5.23.0"
 mockito-junit-jupiter = "5.23.0"
 robolectric = "4.16.1"
 firebaseMessaging = "25.0.0"
+firebaseMessagingVersion = "25.1.1"
 
 [libraries]
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsValidator" }
@@ -57,6 +58,7 @@ mockito-junit-jupiter = {group = "org.mockito", name = "mockito-junit-jupiter", 
 robolectric = {group = "org.robolectric", name = "robolectric", version.ref = "robolectric"}
 firebase-messaging = {group="com.google.firebase", name="firebase-messaging", version.ref = "firebaseMessaging"}
 espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espresso-contrib" }
+google-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessagingVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
