@@ -60,8 +60,7 @@ public class FirebaseManager {
     private FirebaseAuth auth;
     private FirebaseDatabase db;
 
-    protected FirebaseManager() {
-    }
+    protected FirebaseManager() {}
 
     /**
      * Returns the singleton instance of the Firebase manager.
@@ -191,7 +190,7 @@ public class FirebaseManager {
     /**
      * Signs a user into Firebase Authentication.
      *
-     * @param email    the user's email address
+     * @param email the user's email address
      * @param password the user's password
      * @return a Task that resolves to the authentication result
      */
@@ -213,6 +212,24 @@ public class FirebaseManager {
 
         return getUserReference(firebaseUser.getUid()).get()
                 .continueWith(task -> task.getResult().getValue(User.class));
+    }
+
+    /**
+     * Retrieves the profile of a user by their Firebase UID.
+     *
+     * @param uid the UID of the user to retrieve
+     * @return a Task that resolves to the user's profile
+     */
+    public Task<User> getUserById(String uid) {
+        return getUserReference(uid)
+                .get()
+                .continueWith(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    return task.getResult().getValue(User.class);
+                });
     }
 
     /**
@@ -247,6 +264,32 @@ public class FirebaseManager {
     }
 
     /**
+     * Loads a single product by ID and returns it through a callback.
+     *
+     * @param productId ID of the product to load
+     * @param callback callback that receives the product
+     */
+    public void getProductById(String productId, ProductCallback callback) {
+        getProductsReference()
+                .child(productId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    Product product = snapshot.getValue(Product.class);
+                    callback.onProductLoaded(product);
+                })
+                .addOnFailureListener(e -> {
+                    callback.onProductLoaded(null);
+                });
+    }
+
+    /**
+     * Callback interface for loading a single product.
+     */
+    public interface ProductCallback {
+        void onProductLoaded(Product product);
+    }
+
+    /**
      * Reserves and returns a unique product ID.
      *
      * @return a newly generated product ID
@@ -259,7 +302,7 @@ public class FirebaseManager {
      * Saves a product under the specified product ID.
      *
      * @param productId the ID of the product
-     * @param product   the product to save
+     * @param product the product to save
      * @return a Task that completes when the product has been saved
      * @throws FirebaseConnectionError if no user is signed in or the product ID is invalid
      */
@@ -308,21 +351,17 @@ public class FirebaseManager {
 
         @Override
         public final void onChildChanged(@NonNull DataSnapshot snapshot,
-                                         @Nullable String previousChildName) {
-        }
+                                         @Nullable String previousChildName) {}
 
         @Override
-        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {
-        }
+        public final void onChildRemoved(@NonNull DataSnapshot snapshot) {}
 
         @Override
         public final void onChildMoved(@NonNull DataSnapshot snapshot,
-                                       @Nullable String previousChildName) {
-        }
+                                       @Nullable String previousChildName) {}
 
         @Override
-        public final void onCancelled(@NonNull DatabaseError error) {
-        }
+        public final void onCancelled(@NonNull DatabaseError error) {}
 
         public abstract void onGetProduct(Product product);
     }
@@ -331,7 +370,7 @@ public class FirebaseManager {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             ArrayList<Product> products = new ArrayList<>();
-            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 Product product = snapshot.getValue(Product.class);
                 assert product != null;
                 product.setId(snapshot.getKey());
@@ -341,8 +380,7 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {
-        }
+        public void onCancelled(DatabaseError databaseError) {}
 
         public abstract void onGetProducts(List<Product> products);
     }
@@ -350,7 +388,7 @@ public class FirebaseManager {
     /**
      * Registers a listener for product changes ordered by the specified field.
      *
-     * @param orderBy                   the child field used to order products
+     * @param orderBy the child field used to order products
      * @param productChildEventListener the listener that receives product events
      */
     public void addProductChildEventListener(String orderBy,
@@ -434,8 +472,8 @@ public class FirebaseManager {
      * @return a Task that resolves on success
      * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public Task<Void> submitRequest(String productId, String requesterName,
-                                           String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
+    public Task<Void> submitRequest(String productId, String providerUid, String requesterName,
+                                    String requesterLocation, List<String> offeredItems) throws FirebaseConnectionError {
         FirebaseUser firebaseUser = getInstance().getCurrentUser();
         if (firebaseUser == null) {
             throw new FirebaseConnectionError();
@@ -449,8 +487,8 @@ public class FirebaseManager {
 
         return productRef.get()
                 .continueWithTask(checkAvailabilityAndFetchExisting(productId, requestsRef))
-                .continueWithTask(checkDuplicateAndSubmit(productId, receiverUid, requesterName,
-                        requesterLocation, offeredItems, requestsRef, receiverEmail));
+                .continueWithTask(checkDuplicateAndSubmit(productId, providerUid, receiverUid,
+                        requesterName, requesterLocation, offeredItems, requestsRef, receiverEmail));
     }
 
     private Continuation<DataSnapshot, Task<DataSnapshot>> checkAvailabilityAndFetchExisting(
@@ -470,7 +508,7 @@ public class FirebaseManager {
     }
 
     private Continuation<DataSnapshot, Task<Void>> checkDuplicateAndSubmit(
-            String productId, String receiverUid, String requesterName,
+            String productId, String providerUid, String receiverUid, String requesterName,
             String requesterLocation, List<String> offeredItems, DatabaseReference requestsRef,
             String receiverEmail) {
         return existingRequestsTask -> {
@@ -494,7 +532,7 @@ public class FirebaseManager {
 
             return requestsRef.child(requestId).setValue(
                     new Request(requestId, productId, receiverEmail, receiverUid,
-                            requesterName, requesterLocation, offeredItems));
+                            requesterName, requesterLocation, offeredItems, providerUid));
         };
     }
 
@@ -502,7 +540,7 @@ public class FirebaseManager {
      * Updates the status of an existing request (e.g. "accepted" or "declined").
      *
      * @param requestId the Firebase key of the request
-     * @param status    the new status to set
+     * @param status the new status to set
      * @return a Task that resolves on success
      */
     public Task<Void> updateRequestStatus(String requestId, String status) {
@@ -516,7 +554,7 @@ public class FirebaseManager {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             ArrayList<Request> requests = new ArrayList<>();
-            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 Request request = snapshot.getValue(Request.class);
                 assert request != null;
                 request.setRequestId(snapshot.getKey());
@@ -526,8 +564,7 @@ public class FirebaseManager {
         }
 
         @Override
-        public void onCancelled(DatabaseError error) {
-        }
+        public void onCancelled(DatabaseError error) { }
 
         public abstract void onGetRequests(List<Request> requests);
     }
@@ -540,6 +577,37 @@ public class FirebaseManager {
                 .equalTo(productId)
                 .addListenerForSingleValueEvent(requestValueEventListener);
     }
+
+    /**
+     * Retrieves all requests made by a specific receiver.
+     *
+     * @param receiverUid the UID of the receiver
+     * @param requestValueEventListener the listener that receives requests
+     */
+    public void getRequestsByReceiver(String receiverUid,
+                                      RequestValueEventListener requestValueEventListener) {
+        getDb()
+                .getReference(REQUESTS_PATH)
+                .orderByChild("receiverUid")
+                .equalTo(receiverUid)
+                .addListenerForSingleValueEvent(requestValueEventListener);
+    }
+
+    /**
+     * Retrieves all requests for products provided by a specific provider.
+     *
+     * @param providerUid the UID of the provider
+     * @param requestValueEventListener the listener that receives requests
+     */
+    public void getRequestsByProvider(String providerUid,
+                                      RequestValueEventListener requestValueEventListener) {
+        getDb()
+                .getReference(REQUESTS_PATH)
+                .orderByChild("providerUid")
+                .equalTo(providerUid)
+                .addListenerForSingleValueEvent(requestValueEventListener);
+    }
+
     /**
      * Retrieves all ratings for a specific provider.
      *

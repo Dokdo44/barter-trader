@@ -54,6 +54,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         Button productButton = findViewById(R.id.productButton);
         Button myProductsButton = findViewById(R.id.viewMyProductsButton);
         Button searchForProductsButton = findViewById(R.id.searchForProductsButton);
+        Button transactionHistoryButton = findViewById(R.id.transactionHistoryButton);
         Button preferredProductsButton = findViewById(R.id.preferredProductsButton);
 
         // Add product button will start AddProduct activity. Only visible if user role is seller.
@@ -68,6 +69,12 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         searchForProductsButton.setVisibility(View.INVISIBLE);
         searchForProductsButton.setOnClickListener(v -> onSearchForProductsButtonClick());
 
+        // Add transaction history button will start TransactionHistory activity
+        transactionHistoryButton.setOnClickListener(
+                v -> onTransactionHistoryButtonClick()
+        );
+
+        // Logout clears the Auth session and returns to login.
         preferredProductsButton.setVisibility(View.INVISIBLE);
         preferredProductsButton.setOnClickListener(v -> onPreferredProductsButtonClick());
 
@@ -190,6 +197,12 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
     private void onSearchForProductsButtonClick() {
         startActivity(new Intent(this, ProductSearchActivity.class));
+    }
+
+    private void onTransactionHistoryButtonClick() {
+        startActivity(
+                new Intent(this, TransactionHistoryActivity.class)
+        );
     }
 
     private void preferredProductsButtonSetup() {

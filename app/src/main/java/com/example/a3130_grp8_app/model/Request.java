@@ -15,6 +15,7 @@ public class Request {
     private String requesterName;
     private String requesterLocation;
     private List<String> offeredItems;
+    private String providerUid;
 
     public Request() {}
 
@@ -28,9 +29,10 @@ public class Request {
      * @param requesterName the name of the requester
      * @param requesterLocation the requester's location
      * @param offeredItems the items offered in exchange
+     * @param providerUid sellers UID
      */
     public Request(String requestId, String productId, String receiverEmail, String receiverUid,
-                   String requesterName, String requesterLocation, List<String> offeredItems) {
+                   String requesterName, String requesterLocation, List<String> offeredItems, String providerUid) {
         this.requestId = requestId;
         this.productId = productId;
         this.receiverEmail = receiverEmail;
@@ -40,6 +42,7 @@ public class Request {
         this.requesterName = requesterName;
         this.requesterLocation = requesterLocation;
         this.offeredItems = offeredItems;
+        this.providerUid = providerUid;
     }
 
     /**
@@ -52,9 +55,10 @@ public class Request {
      * @param requesterName the name of the requester
      * @param requesterLocation the requester's location
      * @param offeredItems the items offered in exchange
+     * @param providerUid sellers UID
      */
     public Request(String productId, String receiverUid, String requesterName,
-                   String requesterLocation, List<String> offeredItems) {
+                   String requesterLocation, List<String> offeredItems, String providerUid) {
         this.productId = productId;
         this.receiverUid = receiverUid;
         this.status = "pending";
@@ -62,6 +66,7 @@ public class Request {
         this.requesterName = requesterName;
         this.requesterLocation = requesterLocation;
         this.offeredItems = offeredItems;
+        this.providerUid = providerUid;
     }
 
     /**
@@ -189,5 +194,9 @@ public class Request {
      * @param offeredItems the offered items
      */
     public void setOfferedItems(List<String> offeredItems) { this.offeredItems = offeredItems; }
+
+    public String getProviderUid() { return providerUid; }
+
+    public void setProviderUid(String providerUid) { this.providerUid = providerUid; }
 
 }
