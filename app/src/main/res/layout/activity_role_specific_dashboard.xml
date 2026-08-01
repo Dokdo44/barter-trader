@@ -4,6 +4,7 @@
     android:id="@+id/roleSelectionMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <TextView
         android:id="@+id/dashboardTitle"
         android:layout_width="wrap_content"
@@ -15,6 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
+
     <TextView
         android:id="@+id/dashboardEmail"
         android:layout_width="wrap_content"
@@ -24,6 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dashboardTitle"/>
+
     <TextView
         android:id="@+id/dashboardRole"
         android:layout_width="wrap_content"
@@ -33,15 +36,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dashboardEmail"/>
+
+    <Button
+        android:id="@+id/viewMyChatsButton"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="View My Chats"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dashboardRole"/>
+
     <Button
         android:id="@+id/productButton"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="8dp"
         android:text="Add Product"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboardRole"/>
+        app:layout_constraintTop_toBottomOf="@id/viewMyChatsButton"/>
+
     <Button
         android:id="@+id/viewMyProductsButton"
         android:layout_width="220dp"
@@ -51,6 +66,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/productButton" />
+
     <Button
         android:id="@+id/searchForProductsButton"
         android:layout_width="220dp"
@@ -60,6 +76,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/viewMyProductsButton"/>
+
+    <Button
+        android:id="@+id/transactionHistoryButton"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Transaction History"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchForProductsButton" />
+
+    <Button
+        android:id="@+id/preferredProductsButton"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Preferred Products"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/transactionHistoryButton" />
+
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="220dp"
@@ -68,5 +105,6 @@
         android:text="Log Out"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchForProductsButton"/>
+        app:layout_constraintTop_toBottomOf="@id/preferredProductsButton"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

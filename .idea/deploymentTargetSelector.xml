@@ -6,15 +6,19 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="Product List Activity">
+      <SelectionState runConfigName="selectedOfferIsSubmittedAndStoredAsPendingTest()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="login">
+      <SelectionState runConfigName="emptyOfferIsRejectedWithoutSavingProposalTest()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="ViewRequestsActivityTest">
+      <SelectionState runConfigName="duplicateProposalIsRejectedWithoutCreatingAnotherRequestTest()">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="providerCanViewProposedItemAndReceiverDetailsTest()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

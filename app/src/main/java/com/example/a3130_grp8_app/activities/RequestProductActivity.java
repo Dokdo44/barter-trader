@@ -31,6 +31,7 @@ import java.util.List;
 public class RequestProductActivity extends AppCompatActivity {
 
     private String productId;
+    private String providerUid;
     private Button requestButton;
     private TextView requestSuccess;
     private EditText nameInput;
@@ -71,11 +72,12 @@ public class RequestProductActivity extends AppCompatActivity {
             assert product != null;
             assert product.getId() != null;
             productId = product.getId();
+            providerUid = product.getProviderUid();
         }
 
         loadProductPreferredItems(productId);
 
-        requestButton.setOnClickListener(v -> submitRequest(productId));
+        requestButton.setOnClickListener(v -> submitRequest(productId, providerUid));
 
         findViewById(R.id.backButton).setOnClickListener(v -> finish());
     }
@@ -128,14 +130,20 @@ public class RequestProductActivity extends AppCompatActivity {
      *
      * @param productId the ID of the product to request
      */
-    private void submitRequest(String productId) {
+    private void submitRequest(String productId, String providerUid) {
         requestButton.setEnabled(false);
         String name = nameInput.getText().toString().trim();
         String location = locationInput.getText().toString().trim();
         List<String> selectedItems = getSelectedItems();
+        if (selectedItems.isEmpty())
+        {
+            snackbar.setText("Select at least one item");
+            snackbar.show();
+            return;
+        }
 
         try {
-            FirebaseManager.getInstance().submitRequest(productId, name, location, selectedItems)
+            FirebaseManager.getInstance().submitRequest(productId, providerUid, name, location, selectedItems)
                     .addOnSuccessListener(unused -> {
                         requestButton.setVisibility(View.GONE);
                         requestSuccess.setVisibility(View.VISIBLE);

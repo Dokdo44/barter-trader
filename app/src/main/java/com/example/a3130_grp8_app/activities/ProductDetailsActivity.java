@@ -16,10 +16,21 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
+import com.example.a3130_grp8_app.model.Chat;
 import com.example.a3130_grp8_app.model.Product;
+import com.example.a3130_grp8_app.model.User;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Activity responsible for displaying detailed information about a product listing.
@@ -43,14 +54,94 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private Button goBackToListingsButton;
     private Button requestItemButton;
+    private Button sendMessageToProviderButton;
+    private Button addToPreferredProductsButton;
 
     private View productDetailsView;
+    private boolean productAlreadyPreferred;
 
     private View.OnClickListener requestItemButtonClickListener = v -> {
         Intent intent = new Intent(this, RequestProductActivity.class);
         intent.putExtra(PRODUCT_EXTRA_TAG, product);
         startActivity(intent);
     };
+
+    private View.OnClickListener sendMessgageToProviderButtonClickListener = v -> {
+        try {
+            FirebaseManager.getInstance().getCurrentUserProfile()
+                    .addOnSuccessListener(user -> onUserSuccess(user, v))
+                    .addOnFailureListener(e -> onUserFailure(e, v));
+        } catch(FirebaseConnectionError e) {
+            onUserFailure(e, v);
+        }
+    };
+
+    private void onUserSuccess(User user, View v) {
+        FirebaseManager.getInstance().getChatsForProduct(product.getId())
+                .addOnSuccessListener(snapshot -> onChatsSnapshotSuccess(snapshot, user, v))
+                .addOnFailureListener(e -> {onChatFailure(e, v);});
+    }
+
+    private void onUserFailure(Exception e, View view) {
+        Snackbar.make(view,
+                "Failed to get user profile: " + e.getMessage(),
+                Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void onChatsSnapshotSuccess(DataSnapshot snapshot, User user, View v) {
+        Chat productChat = null;
+        if(snapshot.exists()) {
+            for(DataSnapshot snapshotChild : snapshot.getChildren()) {
+                Chat chat = snapshotChild.getValue(Chat.class);
+                assert chat != null;
+                if(chat.getReceiverUid().equals(FirebaseManager.getInstance().getCurrentUserID())) {
+                    productChat = chat;
+                }
+            }
+        }
+        if(productChat != null) {
+            onGetChatSuccess(productChat);
+        } else {
+            FirebaseManager.getInstance().getUserByUid(product.getProviderUid())
+                    .addOnSuccessListener(provider -> getProviderSuccess(provider, user, v))
+                    .addOnFailureListener(e -> getProviderFailure(e, v));
+        }
+    }
+
+    private void getProviderSuccess(User provider, User receiver, View v) {
+        FirebaseManager.getInstance().addChat(
+                        provider.getEmail(),
+                        receiver.getEmail(),
+                        product.getName(),
+                        product.getId(),
+                        new HashMap<>(),
+                        product.getProviderUid(),
+                        FirebaseManager.getInstance().getCurrentUserID())
+                .addOnSuccessListener(this::onGetChatSuccess)
+                .addOnFailureListener(e -> onGetChatFailure(e, v));
+    }
+
+    private void getProviderFailure(Exception e, View v) {
+        Snackbar.make(v, "Failed to get provider user: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void onChatFailure(Exception e, View v) {
+        Snackbar.make(v,
+                "Failed to get chats: " + e.getMessage(),
+                Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void onGetChatSuccess(Chat chat) {
+        Intent intent = new Intent(this, ProductChatActivity.class);
+        intent.putExtra("CHAT", chat);
+        startActivity(intent);
+    }
+
+    private void onGetChatFailure(Exception e, View v) {
+        Snackbar.make(v,
+                "Failed to create chat: " + e.getMessage(),
+                Snackbar.LENGTH_SHORT).show();
+    }
 
     /**
      * Initializes product detail views and loads product information.
@@ -94,11 +185,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         goBackToListingsButton = findViewById(R.id.goBackToListingsButton);
         requestItemButton = findViewById(R.id.requestItemButton);
+        sendMessageToProviderButton = findViewById(R.id.sendMessageToProviderButton);
+        addToPreferredProductsButton = findViewById(R.id.addToPreferredProductsButton);
     }
 
     private void addClickListeners() {
         goBackToListingsButton.setOnClickListener(v -> finish());
         requestItemButton.setOnClickListener(requestItemButtonClickListener);
+        sendMessageToProviderButton.setOnClickListener(sendMessgageToProviderButtonClickListener);
+        addToPreferredProductsButton.setOnClickListener(v -> saveProductPreference());
     }
 
     private void loadProductById(String productId) {
@@ -168,6 +263,72 @@ public class ProductDetailsActivity extends AppCompatActivity {
         } else {
             productPreferredItems.setText("None specified");
         }
+
+        listenForExistingProductPreference();
+    }
+
+    private void listenForExistingProductPreference() {
+        FirebaseUser user = FirebaseManager.getInstance().getCurrentUser();
+        if (user == null || product == null || product.getId() == null) {
+            return;
+        }
+
+        FirebaseManager.getInstance().addChildEventListenerForUserPreferredProductIds(
+                user.getUid(),
+                new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
+                        String savedProductId = snapshot.getValue(String.class);
+                        if (product.getId().equals(savedProductId)) {
+                            productAlreadyPreferred = true;
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot snapshot, String previousChildName) { }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot snapshot) {
+                        String savedProductId = snapshot.getValue(String.class);
+                        if (product.getId().equals(savedProductId)) {
+                            productAlreadyPreferred = false;
+                        }
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot snapshot, String previousChildName) { }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) { }
+                }
+        );
+    }
+
+    private void saveProductPreference() {
+        FirebaseUser user = FirebaseManager.getInstance().getCurrentUser();
+        if (user == null || product == null || product.getId() == null) {
+            Snackbar.make(productDetailsView, "Could not add product to preferred products",
+                    BaseTransientBottomBar.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (productAlreadyPreferred) {
+            Snackbar.make(productDetailsView,
+                    "You have already added this product as a preferred product",
+                    BaseTransientBottomBar.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseManager.getInstance().addPreferredProductForUser(user.getUid(), product.getId())
+                .addOnSuccessListener(unused -> {
+                    productAlreadyPreferred = true;
+                    Snackbar.make(productDetailsView,
+                            "Successfully added products to preferred products",
+                            BaseTransientBottomBar.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(error -> Snackbar.make(productDetailsView,
+                        "Could not add product to preferred products: " + error.getMessage(),
+                        BaseTransientBottomBar.LENGTH_SHORT).show());
     }
 
     private WindowInsetsCompat onApplyWindowInsets(

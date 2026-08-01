@@ -3,13 +3,16 @@ package com.example.a3130_grp8_app;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.content.Intent;
 
@@ -21,134 +24,144 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.example.a3130_grp8_app.activities.ViewRequestsActivity;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Request;
+import com.google.android.gms.tasks.Tasks;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
+/**
+ * Mocked-Firebase acceptance tests for a provider's US12 exchange-offer decisions.
+ */
 @RunWith(AndroidJUnit4.class)
 public class ViewRequestsActivityTest {
 
-    Intent intent;
+    private static final String PRODUCT_ID = "offer-product";
+    private static final String EMPTY_PRODUCT_ID = "empty-product";
+    private static final String REQUEST_ID = "offer-request";
+    private static FirebaseManager mockFirebaseManager;
 
+    /**
+     * Installs a mocked Firebase manager with one pending proposal for the provider screen.
+     */
     @BeforeClass
     public static void setUpClass() {
-        FirebaseManager mockManager = Mockito.mock(FirebaseManager.class);
+        mockFirebaseManager = mock(FirebaseManager.class);
 
-        List<String> offeredItems1 = List.of("Book: Clean Code", "Gift Card $10");
-        Request request1 = new Request(
-                "req-001",
-                "prod-123",
-                "interestedbuyer1@gmail.com",
-                "uid-buyer1",
-                "Alice Johnson",
-                "Toronto, ON",
-                offeredItems1
+        Request request = new Request(
+                REQUEST_ID,
+                PRODUCT_ID,
+                "receiver@example.test",
+                "receiver-uid",
+                "Receiver One",
+                "Dartmouth, NS",
+                Collections.singletonList("Skateboard"),
+                "provider-uid"
         );
 
-        List<String> offeredItems2 = List.of("Vintage Vinyl Record", "Handmade Candle");
-        Request request2 = new Request(
-                "req-002",
-                "prod-456",
-                "interestedbuyer2@gmail.com",
-                "uid-buyer2",
-                "Marcus Lee",
-                "Vancouver, BC",
-                offeredItems2
-        );
-
-        ArrayList<Request> testRequests = new ArrayList<>(List.of(request1, request2));
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener listener = invocation.getArgument(1);
+            listener.onGetRequests(Collections.singletonList(request));
+            return null;
+        }).when(mockFirebaseManager).getRequests(eq(PRODUCT_ID), any());
 
         doAnswer(invocation -> {
-            FirebaseManager.RequestValueEventListener requestValueEventListener =
-                    invocation.getArgument(1);
-            requestValueEventListener.onGetRequests(testRequests);
+            FirebaseManager.RequestValueEventListener listener = invocation.getArgument(1);
+            listener.onGetRequests(Collections.emptyList());
             return null;
-        }).when(mockManager).getRequests(eq("1"), any());
+        }).when(mockFirebaseManager).getRequests(eq(EMPTY_PRODUCT_ID), any());
 
-        doAnswer(invocation -> {
-            FirebaseManager.RequestValueEventListener requestValueEventListener =
-                    invocation.getArgument(1);
-            requestValueEventListener.onGetRequests(new ArrayList<>(List.of(request1)));
-            return null;
-        }).when(mockManager).getRequests(eq("2"), any());
+        when(mockFirebaseManager.updateRequestStatus(anyString(), anyString()))
+                .thenReturn(Tasks.forResult(null));
 
-        doAnswer(invocation -> {
-            FirebaseManager.RequestValueEventListener requestValueEventListener =
-                    invocation.getArgument(1);
-            requestValueEventListener.onGetRequests(new ArrayList<>());
-            return null;
-        }).when(mockManager).getRequests(eq("0"), any());
-
-        FirebaseManager.install(mockManager);
+        FirebaseManagerTestInstaller.install(mockFirebaseManager);
     }
 
+    /**
+     * Clears the mocked singleton so it does not affect later Android test classes.
+     */
+    @AfterClass
+    public static void tearDownClass() {
+        FirebaseManagerTestInstaller.reset();
+    }
+
+    /**
+     * Clears mock interactions before each provider decision scenario.
+     */
     @Before
     public void setUp() {
-        intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
-
+        clearInvocations(mockFirebaseManager);
     }
 
     /**
-     * Verifies that all requests submitted for a product are displayed.
+     * Given I open a pending proposal, when I view its details, then I can see the receiver,
+     * status, and offered item.
      */
     @Test
-    public void allRequestsDisplayedTest() {
-        intent.putExtra("PRODUCT_ID", "1");
-        ActivityScenario.launch(intent);
-        // All submitted requests should be displayed
-        Espresso.onView(withText(containsString("Alice Johnson")))
-                .check(matches(isDisplayed()));
-        Espresso.onView(withText(containsString("Marcus Lee")))
-                .check(matches(isDisplayed()));
+    public void providerCanViewProposedItemAndReceiverDetailsTest() {
+        try (ActivityScenario<ViewRequestsActivity> scenario = launchProviderRequests()) {
+            Espresso.onView(withText("Receiver One - pending")).perform(click());
+
+            Espresso.onView(withText("Requester Details")).check(matches(isDisplayed()));
+            Espresso.onView(withText(containsString("receiver@example.test"))).check(matches(isDisplayed()));
+            Espresso.onView(withText(containsString("pending"))).check(matches(isDisplayed()));
+            Espresso.onView(withText(containsString("Skateboard"))).check(matches(isDisplayed()));
+        }
     }
 
     /**
-     * Verifies that each request displays the requester's name and request details.
+     * Given I accept a pending proposal, when I select Accept, then its stored status changes to
+     * accepted.
      */
     @Test
-    public void requesterNameAndDetailsDisplayedTest() {
-        intent.putExtra("PRODUCT_ID", "2");
-        ActivityScenario.launch(intent);
-        // The requester's email and request status should be displayed
-        Espresso.onView(withText(containsString("Alice Johnson")))
-                .check(matches(isDisplayed()));
+    public void providerCanAcceptProposalTest() {
+        try (ActivityScenario<ViewRequestsActivity> scenario = launchProviderRequests()) {
+            Espresso.onView(withText("Receiver One - pending")).perform(click());
+            Espresso.onView(withText("Accept")).perform(click());
+        }
 
-        Espresso.onView(withText(containsString("pending")))
-                .check(matches(isDisplayed()));
+        verify(mockFirebaseManager).updateRequestStatus(REQUEST_ID, "accepted");
     }
 
     /**
-     * A fail-safe to verify in the case of no requests being present
+     * Given I reject a pending proposal, when I select Decline, then its stored status changes to
+     * declined.
      */
     @Test
-    public void noRequestsMessageDisplayedTest() {
-        intent.putExtra("PRODUCT_ID", "0");
-        ActivityScenario.launch(intent);
-        // If no offers are present then "No offers have been submitted" should be displayed
-        Espresso.onView(withText("No offers have been submitted"))
-                .check(matches(isDisplayed()));
+    public void providerCanDeclineProposalTest() {
+        try (ActivityScenario<ViewRequestsActivity> scenario = launchProviderRequests()) {
+            Espresso.onView(withText("Receiver One - pending")).perform(click());
+            Espresso.onView(withText("Decline")).perform(click());
+        }
+
+        verify(mockFirebaseManager).updateRequestStatus(REQUEST_ID, "declined");
     }
 
     /**
-     * Verifies that clicking a request opens the requester's full trade details.
+     * Given a product has no submitted proposals, when the provider opens the request list, then
+     * the empty-state message is shown.
      */
     @Test
-    public void clickingRequestOpensRequesterDetailsTest() {
-        intent.putExtra("PRODUCT_ID", "1");
-        ActivityScenario.launch(intent);
-        // Given requests are displayed and we click an offer
-        Espresso.onView(withText(containsString("Alice Johnson")))
-                .perform(click());
-        // Then the requester details screen should be shown
-        Espresso.onView(withText(containsString("interestedbuyer1@gmail.com")))
-                .check(matches(isDisplayed()));
-        Espresso.onView(withText(containsString("pending")))
-                .check(matches(isDisplayed()));
+    public void noOffersMessageDisplayedWhenListEmptyTest() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
+        intent.putExtra("PRODUCT_ID", EMPTY_PRODUCT_ID);
+        try (ActivityScenario<ViewRequestsActivity> scenario = ActivityScenario.launch(intent)) {
+            Espresso.onView(withText("No offers have been submitted")).check(matches(isDisplayed()));
+        }
+    }
+
+    /**
+     * Opens the provider's request list for the product with the pending proposal.
+     *
+     * @return the launched provider request-list scenario
+     */
+    private ActivityScenario<ViewRequestsActivity> launchProviderRequests() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
+        intent.putExtra("PRODUCT_ID", PRODUCT_ID);
+        return ActivityScenario.launch(intent);
     }
 }
