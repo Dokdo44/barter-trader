@@ -135,6 +135,12 @@ public class RequestProductActivity extends AppCompatActivity {
         String name = nameInput.getText().toString().trim();
         String location = locationInput.getText().toString().trim();
         List<String> selectedItems = getSelectedItems();
+        if (selectedItems.isEmpty())
+        {
+            snackbar.setText("Select at least one item");
+            snackbar.show();
+            return;
+        }
 
         try {
             FirebaseManager.getInstance().submitRequest(productId, providerUid, name, location, selectedItems)

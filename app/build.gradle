@@ -1,21 +1,6 @@
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
-}
-
-def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
-
-ext {
-    firebaseBin   = isWindows
-            ? "${rootDir}/.gradle/firebase/node_modules/.bin/firebase.cmd"
-            : "${rootDir}/.gradle/firebase/node_modules/.bin/firebase"
-    databasePort  = 9000
-    authPort      = 9099
-    testProjectId = "group8-19144"
 }
 
 android {
@@ -31,9 +16,6 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField 'int', 'EMULATOR_AUTH_PORT', "${project.ext.authPort}"
-        buildConfigField 'int', 'EMULATOR_DATABASE_PORT', "${project.ext.databasePort}"
-        buildConfigField 'String', 'PROJECT_ID', "\"${project.ext.testProjectId}\""
     }
 
     buildFeatures {
