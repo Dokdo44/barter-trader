@@ -25,7 +25,8 @@ public class RequestTest {
                 "receiver-uid",
                 "Receiver One",
                 "Dartmouth, NS",
-                Collections.singletonList("Skateboard")
+                Collections.singletonList("Skateboard"),
+                "provider-uid"
         );
 
         assertEquals("pending", request.getStatus());
