@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.content.res.ColorStateList;
+import androidx.core.content.ContextCompat;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.model.Transaction;
@@ -77,9 +79,7 @@ public class TransactionAdapter extends BaseAdapter {
 
         Transaction transaction = transactions.get(position);
 
-        productNameText.setText(
-                "Product: " + transaction.getProductName()
-        );
+        productNameText.setText(transaction.getProductName());
 
         productDescriptionText.setText(
                 "Description: " + transaction.getProductDescription()
@@ -120,9 +120,7 @@ public class TransactionAdapter extends BaseAdapter {
                 "Offered Items:\n" + offeredItems
         );
 
-        statusText.setText(
-                "Status: " + transaction.getStatus()
-        );
+        bindStatus(statusText, transaction.getStatus());
 
         SimpleDateFormat formatter =
                 new SimpleDateFormat(
@@ -140,5 +138,20 @@ public class TransactionAdapter extends BaseAdapter {
         );
 
         return convertView;
+    }
+    private void bindStatus(TextView statusText, String status) {
+        boolean accepted = "accepted".equalsIgnoreCase(status);
+        int fillColor = ContextCompat.getColor(context,
+                accepted ? R.color.md_success : R.color.md_error);
+        int textColor = ContextCompat.getColor(context,
+                accepted ? R.color.md_on_success : R.color.md_on_error);
+
+        statusText.setBackgroundTintList(ColorStateList.valueOf(fillColor));
+        statusText.setTextColor(textColor);
+
+        String label = (status == null || status.isEmpty())
+                ? "Unknown"
+                : Character.toUpperCase(status.charAt(0)) + status.substring(1).toLowerCase();
+        statusText.setText(label);
     }
 }

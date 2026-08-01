@@ -5,11 +5,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.activity.EdgeToEdge;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.adapters.MessagesAdapter;
@@ -47,6 +52,8 @@ public class ProductChatActivity extends AppCompatActivity {
     MessageStorage messageStorage;
     MessageNotifier messageNotifier;
     MessageAdapterChatMessageObserver messageAdapterChatObserver;
+    TextView backButton;
+
 
     /**
      * Create view variables and set click listeners
@@ -55,8 +62,13 @@ public class ProductChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_product_chat);
-
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.productChatMain), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         if(!getIntent().hasExtra("CHAT")) {
             throw new IllegalStateException("This view must have a chat extra");
         }
@@ -73,10 +85,22 @@ public class ProductChatActivity extends AppCompatActivity {
         sendMessageButton = findViewById(R.id.sendButton);
         messageInput = findViewById(R.id.messageInput);
         messageRecyclerView = findViewById(R.id.messageRecyclerView);
-
+        backButton = findViewById(R.id.backButtonProductChat);
+        backButton.setOnClickListener(v -> finish());
         messagesAdapter = new MessagesAdapter(this, new ArrayList<>());
-        messageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager messageLayoutManager = new LinearLayoutManager(this);
+        messageLayoutManager.setReverseLayout(true);
+        messageLayoutManager.setStackFromEnd(true);
+        messageRecyclerView.setLayoutManager(messageLayoutManager);
         messageRecyclerView.setAdapter(messagesAdapter);
+        messagesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                if (positionStart == 0) {
+                    messageRecyclerView.scrollToPosition(0);
+                }
+            }
+        });
 
         messageNotifier = new MessageNotifier(chat);
 

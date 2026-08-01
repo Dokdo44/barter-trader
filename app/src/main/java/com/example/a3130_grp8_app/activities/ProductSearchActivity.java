@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -150,7 +151,7 @@ public class ProductSearchActivity extends AppCompatActivity implements OnMapRea
         productSearchResultAdapter = new ProductSearchResultAdapter(this, new ArrayList<>());
         productRecyclerView.setAdapter(productSearchResultAdapter);
 
-        Button backButton = findViewById(R.id.backButtonSearch);
+        TextView backButton = findViewById(R.id.backButtonSearch);
         backButton.setOnClickListener(v -> finish());
 
         initGms();

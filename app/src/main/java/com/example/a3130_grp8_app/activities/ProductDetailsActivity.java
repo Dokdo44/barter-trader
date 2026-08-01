@@ -52,7 +52,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private TextView datePosted;
     private TextView productPreferredItems;
 
-    private Button goBackToListingsButton;
+    private TextView goBackToListingsButton;
     private Button requestItemButton;
     private Button sendMessageToProviderButton;
     private Button addToPreferredProductsButton;

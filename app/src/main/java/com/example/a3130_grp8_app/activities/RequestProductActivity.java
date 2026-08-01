@@ -14,6 +14,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 import com.example.a3130_grp8_app.R;
@@ -107,6 +108,7 @@ public class RequestProductActivity extends AppCompatActivity {
             CheckBox checkBox = new CheckBox(this);
             checkBox.setText(item);
             checkBox.setTextSize(16f);
+            checkBox.setTextColor(ContextCompat.getColor(this, R.color.md_on_surface));
             checkboxContainer.addView(checkBox);
         }
     }

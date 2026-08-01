@@ -23,11 +23,18 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
 
-                <Button
+                <TextView
                     android:id="@+id/goBackToListingsButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="← Back" />
+                    android:padding="8dp"
+                    android:text="←"
+                    android:textColor="@color/md_on_surface"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
 
             <ImageView
                 android:id="@+id/productImage"
@@ -85,9 +92,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Date Posted: "
-                android:textColor="@color/common_google_signin_btn_text_dark_disabled"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/md_on_surface"
+                android:textSize="18sp" />
+
 
             <TextView
                 android:layout_width="match_parent"

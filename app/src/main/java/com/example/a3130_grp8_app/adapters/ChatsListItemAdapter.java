@@ -12,9 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.activities.ProductChatActivity;
+import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Chat;
-import com.example.a3130_grp8_app.model.Product;
-import com.example.a3130_grp8_app.model.User;
 
 import java.util.List;
 
@@ -27,31 +26,34 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
      * The viewholder for chat items
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView providerNameTextView;
-        private final TextView receiverNameTestView;
+        private final TextView avatarInitialTextView;
+        private final TextView otherPersonNameTextView;
         private final TextView productNameTextView;
         private final ConstraintLayout chatListItemMain;
 
         public ViewHolder(View view) {
             super(view);
 
+            avatarInitialTextView = view.findViewById(R.id.avatarInitialTextView);
+            otherPersonNameTextView = view.findViewById(R.id.otherPersonNameTextView);
             productNameTextView = view.findViewById(R.id.productNameTextView);
-            providerNameTextView = view.findViewById(R.id.providerNameTetView);
-            receiverNameTestView = view.findViewById(R.id.receiverTextView);
             chatListItemMain = view.findViewById(R.id.chatListItemMain);
+        }
+
+        public TextView getAvatarInitialTextView() {
+            return avatarInitialTextView;
+        }
+
+        public TextView getOtherPersonNameTextView() {
+            return otherPersonNameTextView;
         }
 
         public TextView getProductNameTextView() {
             return productNameTextView;
         }
-        public TextView getProviderNameTextView() { return providerNameTextView; }
 
         public ConstraintLayout getChatListItemMain() {
             return chatListItemMain;
-        }
-
-        public TextView getReceiverNameTestView() {
-            return receiverNameTestView;
         }
     }
 
@@ -90,7 +92,8 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
     }
 
     /**
-     * Sets the text of the view
+     * Sets the text of the view, showing the identity of whichever party
+     * is NOT the current user (the "other side" of the chat).
      * @param viewHolder   The ViewHolder which should be updated to represent the contents of the
      *                 item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
@@ -98,13 +101,18 @@ public class ChatsListItemAdapter extends RecyclerView.Adapter<ChatsListItemAdap
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Chat chat = chats.get(position);
-        String chatProductName = chat.getProductName();
-        viewHolder.getProductNameTextView().setText("Product: " + chatProductName);
 
-        String providerName = chat.getProviderName();
-        String receiverName = chat.getReceiverName();
-        viewHolder.getProviderNameTextView().setText("seller: " + providerName);
-        viewHolder.getReceiverNameTestView().setText("buyer: " + receiverName);
+        String currentUserId = FirebaseManager.getInstance().getCurrentUserID();
+        boolean currentUserIsProvider = currentUserId != null && currentUserId.equals(chat.getProviderUid());
+        String otherPersonName = currentUserIsProvider ? chat.getReceiverName() : chat.getProviderName();
+
+        viewHolder.getOtherPersonNameTextView().setText(otherPersonName);
+        viewHolder.getProductNameTextView().setText(chat.getProductName());
+
+        String initial = (otherPersonName != null && !otherPersonName.isEmpty())
+                ? otherPersonName.substring(0, 1).toUpperCase()
+                : "?";
+        viewHolder.getAvatarInitialTextView().setText(initial);
 
         viewHolder.getChatListItemMain().setOnClickListener(getOnProductClickListener(chat));
     }

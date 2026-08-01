@@ -4,7 +4,7 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/md_background">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
                 android:id="@+id/requestProductMain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/white"
+                android:background="@color/md_surface"
                 android:elevation="6dp"
                 android:orientation="vertical"
                 android:padding="24dp">
@@ -39,7 +39,7 @@
                         android:text="Send Request"
                         android:textSize="24sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A1A"/>
+                        android:textColor="@color/md_on_surface"/>
 
                     <ImageButton
                         android:id="@+id/backButton"
@@ -47,14 +47,14 @@
                         android:layout_height="36dp"
                         android:src="@android:drawable/ic_menu_close_clear_cancel"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        app:tint="#6650A4"
+                        app:tint="@color/md_primary"
                         android:contentDescription="Close"/>
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0"
+                    android:background="@color/md_outline"
                     android:layout_marginBottom="20dp"/>
 
                 <TextView
@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:text="Your Name"
                     android:textSize="14sp"
-                    android:textColor="#555555"
+                    android:textColor="@color/md_on_surface"
                     android:layout_marginBottom="6dp"/>
 
                 <EditText
@@ -71,6 +71,8 @@
                     android:layout_height="52dp"
                     android:hint="Enter your name"
                     android:inputType="textPersonName"
+                    android:textColor="@color/md_on_surface"
+                    android:textColorHint="@color/md_outline"
                     android:background="@drawable/input_border"
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
@@ -81,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:text="Items to offer"
                     android:textSize="14sp"
-                    android:textColor="#555555"
+                    android:textColor="@color/md_on_surface"
                     android:layout_marginBottom="4dp"/>
 
                 <TextView
@@ -89,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:text="Select any that apply:"
                     android:textSize="12sp"
-                    android:textColor="#999999"
+                    android:textColor="@color/md_outline"
                     android:layout_marginBottom="10dp"/>
 
                 <LinearLayout
@@ -104,7 +106,7 @@
                     android:layout_height="wrap_content"
                     android:text="Your Location"
                     android:textSize="14sp"
-                    android:textColor="#555555"
+                    android:textColor="@color/md_on_surface"
                     android:layout_marginBottom="6dp"/>
 
                 <EditText
@@ -113,6 +115,8 @@
                     android:layout_height="52dp"
                     android:hint="Enter your location"
                     android:inputType="text"
+                    android:textColor="@color/md_on_surface"
+                    android:textColorHint="@color/md_outline"
                     android:background="@drawable/input_border"
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
@@ -125,7 +129,7 @@
                     android:text="✓ Request submitted successfully!"
                     android:visibility="gone"
                     android:gravity="center"
-                    android:textColor="#6650A4"
+                    android:textColor="@color/md_primary"
                     android:textSize="15sp"
                     android:layout_marginBottom="16dp"/>
 
@@ -134,8 +138,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:text="Send Request"
-                    android:backgroundTint="#6650A4"
-                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/md_primary"
+                    android:textColor="@color/md_on_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 

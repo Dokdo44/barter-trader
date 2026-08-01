@@ -9,6 +9,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.EdgeToEdge;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
@@ -40,7 +44,13 @@ public class ViewRequestsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_view_requests);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.viewRequestsMain), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         requestListView = findViewById(R.id.requestListView);
         noRequestsText = findViewById(R.id.noRequestsText);
@@ -61,7 +71,7 @@ public class ViewRequestsActivity extends AppCompatActivity {
         if (productId == null) productId = "dummy_product_001";
         FirebaseManager.getInstance().getRequests(productId, requestValueEventListener);
 
-        Button backButton = findViewById(R.id.backButtonViewRequests);
+        TextView backButton = findViewById(R.id.backButtonViewRequests);
         backButton.setOnClickListener(v -> finish());
 
         // show requester details when clicked
