@@ -70,6 +70,7 @@ public class ChatsListActivity extends AppCompatActivity {
         StorageManager storageManager = new StorageManager(this);
         ChatStorage chatStorage = ChatStorage.getInstance(storageManager, chatNotifier);
         chatAdapterChatObserver = new ChatAdapterChatObserver(chatNotifier, chatStorage, chatsListItemAdapter);
+        chatAdapterChatObserver.attachToChatNotifier();
 
         FirebaseManager.getInstance().addValueEventListenerForConnection(new ValueEventListener() {
             @Override
@@ -79,9 +80,7 @@ public class ChatsListActivity extends AppCompatActivity {
                     Log.e("e", "could not get snapshot value");
                     return;
                 }
-                if(connected) {
-                    chatAdapterChatObserver.attachToChatNotifier();
-                } else {
+                if(!connected) {
                     chatAdapterChatObserver.attachToChatStorage();
                     chatStorage.feedObservers();
                 }
