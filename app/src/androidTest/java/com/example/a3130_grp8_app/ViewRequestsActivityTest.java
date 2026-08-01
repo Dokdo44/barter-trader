@@ -41,6 +41,7 @@ import java.util.Collections;
 public class ViewRequestsActivityTest {
 
     private static final String PRODUCT_ID = "offer-product";
+    private static final String EMPTY_PRODUCT_ID = "empty-product";
     private static final String REQUEST_ID = "offer-request";
     private static FirebaseManager mockFirebaseManager;
 
@@ -58,7 +59,8 @@ public class ViewRequestsActivityTest {
                 "receiver-uid",
                 "Receiver One",
                 "Dartmouth, NS",
-                Collections.singletonList("Skateboard")
+                Collections.singletonList("Skateboard"),
+                "provider-uid"
         );
 
         doAnswer(invocation -> {
@@ -66,6 +68,13 @@ public class ViewRequestsActivityTest {
             listener.onGetRequests(Collections.singletonList(request));
             return null;
         }).when(mockFirebaseManager).getRequests(eq(PRODUCT_ID), any());
+
+        doAnswer(invocation -> {
+            FirebaseManager.RequestValueEventListener listener = invocation.getArgument(1);
+            listener.onGetRequests(Collections.emptyList());
+            return null;
+        }).when(mockFirebaseManager).getRequests(eq(EMPTY_PRODUCT_ID), any());
+
         when(mockFirebaseManager.updateRequestStatus(anyString(), anyString()))
                 .thenReturn(Tasks.forResult(null));
 
@@ -130,6 +139,19 @@ public class ViewRequestsActivityTest {
         }
 
         verify(mockFirebaseManager).updateRequestStatus(REQUEST_ID, "declined");
+    }
+
+    /**
+     * Given a product has no submitted proposals, when the provider opens the request list, then
+     * the empty-state message is shown.
+     */
+    @Test
+    public void noOffersMessageDisplayedWhenListEmptyTest() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(), ViewRequestsActivity.class);
+        intent.putExtra("PRODUCT_ID", EMPTY_PRODUCT_ID);
+        try (ActivityScenario<ViewRequestsActivity> scenario = ActivityScenario.launch(intent)) {
+            Espresso.onView(withText("No offers have been submitted")).check(matches(isDisplayed()));
+        }
     }
 
     /**

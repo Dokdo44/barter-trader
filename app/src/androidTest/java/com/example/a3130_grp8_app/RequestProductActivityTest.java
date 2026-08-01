@@ -78,9 +78,9 @@ public class RequestProductActivityTest {
 
         when(mockFirebaseManager.getProduct(anyString())).thenReturn(Tasks.forResult(product));
         when(mockFirebaseManager.submitRequest(
-                anyString(), anyString(), anyString(), anyList())).thenReturn(Tasks.forResult(null));
+                anyString(), anyString(), anyString(), anyString(), anyList())).thenReturn(Tasks.forResult(null));
         when(mockFirebaseManager.submitRequest(
-                eq(DUPLICATE_PRODUCT_ID), anyString(), anyString(), anyList())).thenReturn(
+                eq(DUPLICATE_PRODUCT_ID), anyString(), anyString(), anyString(), anyList())).thenReturn(
                 Tasks.forException(new Exception("You have already requested this product"))
         );
 
@@ -118,6 +118,7 @@ public class RequestProductActivityTest {
         ArgumentCaptor<List<String>> offeredItems = ArgumentCaptor.forClass(List.class);
         verify(mockFirebaseManager).submitRequest(
                 eq(VALID_PRODUCT_ID),
+                anyString(),
                 eq("Receiver One"),
                 eq("Dartmouth, NS"),
                 offeredItems.capture()
@@ -141,7 +142,7 @@ public class RequestProductActivityTest {
         }
 
         verify(mockFirebaseManager, never()).submitRequest(
-                eq(VALID_PRODUCT_ID), anyString(), anyString(), anyList());
+                eq(VALID_PRODUCT_ID), anyString(), anyString(), anyString(), anyList());
     }
 
     /**
@@ -160,7 +161,7 @@ public class RequestProductActivityTest {
         }
 
         verify(mockFirebaseManager).submitRequest(
-                eq(DUPLICATE_PRODUCT_ID), eq("Receiver One"), eq("Dartmouth, NS"), anyList());
+                eq(DUPLICATE_PRODUCT_ID), anyString(), eq("Receiver One"), eq("Dartmouth, NS"), anyList());
     }
 
     /**
