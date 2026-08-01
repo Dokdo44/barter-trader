@@ -12,12 +12,19 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <Button
+        <TextView
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="← Back" />
+            android:padding="8dp"
+            android:text="←"
+            android:textColor="@color/md_on_surface"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless" />
         
         <TextView
             android:id="@+id/addListingTitle"
@@ -33,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="140dp"
             android:layout_marginBottom="16dp"
-            android:background="#E0E0E0"
+            android:background="@color/md_primary_container"
             android:clickable="true"
             android:focusable="true">
 
@@ -51,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="+ Add Photo"
-                android:textColor="#666666" />
+                android:textColor="@color/md_on_primary_container" />
         </FrameLayout>
 
     <com.google.android.material.textfield.TextInputLayout

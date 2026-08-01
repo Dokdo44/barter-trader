@@ -7,6 +7,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.EdgeToEdge;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.adapters.TransactionAdapter;
@@ -39,14 +43,20 @@ public class TransactionHistoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_transaction_history);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.transactionHistoryMain), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         firebaseManager = FirebaseManager.getInstance();
 
         transactionListView = findViewById(R.id.transactionListView);
         noTransactionsText = findViewById(R.id.noTransactionsText);
 
-        Button backButtonTransactionHistory = findViewById(R.id.backButtonTransactionHistory);
+        TextView backButtonTransactionHistory = findViewById(R.id.backButtonTransactionHistory);
 
         FirebaseUser currentUser = firebaseManager.getCurrentUser();
 

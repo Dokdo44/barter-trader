@@ -13,6 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.widget.TextView;
+
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.adapters.ChatsListItemAdapter;
 import com.example.a3130_grp8_app.data.ChatStorage;
@@ -37,6 +39,7 @@ public class ChatsListActivity extends AppCompatActivity {
     ChatsListItemAdapter chatsListItemAdapter;
     ChatAdapterChatObserver chatAdapterChatObserver;
     String currUserId;
+    TextView backButton;
 
     /**
      * Create view variables and start child listeners
@@ -58,6 +61,8 @@ public class ChatsListActivity extends AppCompatActivity {
         chatsListItemAdapter = new ChatsListItemAdapter(this, new ArrayList<>());
         chatsListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         chatsListRecyclerView.setAdapter(chatsListItemAdapter);
+        backButton = findViewById(R.id.backButtonChatsList);
+        backButton.setOnClickListener(v -> finish());
 
 
         currUserId = FirebaseManager.getInstance().getCurrentUserID();

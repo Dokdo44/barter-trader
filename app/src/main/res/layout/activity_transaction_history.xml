@@ -5,16 +5,21 @@
     android:id="@+id/transactionHistoryMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <Button
+    <TextView
         android:id="@+id/backButtonTransactionHistory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Back"
+        android:layout_margin="8dp"
+        android:padding="8dp"
+        android:text="←"
+        android:textColor="@color/md_on_surface"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
-
     <TextView
         android:id="@+id/noTransactionsText"
         android:layout_width="wrap_content"
@@ -25,7 +30,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
     <ListView
         android:id="@+id/transactionListView"
         android:layout_width="0dp"
@@ -35,5 +39,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

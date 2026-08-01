@@ -23,6 +23,8 @@
             android:layout_height="65dp"
             android:ems="10"
             android:hint="Email"
+            android:textColor="@color/md_on_surface"
+            android:textColorHint="@color/md_outline"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -31,6 +33,8 @@
             android:layout_height="65dp"
             android:ems="10"
             android:hint="Password"
+            android:textColor="@color/md_on_surface"
+            android:textColorHint="@color/md_outline"
             android:inputType="textPassword" />
 
         <Button

@@ -1,7 +1,7 @@
 package com.example.a3130_grp8_app.activities;
 
 import android.os.Bundle;
-import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,7 +49,7 @@ public class MyProductsActivity extends AppCompatActivity {
         productsRecyclerView.setAdapter(myProductsAdapter);
         productsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        Button backButton = findViewById(R.id.backButtonMyProducts);
+        TextView backButton = findViewById(R.id.backButtonMyProducts);
         backButton.setOnClickListener(v -> finish());
 
         FirebaseAuth auth = FirebaseManager.getInstance().getAuth();

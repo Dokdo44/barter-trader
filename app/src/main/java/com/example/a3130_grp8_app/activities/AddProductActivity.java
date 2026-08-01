@@ -73,7 +73,7 @@ public class AddProductActivity extends AppCompatActivity {
     private Uri selectedPhotoUri;
     private ActivityResultLauncher<String[]> photoPickerLauncher;
     private boolean isSubmitting;
-    private Button backButton;
+    private TextView backButton;
 
     private final ExecutorService photoUploadExecutor = Executors.newSingleThreadExecutor();
 
