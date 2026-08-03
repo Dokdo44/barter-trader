@@ -118,8 +118,10 @@ public class TransactionHistoryActivity extends AppCompatActivity {
                                 return;
                             }
 
+                            String sellerId = product.getProviderUid();
+
                             firebaseManager.getUserById(
-                                    product.getProviderUid()
+                                    sellerId
                             ).addOnSuccessListener(
                                     seller -> {
                                         String sellerName = "Unknown";
@@ -133,6 +135,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
                                                         product.getName(),
                                                         product.getDescription(),
                                                         product.getAddress(),
+                                                        sellerId,
                                                         sellerName,
                                                         request.getRequesterName(),
                                                         request.getRequesterLocation(),
@@ -154,6 +157,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
                                                         product.getName(),
                                                         product.getDescription(),
                                                         product.getAddress(),
+                                                        sellerId,
                                                         "Unknown",
                                                         request.getRequesterName(),
                                                         request.getRequesterLocation(),
