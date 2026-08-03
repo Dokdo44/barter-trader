@@ -86,7 +86,8 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
 
         loadCurrentUserProfile();
         askForPermissions();
-        startNotificationManagers();
+        messageNotificationManager = new MessageNotificationManager(new AndroidNotificationSender(this));
+        messageNotificationManager.start();
     }
 
     private void askForPermissions() {
@@ -103,19 +104,17 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
     }
 
     /**
-     * Starts listening for preferred product notifications for the current session.
+     * Starts listening for preferred product notifications, scoped to receivers (Buyer role).
      */
-    private void startNotificationManagers() {
-        preferredProductNotificationManager = new PreferredProductNotificationManager(
-                FirebaseManager.getInstance(),
-                new AndroidNotificationSender(this),
-                new DefaultPreferredCategoryMatcher()
-        );
-        preferredProductNotificationManager.start();
-
-        messageNotificationManager = new MessageNotificationManager(
-                new AndroidNotificationSender(this));
-        messageNotificationManager.start();
+    private void startPreferredProductNotificationsIfBuyer() {
+        if ("Role: Buyer".equals(dashboardRole.getText().toString())) {
+            preferredProductNotificationManager = new PreferredProductNotificationManager(
+                    FirebaseManager.getInstance(),
+                    new AndroidNotificationSender(this),
+                    new DefaultPreferredCategoryMatcher()
+            );
+            preferredProductNotificationManager.start();
+        }
     }
 
     private void loadCurrentUserProfile() {
@@ -159,6 +158,7 @@ public class RoleSpecificDashboardActivity extends AppCompatActivity {
         myProductsButtonSetup();
         searchForProductsButtonSetup();
         preferredProductsButtonSetup();
+        startPreferredProductNotificationsIfBuyer();
     }
 
     private void onGetProfileFailure(Exception error) {
