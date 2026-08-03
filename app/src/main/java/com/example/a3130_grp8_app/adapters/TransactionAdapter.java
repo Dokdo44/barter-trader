@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.example.a3130_grp8_app.R;
+import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Transaction;
 
 import java.text.SimpleDateFormat;
@@ -189,8 +190,16 @@ public class TransactionAdapter extends BaseAdapter {
 
     private void submitRating(Transaction transaction, int ratingValue,
                               String comment, AlertDialog dialog) {
-        // TODO: connect to FirebaseManager.submitRating()
-        dialog.dismiss();
+        FirebaseManager firebaseManager = FirebaseManager.getInstance();
+
+        firebaseManager.submitRating(transaction.getSellerId(), ratingValue, comment)
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(context, "Rating submitted", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(context, "Failed to submit rating", Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void bindStatus(TextView statusText, String status) {
