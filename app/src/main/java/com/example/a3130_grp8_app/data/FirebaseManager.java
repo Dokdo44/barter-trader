@@ -624,6 +624,17 @@ public class FirebaseManager {
     public interface RatingValueEventListener {
         void onGetRatings(ArrayList<Rating> ratings);
     }
+    /**
+     * Submits a rating from a receiver to a provider.
+     *
+     * @param providerId the ID of the provider being rated
+     * @param ratingValue the rating value (1-5)
+     * @param comment optional comment left by the receiver
+     * @return a Task that completes when the rating has been saved
+     */
+    public Task<Void> submitRating(String providerId, int ratingValue, String comment) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Loads the preferred category names for a given user.
