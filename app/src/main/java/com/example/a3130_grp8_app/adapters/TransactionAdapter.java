@@ -1,13 +1,19 @@
 package com.example.a3130_grp8_app.adapters;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.content.res.ColorStateList;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.example.a3130_grp8_app.R;
@@ -147,7 +153,44 @@ public class TransactionAdapter extends BaseAdapter {
     }
 
     private void showRatingDialog(Transaction transaction) {
-        // TODO: implement rating dialog
+        View dialogView = LayoutInflater.from(context)
+                .inflate(R.layout.dialog_rate_exchange, null);
+
+        RadioGroup ratingRadioGroup =
+                dialogView.findViewById(R.id.ratingRadioGroup);
+
+        EditText commentInput =
+                dialogView.findViewById(R.id.ratingCommentInput);
+
+        Button submitRatingButton =
+                dialogView.findViewById(R.id.submitRatingButton);
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(dialogView)
+                .create();
+
+        submitRatingButton.setOnClickListener(v -> {
+            int selectedId = ratingRadioGroup.getCheckedRadioButtonId();
+
+            if (selectedId == -1) {
+                Toast.makeText(context, "Please select a rating", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            RadioButton selectedButton = dialogView.findViewById(selectedId);
+            int ratingValue = Integer.parseInt(selectedButton.getText().toString());
+            String comment = commentInput.getText().toString().trim();
+
+            submitRating(transaction, ratingValue, comment, dialog);
+        });
+
+        dialog.show();
+    }
+
+    private void submitRating(Transaction transaction, int ratingValue,
+                              String comment, AlertDialog dialog) {
+        // TODO: connect to FirebaseManager.submitRating()
+        dialog.dismiss();
     }
 
     private void bindStatus(TextView statusText, String status) {
