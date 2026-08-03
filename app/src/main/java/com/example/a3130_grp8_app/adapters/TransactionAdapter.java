@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 import android.content.res.ColorStateList;
 import androidx.core.content.ContextCompat;
@@ -77,6 +78,9 @@ public class TransactionAdapter extends BaseAdapter {
         TextView dateText =
                 convertView.findViewById(R.id.dateText);
 
+        Button rateExchangeButton =
+                convertView.findViewById(R.id.rateExchangeButton);
+
         Transaction transaction = transactions.get(position);
 
         productNameText.setText(transaction.getProductName());
@@ -137,8 +141,15 @@ public class TransactionAdapter extends BaseAdapter {
                 "Date: " + date
         );
 
+        rateExchangeButton.setOnClickListener(v -> showRatingDialog(transaction));
+
         return convertView;
     }
+
+    private void showRatingDialog(Transaction transaction) {
+        // TODO: implement rating dialog
+    }
+
     private void bindStatus(TextView statusText, String status) {
         boolean accepted = "accepted".equalsIgnoreCase(status);
         int fillColor = ContextCompat.getColor(context,
