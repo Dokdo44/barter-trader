@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import com.example.a3130_grp8_app.R;
 import com.example.a3130_grp8_app.data.FirebaseManager;
 import com.example.a3130_grp8_app.model.Transaction;
+import com.example.a3130_grp8_app.exceptions.FirebaseConnectionError;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -192,14 +193,18 @@ public class TransactionAdapter extends BaseAdapter {
                               String comment, AlertDialog dialog) {
         FirebaseManager firebaseManager = FirebaseManager.getInstance();
 
-        firebaseManager.submitRating(transaction.getSellerId(), ratingValue, comment)
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(context, "Rating submitted", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(context, "Failed to submit rating", Toast.LENGTH_SHORT).show()
-                );
+        try {
+            firebaseManager.submitRating(transaction.getSellerId(), ratingValue, comment)
+                    .addOnSuccessListener(unused -> {
+                        Toast.makeText(context, "Rating submitted", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(context, "Failed to submit rating", Toast.LENGTH_SHORT).show()
+                    );
+        } catch (FirebaseConnectionError e) {
+            Toast.makeText(context, "Could not connect to Firebase", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void bindStatus(TextView statusText, String status) {
