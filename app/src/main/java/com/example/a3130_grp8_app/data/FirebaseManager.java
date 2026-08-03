@@ -55,6 +55,7 @@ public class FirebaseManager {
     private static final String REQUESTS_PATH = "requests";
     private static final String CHAT_PATH = "chats";
     private static final String MESSAGES_PATH = "messages";
+    private static final String RATINGS_PATH = "ratings";
     static final String FIREBASE_URL = "https://group8-19144-default-rtdb.firebaseio.com/";
 
     private FirebaseAuth auth;
@@ -615,7 +616,28 @@ public class FirebaseManager {
      * @param listener callback to handle the ratings data
      */
     public void getRatings(String providerId, RatingValueEventListener listener) {
-        throw new UnsupportedOperationException();
+        getDb()
+                .getReference(RATINGS_PATH)
+                .orderByChild("providerId")
+                .equalTo(providerId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ArrayList<Rating> ratings = new ArrayList<>();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            Rating rating = child.getValue(Rating.class);
+                            if (rating != null) {
+                                ratings.add(rating);
+                            }
+                        }
+                        listener.onGetRatings(ratings);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        listener.onGetRatings(new ArrayList<>());
+                    }
+                });
     }
 
     /**
@@ -624,6 +646,7 @@ public class FirebaseManager {
     public interface RatingValueEventListener {
         void onGetRatings(ArrayList<Rating> ratings);
     }
+
     /**
      * Submits a rating from a receiver to a provider.
      *
@@ -631,9 +654,25 @@ public class FirebaseManager {
      * @param ratingValue the rating value (1-5)
      * @param comment optional comment left by the receiver
      * @return a Task that completes when the rating has been saved
+     * @throws FirebaseConnectionError when no Auth user is signed in
      */
-    public Task<Void> submitRating(String providerId, int ratingValue, String comment) {
-        throw new UnsupportedOperationException();
+    public Task<Void> submitRating(String providerId, int ratingValue, String comment)
+            throws FirebaseConnectionError {
+        FirebaseUser firebaseUser = getCurrentUser();
+        if (firebaseUser == null) {
+            throw new FirebaseConnectionError();
+        }
+
+        DatabaseReference ratingsRef = getDb().getReference(RATINGS_PATH).push();
+
+        Rating rating = new Rating(
+                firebaseUser.getUid(),
+                providerId,
+                ratingValue,
+                comment
+        );
+
+        return ratingsRef.setValue(rating);
     }
 
     /**
