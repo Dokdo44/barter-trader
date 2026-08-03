@@ -34,7 +34,9 @@ public class PreferredProductNotificationManager {
             @Override
             public void onCategoriesLoaded(List<String> categories) {
                 preferredCategories = categories;
-                registerProductListener();
+                if (!preferredCategories.isEmpty()) {
+                    registerProductListener();
+                }
             }
 
             @Override
