@@ -8,6 +8,7 @@ public class Transaction {
     private String productDescription;
     private String productAddress;
 
+    private String sellerId;
     private String sellerName;
     private String buyerName;
     private String buyerLocation;
@@ -22,11 +23,12 @@ public class Transaction {
 
     public Transaction(
             String productName, String productDescription, String productAddress,
-            String sellerName, String buyerName, String buyerLocation,
+            String sellerId, String sellerName, String buyerName, String buyerLocation,
             List<String> offeredItems, String status, long timestamp) {
         this.productName = productName;
         this.productDescription = productDescription;
         this.productAddress = productAddress;
+        this.sellerId = sellerId;
         this.sellerName = sellerName;
         this.buyerName = buyerName;
         this.buyerLocation = buyerLocation;
@@ -45,6 +47,10 @@ public class Transaction {
 
     public String getProductAddress() {
         return productAddress;
+    }
+
+    public String getSellerId() {
+        return sellerId;
     }
 
     public String getSellerName() {
