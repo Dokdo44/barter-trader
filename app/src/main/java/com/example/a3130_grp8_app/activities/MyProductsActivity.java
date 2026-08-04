@@ -1,6 +1,8 @@
 package com.example.a3130_grp8_app.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -25,12 +27,12 @@ public class MyProductsActivity extends AppCompatActivity {
     private MyProductsAdapter myProductsAdapter;
 
     private final FirebaseManager.ProductValueEventListener productValueEventListener =
-    new FirebaseManager.ProductValueEventListener() {
-        @Override
-        public void onGetProducts(List<Product> products) {
-            myProductsAdapter.resetData(products);
-        }
-    };
+            new FirebaseManager.ProductValueEventListener() {
+                @Override
+                public void onGetProducts(List<Product> products) {
+                    myProductsAdapter.resetData(products);
+                }
+            };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,14 @@ public class MyProductsActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
 
         FirebaseAuth auth = FirebaseManager.getInstance().getAuth();
+
+        Button viewMyRatingsButton = findViewById(R.id.viewMyRatingsButton);
+        viewMyRatingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, UserRatingActivity.class);
+            intent.putExtra("PROVIDER_ID", auth.getUid());
+            startActivity(intent);
+        });
+
         FirebaseManager.getInstance().getProductsByUserId(auth.getUid(),
                 productValueEventListener);
     }
