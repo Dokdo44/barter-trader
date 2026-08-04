@@ -6,16 +6,50 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/averageRatingText"
+        android:id="@+id/backButtonUserRating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:text="0" />
+        android:padding="8dp"
+        android:text="←"
+        android:textColor="@color/md_on_surface"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless" />
 
-    <LinearLayout
-        android:id="@+id/ratingsContainer"
+    <TextView
+        android:id="@+id/averageRatingText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:textSize="56sp"
+        android:textStyle="bold"
+        android:textColor="@color/md_on_surface"
+        android:text="0" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:textColor="@color/md_outline"
+        android:text="Average Rating" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/ratingsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
 
 </LinearLayout>
