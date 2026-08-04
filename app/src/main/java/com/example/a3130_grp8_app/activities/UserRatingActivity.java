@@ -1,6 +1,7 @@
 package com.example.a3130_grp8_app.activities;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,6 +27,9 @@ public class UserRatingActivity extends AppCompatActivity {
         ratingsContainer = findViewById(R.id.ratingsContainer);
         FirebaseManager firebaseManager = FirebaseManager.getInstance();
 
+        TextView backButton = findViewById(R.id.backButtonUserRating);
+        backButton.setOnClickListener(v -> finish());
+
         String providerId = getIntent().getStringExtra("PROVIDER_ID");
 
         firebaseManager.getRatings(providerId, ratings -> {
@@ -37,15 +41,15 @@ public class UserRatingActivity extends AppCompatActivity {
         if (ratings == null || ratings.isEmpty()) {
             TextView noRatingsText = new TextView(this);
             noRatingsText.setText("No ratings yet");
+            noRatingsText.setTextSize(16f);
+            noRatingsText.setGravity(Gravity.CENTER);
             ratingsContainer.addView(noRatingsText);
             return;
         }
 
         // Display all ratings
         for (Rating rating : ratings) {
-            TextView ratingView = new TextView(this);
-            ratingView.setText(rating.getComment());
-            ratingsContainer.addView(ratingView);
+            ratingsContainer.addView(createRatingView(rating));
         }
 
         // Calculate and display average rating
@@ -55,5 +59,21 @@ public class UserRatingActivity extends AppCompatActivity {
                 .orElse(0);
 
         averageRatingText.setText(String.valueOf(average));
+    }
+
+    private TextView createRatingView(Rating rating) {
+        TextView ratingView = new TextView(this);
+        ratingView.setText(rating.getComment());
+        ratingView.setTextSize(16f);
+        ratingView.setPadding(32, 32, 32, 32);
+        ratingView.setBackgroundResource(R.drawable.list_item_border);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, 0, 16);
+        ratingView.setLayoutParams(params);
+
+        return ratingView;
     }
 }
