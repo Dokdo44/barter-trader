@@ -1,93 +1,125 @@
-# CSCI3130_S26_G08
+# Online Barter Trader
 
+An Android marketplace for exchanging goods without money — list an item, browse what
+others have posted, request a trade, chat, and rate the exchange afterward.
 
+Built by **seven developers over nine weeks** for CSCI 3130 (Intro to Software Engineering)
+at Dalhousie University, Summer 2026. Three iterations, ~12,800 lines of Java and XML,
+371 commits. Published with the team's agreement.
 
-## Getting started
+**Stack** — Java · Android · Firebase (Realtime Database, Auth) · Google Maps · Gradle
+**Testing** — JUnit · Espresso · Mockito · GitLab CI
+**Process** — Agile/XP, TDD, pair programming, merge requests with peer review
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+---
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Who wrote what
 
-## Add your files
+This is a team repository. Of the 371 commits, **58 are mine** (Ka Won Jung / KaWon Jung in
+`git shortlog`). My scope was 5 user stories and 2 additional issues — 35 story points.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### Owned end to end
 
-```
-cd existing_repo
-git remote add origin https://git.cs.dal.ca/samir/csci3130_s26_g08.git
-git branch -M main
-git push -uf origin main
-```
+**US18 — Rating system** (`#67`, `#86`) · demoed for Iteration 3
+- `Rating` model, `UserRatingActivity`, rating dialog and layouts
+- `FirebaseManager.getRatings()` with a custom `RatingValueEventListener` interface,
+  and `submitRating()`
+- Average-rating calculation joining two Firebase nodes (`ratings` + `transactions`),
+  keeping the running average correct
+- Full app integration: "Rate this Exchange" on `transaction_item.xml`, a 1–5 selector
+  dialog, `TransactionAdapter.showRatingDialog()` / `submitRating()`, a `sellerId` field
+  on `Transaction`, and a "My Ratings" entry point in `MyProductsActivity`
 
-## Integrate with your tools
+**US7 — View product requests** (`#31`)
+- `ViewRequestsActivity`, `Request` model (9 fields), `activity_view_requests.xml`
+- `FirebaseManager.submitRequest()` / `updateRequestStatus()`
+- Requester-details dialog with Accept/Decline controls, added after client feedback
+- Merged via MR `#21`
 
-* [Set up project integrations](https://git.cs.dal.ca/samir/csci3130_s26_g08/-/settings/integrations)
+### Acceptance tests written before the implementation existed
 
-## Collaborate with your team
+**US15 — Chat** (`#64`) — 3 Espresso tests written before any implementation, which forced
+the interface contract up front: a `Chat` object as the `CHAT` intent extra,
+`MessageSender.sendMessage()` returning a `Task` so the failure path was observable, and
+fixed view IDs. Later added 2 notification tests.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+**US6 — Request product** (`#30`) — acceptance tests.
 
-## Test and Deploy
+**Password reset** (`#6`, `#7`) — test implementation and debugging, plus Firebase setup.
 
-Use the built-in continuous integration in GitLab.
+All **20 acceptance tests** across these stories pass. I also repaired 3 failing tests that
+were blocking the shared `develop` branch, and diagnosed one CI failure as a Gradle plugin
+resolution problem (`foojay-resolver-convention`) rather than a code defect.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+---
 
-***
+## Design patterns used
 
-# Editing this README
+Applied across the codebase by the team, documented in the iteration reports:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+| Pattern | Where |
+|---|---|
+| Singleton | `FirebaseManager`, with a test-installable stub |
+| Observer | `IChatObserver` / `IMessageObserver`, `MessageNotifier`, `ChatNotifier` |
+| Facade | `ChatAdapterChatObserver` wrapping the RecyclerView adapter, `ChatStorage`, `ChatNotifier` |
+| Adapter | `ProductSearchResultAdapter`, `TransactionAdapter` |
 
-## Suggestions for a good README
+SOLID principles (SRP, OCP, ISP) applied and documented. Javadoc on all public and
+protected methods. Static-analysis violations reduced from 16 to 4 in the final iteration.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+---
 
-## Name
-Choose a self-explaining name for your project.
+## Testing notes
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+The interesting problems were in making the code testable at all:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+**Mocking a static singleton.** `FirebaseManager` exposed only `getInstance()`, so no test
+could substitute a fake. We added an `installedFirebaseManager` field that lets a test
+install a stub onto the live instance, after which every `getInstance()` returns it —
+dependency injection without abandoning the singleton. This is what made US6, US15 and
+US18 testable.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+**Async callbacks firing after assertions.** `ValueEventListener` callbacks arrived after
+the test had already finished asserting. Writing a dedicated `RatingValueEventListener`
+let the test drive the callback directly instead of waiting on the network.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**Cross-test state pollution.** Calling `FirebaseManager.install()` directly leaked state
+between tests; replaced with a `FirebaseManagerTestInstaller` plus a teardown reset.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+**The Firebase emulator never stabilized**, so tests were running against the production
+database and leaking state between runs. We stopped touching Firebase in unit tests
+entirely and mocked it instead.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+---
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Running it
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+`app/google-services.json` is **not** in this repository — it holds the Firebase project
+configuration and API key for the original course project. To run the app you need your
+own Firebase project:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Add an Android app with package name `com.example.a3130_grp8_app`
+3. Enable **Authentication** (Email/Password) and **Realtime Database**
+4. Download `google-services.json` into `app/`
+5. Build: `./gradlew assembleDebug`
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+`app/google-services.json.example` shows the expected shape.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Tests: `./gradlew test` (unit) and `./gradlew connectedAndroidTest` (instrumented, needs a
+device or emulator).
 
-## License
-For open source projects, say how it is licensed.
+---
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Results
+
+Final course grade **A**. Demo presentation 100%. Iteration scores 92% → 95% → **96.9%**.
+Peer evaluation 5/5 across all six categories, with contribution essentially equal across
+the team.
+
+Iteration 2 was our weakest: deadlines were set only for implementation, so merge requests
+piled into the final days, and an infrastructure effort ran for weeks without being
+re-planned. The retrospective produced three changes — separate deadlines for tests and for
+implementation, deadlines agreed by each owner rather than assigned, and an explicit rule
+that missing one meant no further work assignment. Iteration 3 was the team's best, with
+time left over for UI and code quality.

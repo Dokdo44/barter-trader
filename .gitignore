@@ -16,3 +16,7 @@ local.properties
 firebase-debug.log
 .idea/deploymentTargetSelector.xml
 .gitlab-ci-local/*
+# Firebase config — never commit; see app/google-services.json.example
+app/google-services.json
+database-debug.log
+firebase-debug.log
